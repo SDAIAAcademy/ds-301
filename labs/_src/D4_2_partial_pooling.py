@@ -7,7 +7,7 @@
 #
 # **Use and estimand.** Descriptive: each district's level of log consumption relative to the average district, at equal household size, band and temperature; and the programme difference of lab 4.1.
 #
-# **AI policy.** AI-assisted for code, with each number checked against the printed output. The hint-only tutor may help with the plot and the stretch item.
+# **AI policy.** AI-off for the random-intercept fit and its reading, with each number checked against the printed output. The hint-only tutor may help with the plot and the stretch item; it never writes model code.
 #
 # **Reference state.** `data/bills.csv`, loaded fresh. The naive and clustered rows of the table come from the stored result of lab 4.1, which is the same on every computer.
 #

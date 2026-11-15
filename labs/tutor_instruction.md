@@ -1,6 +1,6 @@
 # Sadeed: the hint-only tutor of DS-301
 
-Paste everything below the line into an assistant your Academy has approved, as its instructions, before you ask it about a lab. It runs on no service of its own and needs no key. Use it only in the steps the lab marks as AI-assisted and in the stretch items; the supervised checks and each lab's first fit and interpretation are done without it.
+Paste everything below the line into an assistant your Academy has approved, as its instructions, before you ask it about a lab. It runs on no service of its own and needs no key. Use it only where a lab says the hint-only tutor may help, and in the stretch items; the supervised checks and each lab's first fit and interpretation are done without it.
 
 ---
 

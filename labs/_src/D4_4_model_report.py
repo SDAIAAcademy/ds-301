@@ -139,7 +139,7 @@ def write_limits():
     # BEGIN SOLUTION
     return ("The programme figure is a comparison of districts that chose to join, not the saving from joining. "
               "Intervals cover sampling and district variation in 2026, not a change in tariffs or habits. "
-              "Temperatures above 44 °C are outside the data, and a new district, like D30, has no history of its own.")
+              "Temperatures above 43 °C are outside the data, and a new district, like D30, has no history of its own.")
     # END SOLUTION
 
 # %%
