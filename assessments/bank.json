@@ -919,6 +919,123 @@
       "pool": "practice",
       "weight": 1,
       "timer": 75
+    },
+    {
+      "id": "q-capstone-01",
+      "type": "single",
+      "prompt": "In a capstone defence the assessor removes the household-size-by-band interaction from a log-consumption model. Before re-running, what should you predict for the average effect of an extra person?",
+      "options": [
+        "Every band gets the same percentage effect, so the villa effect in m³ shrinks and the social effect grows towards the average",
+        "Nothing changes, since an interaction only affects the standard errors",
+        "All effects become zero, because the interaction carried the size effect",
+        "The model can no longer be fitted"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "Without the interaction one slope on the log scale is shared by every band; the per-band effects in m³ move towards each other, though villas still gain more m³ because they start higher.",
+      "misconceptions": [
+        "",
+        "Thinks interactions change uncertainty but not estimates",
+        "Confuses removing an interaction with removing the main effect",
+        "Thinks a simpler model cannot be estimated"
+      ],
+      "lo": [
+        "LO6"
+      ],
+      "day": "capstone",
+      "session": 1,
+      "level": "evaluate",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-capstone-02",
+      "type": "single",
+      "prompt": "For brief C1, complaints per district-month, a participant fits a Poisson model without an offset. Customers per district range from 40 to 9,000. What does the assessor expect them to fix first?",
+      "options": [
+        "Add log(customers) as an offset so the model describes complaints per customer",
+        "Switch to a linear model of complaints",
+        "Drop the smallest districts",
+        "Use HC3 standard errors"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "Without an exposure, large districts have more complaints simply because they have more customers; the offset turns the model into one for the rate.",
+      "misconceptions": [
+        "",
+        "Abandons the count family instead of adding the exposure",
+        "Removes data instead of modelling exposure",
+        "Fixes the standard errors of a model whose estimates are wrong"
+      ],
+      "lo": [
+        "LO6",
+        "LO2"
+      ],
+      "day": "capstone",
+      "session": 1,
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-capstone-03",
+      "type": "single",
+      "prompt": "For brief C2, where the channel of the offer was chosen at random, which statement can the report make?",
+      "options": [
+        "Text messages are associated with uptake, but nothing causal can be said from data",
+        "Sending a text message instead of a letter changed the share taking the kit by the estimated difference, with its interval",
+        "Text messages work better for every household",
+        "The difference is causal only if the model includes every household characteristic"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Random assignment makes the groups comparable, so the difference between channels estimates the effect of the channel for these households.",
+      "misconceptions": [
+        "Applies the caution of observational data to a randomised comparison",
+        "",
+        "Turns an average effect into a claim about every household",
+        "Thinks adjustment, not randomisation, is what licenses a causal claim"
+      ],
+      "lo": [
+        "LO6"
+      ],
+      "day": "capstone",
+      "session": 1,
+      "level": "evaluate",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-capstone-04",
+      "type": "tf",
+      "prompt": "A capstone repository whose notebook gives the README's numbers only on the participant's own laptop meets the reproducibility criterion.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Reproducibility means a fresh clone reruns from the raw data with a fixed seed to the same numbers.",
+      "misconceptions": [
+        "Equates running once with being reproducible",
+        ""
+      ],
+      "lo": [
+        "LO6"
+      ],
+      "day": "capstone",
+      "session": 1,
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
     }
   ]
 }

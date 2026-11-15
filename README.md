@@ -109,6 +109,36 @@ Each line is a capability; the examples are interchangeable.
 
 ### National references
 
-- Personal Data Protection Law: https://sdaia.gov.sa/en/SDAIA/about/Documents/PersonalDataProtectionLaw.pdf, and its Implementing Regulation: https://sdaia.gov.sa/en/SDAIA/about/Documents/ImplementingRegulationPersonalDataProtectionLaw.pdf
-- General Rules for Secondary Use of Data: https://sdaia.gov.sa/Documents/GeneralRulesForSecondaryUseOfData_EN.pdf
-- SDAIA AI Ethics Principles: https://sdaia.gov.sa/en/SDAIA/about/Documents/ai-principles.pdf
+- [Personal Data Protection Law (SDAIA)](https://sdaia.gov.sa/en/SDAIA/about/Documents/PersonalDataProtectionLaw.pdf)
+- [Implementing Regulation of the Personal Data Protection Law (SDAIA)](https://sdaia.gov.sa/en/SDAIA/about/Documents/ImplementingRegulationPersonalDataProtectionLaw.pdf)
+- [General Rules for Secondary Use of Data (SDAIA)](https://sdaia.gov.sa/Documents/GeneralRulesForSecondaryUseOfData_EN.pdf)
+- [AI Ethics Principles (SDAIA)](https://sdaia.gov.sa/en/SDAIA/about/Documents/ai-principles.pdf)
+
+### Methods
+
+- [Gelman, Hill and Vehtari, Regression and Other Stories: examples and code](https://avehtari.github.io/ROS-Examples/)
+
+### Library documentation
+
+- [statsmodels: generalized linear models](https://www.statsmodels.org/stable/glm.html)
+- [statsmodels: NegativeBinomial](https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.NegativeBinomial.html)
+- [statsmodels: linear mixed effects models](https://www.statsmodels.org/stable/mixed_linear.html)
+- [statsmodels: robust and cluster-robust covariance (get_robustcov_results)](https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.get_robustcov_results.html)
+- [statsmodels: OLSInfluence (leverage, Cook's distance, DFBETA)](https://www.statsmodels.org/stable/generated/statsmodels.stats.outliers_influence.OLSInfluence.html)
+- [patsy: spline regression](https://patsy.readthedocs.io/en/latest/spline-regression.html)
+- [scikit-learn: linear models (ridge, lasso)](https://scikit-learn.org/stable/modules/linear_model.html)
+- [scikit-learn: LassoCV](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoCV.html)
+- [scikit-learn: lasso_path](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.lasso_path.html)
+- [marginaleffects (R and Python)](https://marginaleffects.com/)
+- [marginaleffects on PyPI](https://pypi.org/project/marginaleffects/)
+- [lme4 on CRAN](https://cran.r-project.org/package=lme4)
+- [glmnet on CRAN](https://cran.r-project.org/package=glmnet)
+
+### Tools
+
+- [Project Jupyter](https://jupyter.org/)
+- [marimo](https://marimo.io/)
+- [Quarto](https://quarto.org/)
+- [Google Colab](https://colab.research.google.com/)
+- [Saudi Open Data Platform](https://open.data.gov.sa/)
+<!-- /academy:sources -->
