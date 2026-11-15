@@ -1,0 +1,18 @@
+{
+ "entry": {
+  "evidence": "late_v1: binned residuals against bill_sar had 7 of 20 bins outside the 2-SE band, negative for small bills and positive in the middle",
+  "fix": "use np.log(bill_sar): 0 bins outside, AIC from 35947 to 35798",
+  "problem": "missing non-linear term"
+ },
+ "outside_v1": {
+  "bill_sar": 7,
+  "household_size": 0,
+  "prior_late_12m": 1
+ },
+ "repair": {
+  "aic_after": 35797.723694608634,
+  "aic_before": 35947.06506358662,
+  "outside_after": 0,
+  "outside_before": 7
+ }
+}

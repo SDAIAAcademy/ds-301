@@ -287,6 +287,22 @@ CLAIMS_KEY = [
 ]
 
 
+# ------------------------------------------------------------------ the previous analyst's models (Day 3)
+
+QUSAI_MODELS = {
+    "late_v1": {"what": "monthly late-payment forecast for the collections desk", "family": "binomial (logistic)",
+                "formula": "late ~ bill_sar + autopay + tariff_band + prior_late_12m + household_size", "data": "bills.csv"},
+    "late_v2": {"what": "the 'improved' late-payment model, reported as fitting almost perfectly", "family": "binomial (logistic)",
+                "formula": "late ~ np.log(bill_sar) + autopay + tariff_band + prior_late_12m + household_size + notice_sent", "data": "bills.csv"},
+    "district_leaks": {"what": "district leak rates against main age and pressure", "family": "normal (least squares)",
+                       "formula": "leaks_per_100km ~ mean_age_years + mean_pressure_bar", "data": "qusai/district_leaks.csv"},
+    "leaks": {"what": "leaks per segment for the renewal plan", "family": "Poisson, offset log(km_years)",
+              "formula": "leaks ~ material + age_years + pressure_bar", "data": "segments.csv and leaks.csv"},
+    "consumption": {"what": "monthly consumption in cubic metres for the supply plan", "family": "normal (least squares), classical standard errors",
+                    "formula": "consumption_m3 ~ household_size + tariff_band + bs(temperature_c, df=5)", "data": "bills.csv"},
+}
+
+
 # ------------------------------------------------------------------ capstone datasets
 
 def make_capstone(rng: np.random.Generator, dist: pd.DataFrame) -> list[dict]:
@@ -373,6 +389,7 @@ def main() -> None:
     write_json({"flagged": ["member_chronic_condition", "nationality_group", "monthly_income_band", "employer_sector",
                             "phone_brand", "head_marital_status"],
                 "purpose": "planning next summer's supply, from data collected for billing"}, DATA / "candidates_key.json")
+    write_json(QUSAI_MODELS, DATA / "qusai" / "models.json")
     write_json(TRUTH, LABS / "solutions" / "truth.json")
     print(f"bills {len(bills)}, late rate {bills['late'].mean():.3f}; segments {len(seg)}, weekly rows {len(leaks)}, "
           f"leaks {leaks['leaks'].sum()}; candidates {cand.shape}")

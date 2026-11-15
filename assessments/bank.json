@@ -429,6 +429,220 @@
       "pool": "practice",
       "weight": 1,
       "timer": 75
+    },
+    {
+      "id": "q-binned-01",
+      "type": "single",
+      "prompt": "You plot the raw residuals of a logistic model of late payment against the bill and see two curved bands. What does this tell you about the model?",
+      "options": [
+        "The model needs a quadratic term in the bill",
+        "Nothing yet: raw residuals of a yes-or-no outcome always form two bands, so bin and average them first",
+        "The model is overdispersed",
+        "The bill should be removed from the model"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Each residual is either 1 - p or -p, so two bands appear for any model; only averages of residuals within bins carry information about the fit.",
+      "misconceptions": [
+        "Reads the shape forced by a binary outcome as a missing curve",
+        "",
+        "Borrows a count-model diagnosis for a binary outcome",
+        "Treats a plotting artefact as evidence against a predictor"
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 1,
+      "slide": "raw-residuals",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-binned-02",
+      "type": "single",
+      "prompt": "Binned residuals of a logistic model by fitted probability show 1 of 20 bins outside the band. Against tenure in months, 6 of 20 bins sit outside, all negative for the shortest tenures. What do you conclude?",
+      "options": [
+        "The model fits, since the plot by fitted probability is the standard check",
+        "The model is fine, since 6 of 20 is within what chance gives",
+        "Tenure's effect is not straight on the log odds scale; try a curved term for it and check again",
+        "Remove tenure because its residuals are biased"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "Binning by fitted probability mixes all predictors and can average away a misfit in one; 6 of 20 outside against tenure, with a pattern, points to the form of tenure.",
+      "misconceptions": [
+        "Trusts the plot that mixes predictors over the one that isolates the problem",
+        "Expects many bins outside by chance, when about one in 20 is typical",
+        "",
+        "Drops a predictor instead of fixing its form"
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 1,
+      "slide": "per-predictor",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-influence-01",
+      "type": "single",
+      "prompt": "In a regression on 30 districts, district A has leverage 0.70 and a small residual; district B has leverage 0.08 and a residual five times larger than any other. Which statement is right?",
+      "options": [
+        "A is unusual in its predictors, B in its outcome; either can move the fit, which Cook's distance measures",
+        "Only B can be influential, because influence comes from residuals",
+        "Only A can be influential, because influence comes from leverage",
+        "Both should be deleted before refitting"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "Leverage measures how far a unit's predictors are from the rest; influence, as in Cook's distance, combines leverage with the size of the residual.",
+      "misconceptions": [
+        "",
+        "Ignores the role of leverage in influence",
+        "Ignores the role of the residual in influence",
+        "Treats flags as rules for deletion"
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 2,
+      "slide": "leverage-cooks",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-influence-02",
+      "type": "single",
+      "prompt": "Two districts with very high Cook's distance turn out to have their main lengths keyed in tens of kilometres. A third influential district is a real new development. What is the right repair?",
+      "options": [
+        "Delete all three and report the fit on 27 districts",
+        "Keep all three as they are, since deleting data is never allowed",
+        "Correct the two lengths from the source table, keep the new district, and report the fit with and without it",
+        "Replace the outcome with its logarithm so that none is influential"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "Errors are corrected from the source; real units stay, and when a conclusion leans on one of them the reader sees both fits.",
+      "misconceptions": [
+        "Removes a real unit together with errors it should have corrected",
+        "Leaves known errors in the data",
+        "",
+        "Expects a transformation to remove an influence that comes from wrong data and unusual predictors"
+      ],
+      "lo": [
+        "LO3",
+        "LO6"
+      ],
+      "day": "day3",
+      "session": 2,
+      "slide": "dont-just-drop",
+      "level": "evaluate",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-ppc-01",
+      "type": "single",
+      "prompt": "You simulate 1,000 replicate years from a Poisson model of leaks per segment and compare them with the observed year. Which comparison can reveal a problem with the model?",
+      "options": [
+        "The total number of leaks",
+        "The mean of the fitted rates",
+        "The share of segments with no leak",
+        "The coefficient of pipe age"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "A Poisson model with an intercept reproduces the total by construction; the share of zeros depends on the variation between segments, which the model may get wrong.",
+      "misconceptions": [
+        "Uses a statistic the model matches by construction",
+        "Compares the model with itself rather than with the data",
+        "",
+        "Uses a fitted parameter, which replicates do not test"
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 3,
+      "slide": "choose-statistic",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-separation-01",
+      "type": "single",
+      "prompt": "A logistic model gives a flag a coefficient of 25 with a standard error of 5,000. A cross-table shows that every row with the flag has the outcome. The flag is recorded before the outcome and is legitimate. What do you do?",
+      "options": [
+        "Report an odds ratio of exp(25)",
+        "Use a penalised fit, such as Firth's method or a small ridge penalty, and say so",
+        "Use HC3 standard errors",
+        "Remove the rows with the flag"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "The coefficient runs away because of separation; for a legitimate predictor a penalty gives a finite, honest estimate. A flag created by the outcome would instead be removed.",
+      "misconceptions": [
+        "Reports a runaway estimate as a finding",
+        "",
+        "Uses robust errors for a problem of the estimate itself",
+        "Throws away the rows that carry the information"
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 4,
+      "slide": "separation-table",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-hc-01",
+      "type": "tf",
+      "prompt": "Switching a linear model from classical to HC3 standard errors changes its coefficients as well as their standard errors.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Robust errors change only the estimated uncertainty; the least-squares estimates stay the same.",
+      "misconceptions": [
+        "Thinks a robust variance estimate refits the model",
+        ""
+      ],
+      "lo": [
+        "LO3"
+      ],
+      "day": "day3",
+      "session": 4,
+      "slide": "hc3",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
     }
   ]
 }

@@ -242,7 +242,10 @@ def predict_band(fit, newdata: pd.DataFrame, scale: str, n: int | None = None, o
 def binned_residuals(y, p, x, bins: int = 20) -> pd.DataFrame:
     """Gelman and Hill's binned residuals: mean of (observed minus predicted) in bins of x, with a 2-SE band."""
     d = pd.DataFrame({"r": np.asarray(y) - np.asarray(p), "p": np.asarray(p), "x": np.asarray(x)})
-    d["bin"] = pd.qcut(d["x"], bins, duplicates="drop")
+    if d["x"].nunique() <= bins:  # a predictor with few values: one bin per value
+        d["bin"] = d["x"]
+    else:
+        d["bin"] = pd.qcut(d["x"].rank(method="first"), bins, labels=False)
     g = d.groupby("bin", observed=True)
     out = pd.DataFrame({"x_mean": g["x"].mean(), "resid_mean": g["r"].mean(), "n": g.size()})
     pbar = g["p"].mean()
@@ -278,6 +281,29 @@ def log_entry(kind: str, evidence: str, fix: str) -> dict:
     """One line of the diagnosis log: the problem, the evidence that shows it, and the correction."""
     assert kind in LOG_KINDS, f"kind is one of {LOG_KINDS}"
     return {"problem": kind, "evidence": evidence, "fix": fix}
+
+
+ARTIFACTS = LABS / "artifacts"
+
+
+def log_save(lab: str, entry: dict) -> None:
+    """Add (or replace) this lab's line in artifacts/diagnosis_log.json, the log lab 3.4 assembles."""
+    ARTIFACTS.mkdir(exist_ok=True)
+    path = ARTIFACTS / "diagnosis_log.json"
+    log = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    log[lab] = entry
+    path.write_text(json.dumps(log, ensure_ascii=False, indent=1) + "\n", encoding="utf-8", newline="\n")
+
+
+def log_read() -> dict:
+    """The diagnosis log written so far on this computer (empty when no Day 3 lab has run here)."""
+    path = ARTIFACTS / "diagnosis_log.json"
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def qusai_models() -> dict:
+    """The four models Qusai Al-Mufarrij left, as he specified them."""
+    return js("qusai/models.json")
 
 
 def text_check(text: str, numbers: dict, words: list[str], max_words: int | None = None) -> bool:

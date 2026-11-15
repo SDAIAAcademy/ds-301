@@ -1,0 +1,89 @@
+{
+ "entries": [
+  {
+   "evidence": "late_v2: notice_sent has coefficient 27 with standard error 6675; all 2622 bills with a notice were late",
+   "fix": "remove notice_sent: it is sent after a bill is 30 days late, a consequence of the outcome; every standard error is then ordinary",
+   "problem": "separation"
+  },
+  {
+   "evidence": "consumption: residual spread 3.9 times larger in the top decile of fitted m³ than in the bottom one",
+   "fix": "HC3 standard errors (up to 1.40 times the classical ones), or model log consumption and read effects in m³ as on Day 1",
+   "problem": "non-constant variance"
+  }
+ ],
+ "funnel": 3.9055078703307786,
+ "log": [
+  {
+   "evidence": "late_v1: binned residuals against bill_sar had 7 of 20 bins outside the 2-SE band, negative for small bills and positive in the middle",
+   "fix": "use np.log(bill_sar): 0 bins outside, AIC from 35947 to 35798",
+   "problem": "missing non-linear term",
+   "source": "your lab 3.1"
+  },
+  {
+   "evidence": "district_leaks: Cook's distance flags D21, D30, D08; without them the age coefficient turns from -4.5 to 2.8",
+   "fix": "D08 and D21 had kilometres keyed a tenth too small: recomputed from the segment table. D30, a new high-pressure district, is real: kept and reported with and without (age 5.3 and 2.7)",
+   "problem": "influential districts",
+   "source": "your lab 3.2"
+  },
+  {
+   "evidence": "leaks: 36.4% of segments had no leak; in 200 Poisson replicate years the share ran from 24.3% to 31.0% (Pearson dispersion about 2.3 in lab 2.4)",
+   "fix": "negative binomial with the same offset (alpha 0.60): its replicates put the observed share inside their range (tail share 0.45)",
+   "problem": "overdispersion",
+   "source": "your lab 3.3"
+  },
+  {
+   "evidence": "late_v2: notice_sent has coefficient 27 with standard error 6675; all 2622 bills with a notice were late",
+   "fix": "remove notice_sent: it is sent after a bill is 30 days late, a consequence of the outcome; every standard error is then ordinary",
+   "problem": "separation",
+   "source": "this lab"
+  },
+  {
+   "evidence": "consumption: residual spread 3.9 times larger in the top decile of fitted m³ than in the bottom one",
+   "fix": "HC3 standard errors (up to 1.40 times the classical ones), or model log consumption and read effects in m³ as on Day 1",
+   "problem": "non-constant variance",
+   "source": "this lab"
+  }
+ ],
+ "se_table": {
+  "__frame__": {
+   "columns": [
+    "estimate",
+    "se_classical",
+    "se_hc3",
+    "ratio"
+   ],
+   "data": [
+    [
+     2.6287625361,
+     0.025601959,
+     0.0334395481,
+     1.3061323972
+    ],
+    [
+     -5.7544356082,
+     0.1221326273,
+     0.1034401802,
+     0.8469496024
+    ],
+    [
+     16.0605862206,
+     0.1335917102,
+     0.1873985535,
+     1.4027708242
+    ]
+   ],
+   "index": [
+    "household_size",
+    "tariff_band[T.social]",
+    "tariff_band[T.villa]"
+   ]
+  }
+ },
+ "separation": {
+  "coef": 27.220323480430704,
+  "se": 6675.308529234833
+ },
+ "suspicious": [
+  "notice_sent"
+ ]
+}
