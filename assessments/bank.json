@@ -944,7 +944,6 @@
         "LO6"
       ],
       "day": "capstone",
-      "session": 1,
       "level": "evaluate",
       "pool": "practice",
       "weight": 1,
@@ -975,7 +974,6 @@
         "LO2"
       ],
       "day": "capstone",
-      "session": 1,
       "level": "analyze",
       "pool": "practice",
       "weight": 1,
@@ -1005,7 +1003,6 @@
         "LO6"
       ],
       "day": "capstone",
-      "session": 1,
       "level": "evaluate",
       "pool": "practice",
       "weight": 1,
@@ -1031,7 +1028,6 @@
         "LO6"
       ],
       "day": "capstone",
-      "session": 1,
       "level": "understand",
       "pool": "practice",
       "weight": 1,
