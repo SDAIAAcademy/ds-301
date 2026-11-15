@@ -1,0 +1,51 @@
+{
+ "explain": "The naive standard error of the programme, 0.0032, treats 40,000 bills as independent pieces of evidence, but the programme is set per district, and households in one district share more than the model knows. Counting districts rather than bills, the clustered standard error is 0.0435, so the difference could be anywhere from a clear saving to none.",
+ "levels": {
+  "household_size": "household",
+  "pressure_managed": "district",
+  "tariff_band": "household",
+  "temperature_c": "household"
+ },
+ "ratios": {
+  "__frame__": {
+   "columns": [
+    "estimate",
+    "naive_se",
+    "cluster_se",
+    "ratio"
+   ],
+   "data": [
+    [
+     -0.0806767305,
+     0.0031707422,
+     0.0434987983,
+     13.7188061834
+    ],
+    [
+     0.0953297229,
+     0.0011433069,
+     0.0010741009,
+     0.939468544
+    ],
+    [
+     -0.1109248043,
+     0.0101528474,
+     0.0109101914,
+     1.0745942455
+    ],
+    [
+     0.3962805233,
+     0.0112381186,
+     0.0108104004,
+     0.9619404097
+    ]
+   ],
+   "index": [
+    "pressure_managed",
+    "household_size",
+    "tariff_band[T.social]",
+    "tariff_band[T.villa]"
+   ]
+  }
+ }
+}

@@ -1,158 +1,666 @@
 <section class="slide title" id="title" data-auto="title">
-  <aside class="notes">REPLACE: welcome; introduce yourself; one question to the room that calibrates the pace; the rhythm of the day</aside>
+  <aside class="notes"><p>Day 4 brings two problems real data always have: rows that are not independent, and more candidate predictors than anyone can reason about one by one. It ends with the skill the capstone is judged on: a model report a planner can read. By the end of lab 4.4 every participant has chosen a capstone brief.</p></aside>
 </section>
 
-<section class="slide" id="agenda" data-auto="agenda"></section>
+<section class="slide" id="agenda" data-auto="agenda">
+  <aside class="notes"><p>Sessions 1 and 2 give the evidence of LO4: the three-way table of naive, clustered and mixed estimates with an explanation. Session 3 gives LO5: the minimisation step, the tuned penalties and the stability count. Session 4 is practice for LO6, the capstone.</p></aside>
+</section>
+
+<section class="slide" id="review-day3" data-lo="LO3" data-label="Review">
+  <div class="kicker">Review of Day 3</div>
+  <h2>Which line belongs in a diagnosis log?</h2>
+  <div class="quiz" data-type="single" data-lo="LO3">
+    <p class="lead">A colleague's logistic model of meter faults is ready for review. Which entry would an assessor accept?</p>
+    <div class="opts">
+      <div class="opt" data-why="Names a feeling, not evidence; nobody can check it">The residuals looked a bit off, so I added a log term</div>
+      <div class="opt" data-why="Treats convergence as a check of the model">No problems: the model converged without warnings</div>
+      <div class="opt" data-ok>Missing curve: 6 of 20 binned residuals against meter age outside the 2-SE band; with a spline in age, 1 of 20</div>
+      <div class="opt" data-why="Uses a fit statistic alone, which says nothing about where the model fails">AIC fell by 40, so the model is right</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> A log line names the problem, the evidence with its number, and the fix with the evidence that it worked.</div>
+  </div>
+  <aside class="notes"><p>Answer: C. Remind the room that the diagnostics criterion carries 30% of the capstone rubric.</p></aside>
+</section>
 
 <!-- Session 1 -->
 
 <section class="slide section" id="s1" data-auto="section" data-session="1"></section>
 
-<section class="slide" id="s1-idea" data-lo="LO4">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="programme-question" data-lo="LO4" data-label="The question">
+  <div class="kicker">The case</div>
+  <h2>Do the 13 programme districts use less water? The naive answer is suspiciously sure</h2>
   <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+    <div class="stat"><div class="big">−7.8%</div><div class="lbl">programme against other districts, at equal size, band and temperature</div></div>
+    <div class="stat"><div class="big">±0.6</div><div class="lbl">points: the naive 95% interval from 40,000 bills</div></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <p class="lead mt">Pressure management is decided per district. How many pieces of evidence are there: 40,000 or 30?</p>
+  <aside class="notes"><p>The model is Day 1's consumption model on the log scale with a programme flag. Ask the room to guess how wide the honest interval is before showing the next slides.</p></aside>
 </section>
 
-<section class="slide" id="s1-steps" data-lo="LO4">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="unit-of-variation" data-lo="LO4" data-label="Where a predictor varies">
+  <div class="kicker">Lab 4.1, step 1</div>
+  <h2>Ask first where each predictor varies: within districts or only between them</h2>
+  <table class="t">
+    <tr><th>Predictor</th><th>Varies</th><th>Evidence comes from</th></tr>
+    <tr><td>household size</td><td>within every district</td><td>thousands of household comparisons</td></tr>
+    <tr><td>tariff band</td><td>within every district</td><td>thousands of household comparisons</td></tr>
+    <tr><td>temperature</td><td>by month</td><td>months in every district</td></tr>
+    <tr class="hl"><td>pressure programme</td><td>only between districts</td><td>13 districts against 17</td></tr>
+  </table>
+  <aside class="notes"><p>The function in step 1 checks whether a column takes one value in every district. In R: tapply(x, district, function(v) length(unique(v))).</p></aside>
+</section>
+
+<section class="slide" id="shared-district" data-lo="LO4" data-label="What households share">
+  <div class="kicker">Why the rows are not independent</div>
+  <h2>Households in one district share pressure, network and neighbourhood</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Each district has its own level of consumption the model does not know.</li>
+      <li>Every household in it carries the same deviation.</li>
+      <li>9,423 bills from D17 repeat one district's deviation 9,423 times.</li>
+    </ul>
+    <div class="card c-coral"><h4>Design effect</h4><p class="small mb0">With m bills per district and a share ρ of variance between districts, the variance grows by about 1 + (m − 1)ρ. With m ≈ 1,300 and ρ = 0.06, about 80.</p></div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>The square root of 80 is about 9: an interval nine times as wide, before allowing for unequal district sizes, which make it worse. ρ comes from lab 4.2. The formula is Kish's design effect for cluster samples.</p></aside>
+</section>
+
+<section class="slide" id="clustered-se" data-lo="LO4" data-label="Clustered errors">
+  <div class="kicker">Lab 4.1, step 3</div>
+  <h2>Clustered errors let residuals within a district be correlated in any way</h2>
+  <pre class="code"><code class="language-python">fit = smf.ols(FORMULA, data=b).fit(
+    cov_type="cluster",
+    cov_kwds={"groups": pd.factorize(b["district"])[0]})</code></pre>
+  <ul class="bullets">
+    <li>The estimates do not change; only their standard errors.</li>
+    <li>They assume districts independent of each other, nothing within them.</li>
+    <li>In R: <code>sandwich::vcovCL(fit, cluster = ~district)</code>.</li>
+  </ul>
+  <aside class="notes"><p>The sandwich sums the score contributions of each district before squaring them, so whatever correlation a district has is captured. It needs enough clusters: with 30 the errors are slightly too small; the stretch item's district bootstrap gives 0.0430 against 0.0435.</p></aside>
+</section>
+
+<section class="slide" id="ratios" data-lo="LO4" data-label="Term by term">
+  <div class="kicker">Lab 4.1, step 4</div>
+  <h2>The programme's standard error grows 13.7 times; household size's does not grow at all</h2>
+  <div class="figure">
+<!--FIG:ratios-->
+<svg viewBox="0 0 720 294" role="img" aria-label="Clustered over naive standard error, term by term: 13.7 for the programme, which varies only between districts; 0.9 to 1.1 for household size and the two bands, which vary within districts">
+<line x1="230.0" x2="230.0" y1="20" y2="244" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="230.0" y="266" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="260.7" x2="260.7" y1="20" y2="244" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="260.7" y="266" text-anchor="middle" font-size="14" fill="var(--muted)">1</text>
+<line x1="383.3" x2="383.3" y1="20" y2="244" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="383.3" y="266" text-anchor="middle" font-size="14" fill="var(--muted)">5</text>
+<line x1="536.7" x2="536.7" y1="20" y2="244" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="536.7" y="266" text-anchor="middle" font-size="14" fill="var(--muted)">10</text>
+<line x1="690.0" x2="690.0" y1="20" y2="244" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="690.0" y="266" text-anchor="middle" font-size="14" fill="var(--muted)">15</text>
+<text x="218" y="53.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">programme (district)</text>
+<text x="218" y="109.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">household size</text>
+<text x="218" y="165.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">social band</text>
+<text x="218" y="221.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">villa band</text>
+<text x="460" y="288" text-anchor="middle" font-size="14" fill="var(--muted)">clustered SE ÷ naive SE</text>
+<line x1="260.7" x2="260.7" y1="20" y2="244" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="230.0" x2="650.7" y1="48.0" y2="48.0" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="650.7" cy="48.0" r="8" fill="var(--coral)"/>
+<text x="660.7" y="53.0" font-size="14" fill="var(--muted)">13.7</text>
+<line x1="230.0" x2="258.8" y1="104.0" y2="104.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="258.8" cy="104.0" r="8" fill="var(--teal)"/>
+<text x="268.8" y="109.0" font-size="14" fill="var(--muted)">0.9</text>
+<line x1="230.0" x2="263.0" y1="160.0" y2="160.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="263.0" cy="160.0" r="8" fill="var(--teal)"/>
+<text x="273.0" y="165.0" font-size="14" fill="var(--muted)">1.1</text>
+<line x1="230.0" x2="259.5" y1="216.0" y2="216.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="259.5" cy="216.0" r="8" fill="var(--teal)"/>
+<text x="269.5" y="221.0" font-size="14" fill="var(--muted)">1.0</text>
+</svg>
+<!--/FIG:ratios-->
+    <div class="caption">Clustered over naive standard errors. Lab 4.1.</div>
+  </div>
+  <aside class="notes"><p>Household size and band are compared within every district, so each district's own level cancels out of their comparisons. The programme can only be compared across districts, where the district levels do not cancel.</p></aside>
+</section>
+
+<section class="slide" id="interval-changes" data-lo="LO4" data-label="The interval">
+  <div class="kicker">Lab 4.1, step 3</div>
+  <h2>From "certainly about 8% less" to "somewhere between 15% less and no difference"</h2>
+  <div class="cols cols-2">
+    <div class="card c-coral"><h4>Naive</h4><p class="small mb0">−8.3% to −7.2%. A planner would budget on it.</p></div>
+    <div class="card c-teal"><h4>Clustered by district</h4><p class="small mb0">−15.3% to +0.5%. A planner would ask for more districts or a trial.</p></div>
+  </div>
+  <div class="callout warn mt"><b>What goes wrong.</b> Reporting the naive interval for a district-level policy is the most common error in utility analyses: the precision of 40,000 rows for a question that 30 districts answer.</div>
+  <aside class="notes"><p>The generator's true programme value is −6% (−0.06 on the log scale): outside the naive interval, inside the clustered one.</p></aside>
+</section>
+
+<section class="slide" id="check-cluster" data-lo="LO4">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which interval widens most?</h2>
+  <div class="quiz" data-type="single" data-lo="LO4">
+    <p class="lead">A model of 50,000 students' scores in 80 schools has two predictors: hours of homework (per student) and a new curriculum (per school). You switch to errors clustered by school. What happens?</p>
+    <div class="opts">
+      <div class="opt" data-why="Thinks clustering changes estimates rather than standard errors">Both coefficients change, and both intervals widen</div>
+      <div class="opt" data-ok>The curriculum's interval widens far more than homework's, and neither estimate changes</div>
+      <div class="opt" data-why="Has the direction backwards: the school-level term has fewer independent units">Homework's interval widens most, because it has more variation</div>
+      <div class="opt" data-why="Thinks a large sample makes clustering irrelevant">Nothing much: with 50,000 students clustering does not matter</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The curriculum varies only between 80 schools, so its evidence is 80 schools; homework is compared within every school.</div>
+  </div>
+  <aside class="notes"><p>Answer: B. D is the misconception the day is built against: the number of rows is not the amount of evidence.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-4-1" data-auto="lab" data-lab="4.1">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-assisted for code; every standard error is checked against the printed table. The full model takes a few seconds. Step 5's two sentences are checked for the two standard errors and the words "district" and "independent". The stretch bootstrap takes about 40 seconds in full mode.</p></aside>
 </section>
 
 <!-- Session 2 -->
 
 <section class="slide section" id="s2" data-auto="section" data-session="2"></section>
 
-<section class="slide" id="s2-idea" data-lo="LO4">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+<section class="slide" id="three-choices" data-lo="LO4" data-label="Three ways to treat districts">
+  <div class="kicker">The idea</div>
+  <h2>Ignore districts, give each its own mean, or let them share: partial pooling</h2>
+  <div class="cols cols-3">
+    <div class="card c-coral"><h4>Complete pooling</h4><p class="small mb0">One mean for all. Districts differ, so it is wrong for most of them.</p></div>
+    <div class="card c-purple"><h4>No pooling</h4><p class="small mb0">Each district its own mean. D13's rests on 40 bills: noisy.</p></div>
+    <div class="card c-teal"><h4>Partial pooling</h4><p class="small mb0">Each district its own level, drawn from a distribution of district levels whose spread is estimated.</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>This is the framing of Gelman and Hill, chapter 12, and of Regression and Other Stories. Ghaliya asked for each district's level: no pooling is noisy for small districts, complete pooling ignores her question.</p></aside>
 </section>
 
-<section class="slide" id="s2-steps" data-lo="LO4">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="random-intercept" data-lo="LO4" data-label="The random-intercept model">
+  <div class="kicker">Lab 4.2, step 1</div>
+  <h2>A random intercept gives each district its own level, drawn from a normal distribution</h2>
+  <pre class="code"><code class="language-python">mix = smf.mixedlm(FORMULA, data=b, groups=b["district"]).fit()
+# R:  lmer(log_m3 ~ tariff_band * household_size + bs(temperature_c, 5)
+#                  + pressure_managed + (1 | district), data = b)</code></pre>
+  <ul class="bullets">
+    <li>Two variances: between districts (τ²) and between bills within one (σ²).</li>
+    <li>The programme's standard error now counts districts, as clustering did.</li>
+  </ul>
+  <aside class="notes"><p>MixedLM fits by REML by default, like lmer. With 40,000 rows and 30 groups it takes a few seconds. It may print a note about the boundary of the parameter space; it does not apply here because τ is clearly above zero.</p></aside>
+</section>
+
+<section class="slide" id="variances" data-lo="LO4" data-label="Two variances">
+  <div class="kicker">Lab 4.2, step 2</div>
+  <h2>Only 6% of the variance is between districts, and it still changes everything for the programme</h2>
+  <div class="cols cols-3">
+    <div class="stat"><div class="big">0.079</div><div class="lbl">SD between districts, log scale (about ±8%)</div></div>
+    <div class="stat"><div class="big">0.301</div><div class="lbl">SD between bills within a district</div></div>
+    <div class="stat"><div class="big">6.4%</div><div class="lbl">share of variance between districts</div></div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>The share τ²/(τ² + σ²) is the intraclass correlation. Small, and multiplied by over 1,000 bills per district in the design effect. The generator used 0.10 and 0.30.</p></aside>
+</section>
+
+<section class="slide" id="shrinkage" data-lo="LO4" data-label="Shrinkage">
+  <div class="kicker">Lab 4.2, step 3</div>
+  <h2>Small districts move towards the average; large ones stay where their data put them</h2>
+  <div class="figure">
+<!--FIG:shrinkage-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Raw district means and random-intercept estimates against the number of bills in each district on a log scale: the two smallest districts, D13 with 40 bills and D30 with 60, move about a quarter and a fifth of the way towards zero; districts with thousands of bills hardly move">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">-0.2</text>
+<line x1="70" x2="700" y1="267.5" y2="267.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="272.5" text-anchor="end" font-size="14" fill="var(--muted)">-0.1</text>
+<line x1="70" x2="700" y1="185.0" y2="185.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="190.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="102.5" y2="102.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="107.5" text-anchor="end" font-size="14" fill="var(--muted)">0.1</text>
+<line x1="70" x2="700" y1="20.0" y2="20.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="25.0" text-anchor="end" font-size="14" fill="var(--muted)">0.2</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">30</text>
+<line x1="196.6" x2="196.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="196.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">100</text>
+<line x1="312.1" x2="312.1" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="312.1" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">300</text>
+<line x1="438.7" x2="438.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="438.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">1,000</text>
+<line x1="554.2" x2="554.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="554.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">3,000</text>
+<line x1="680.8" x2="680.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="680.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">10,000</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">bills in the district (log scale)</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">district effect, log scale</text>
+<line x1="70" x2="700" y1="185.0" y2="185.0" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+<polyline points="100.2,275.6 100.2,251.3" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="142.9,276.2 142.9,258.3" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="217.5,160.6 217.5,163.2" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="242.7,208.6 242.7,206.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="249.9,103.0 249.9,109.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="267.4,230.9 267.4,227.7" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="331.9,204.9 331.9,204.1" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="359.5,48.1 359.5,52.2" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="363.5,167.3 363.5,167.8" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="376.4,164.3 376.4,164.8" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="388.8,263.3 388.8,261.5" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="392.6,118.7 392.6,120.2" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="407.2,122.4 407.2,123.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="411.0,146.4 411.0,147.1" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="436.4,218.8 436.4,218.3" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="437.1,254.4 437.1,253.4" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="438.0,177.5 438.0,177.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="438.0,255.6 438.0,254.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="450.0,196.9 450.0,196.7" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="451.9,82.8 451.9,84.1" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="454.2,214.0 454.2,213.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="482.8,193.2 482.8,193.2" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="489.6,95.8 489.6,96.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="494.6,267.5 494.6,266.8" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="502.8,240.0 502.8,239.6" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="522.7,141.7 522.7,141.9" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="534.2,266.2 534.2,265.7" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="549.4,244.8 549.4,244.5" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="572.8,153.1 572.8,153.3" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<polyline points="674.6,92.1 674.6,92.2" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+<circle cx="100.2" cy="275.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="142.9" cy="276.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="217.5" cy="160.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="242.7" cy="208.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="249.9" cy="103.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="267.4" cy="230.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="331.9" cy="204.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="359.5" cy="48.1" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="363.5" cy="167.3" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="376.4" cy="164.3" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="388.8" cy="263.3" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="392.6" cy="118.7" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="407.2" cy="122.4" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="411.0" cy="146.4" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="436.4" cy="218.8" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="437.1" cy="254.4" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="438.0" cy="177.5" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="438.0" cy="255.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="450.0" cy="196.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="451.9" cy="82.8" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="454.2" cy="214.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="482.8" cy="193.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="489.6" cy="95.8" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="494.6" cy="267.5" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="502.8" cy="240.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="522.7" cy="141.7" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="534.2" cy="266.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="549.4" cy="244.8" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="572.8" cy="153.1" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="674.6" cy="92.1" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="100.2" cy="251.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="142.9" cy="258.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="217.5" cy="163.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="242.7" cy="206.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="249.9" cy="109.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="267.4" cy="227.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="331.9" cy="204.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="359.5" cy="52.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="363.5" cy="167.8" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="376.4" cy="164.8" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="388.8" cy="261.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="392.6" cy="120.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="407.2" cy="123.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="411.0" cy="147.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="436.4" cy="218.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="437.1" cy="253.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="438.0" cy="177.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="438.0" cy="254.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="450.0" cy="196.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="451.9" cy="84.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="454.2" cy="213.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="482.8" cy="193.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="489.6" cy="96.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="494.6" cy="266.8" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="502.8" cy="239.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="522.7" cy="141.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="534.2" cy="265.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="549.4" cy="244.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="572.8" cy="153.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="674.6" cy="92.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<text x="112.4" y="285.5" text-anchor="start" font-size="14" fill="var(--coral)">D13</text>
+<text x="155.0" y="286.1" text-anchor="start" font-size="14" fill="var(--coral)">D30</text>
+<text x="535.1" y="308.8" text-anchor="start" font-size="15" fill="var(--coral)">raw district mean</text>
+<text x="535.1" y="333.5" text-anchor="start" font-size="15" fill="var(--teal)">random intercept</text>
+</svg>
+<!--/FIG:shrinkage-->
+    <div class="caption">Raw district means and random-intercept estimates against bills per district. Lab 4.2.</div>
+  </div>
+  <aside class="notes"><p>The multiplier is τ²/(τ² + σ²/n): 0.73 for D13 with 40 bills, 0.80 for D30 with 60, above 0.99 for D17. The lab checks that every district's shrinkage matches it. Against the generator's true district effects, the shrunken estimates are slightly closer than the raw means.</p></aside>
+</section>
+
+<section class="slide" id="three-way" data-lo="LO4" data-label="The three-way table">
+  <div class="kicker">Lab 4.2, step 4</div>
+  <h2>Naive, clustered, mixed: the honest intervals agree in width, the naive one does not</h2>
+  <div class="figure">
+<!--FIG:three_way-->
+<svg viewBox="0 0 720 262" role="img" aria-label="Programme districts against others, percentage difference in consumption with 95% intervals: naive -8.3% to -7.2%, clustered -15.3% to 0.5%, random intercept -15.4% to -5.0%">
+<line x1="200.0" x2="200.0" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="200.0" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-18</text>
+<line x1="245.9" x2="245.9" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="245.9" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-15</text>
+<line x1="291.9" x2="291.9" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="291.9" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-12</text>
+<line x1="337.8" x2="337.8" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="337.8" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-9</text>
+<line x1="383.8" x2="383.8" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="383.8" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-6</text>
+<line x1="429.7" x2="429.7" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="429.7" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">-3</text>
+<line x1="475.6" x2="475.6" y1="20" y2="212" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="475.6" y="234" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<text x="188" y="57.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">naive</text>
+<text x="188" y="121.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">clustered by district</text>
+<text x="188" y="185.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">random intercept</text>
+<text x="445" y="256" text-anchor="middle" font-size="14" fill="var(--muted)">difference in monthly consumption, %</text>
+<line x1="348.2" x2="365.7" y1="52.0" y2="52.0" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="356.9" cy="52.0" r="8" fill="var(--coral)"/>
+<text x="375.7" y="57.0" font-size="14" fill="var(--muted)">-7.8% (-8.3 to -7.2)</text>
+<line x1="241.5" x2="482.7" y1="116.0" y2="116.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="356.9" cy="116.0" r="8" fill="var(--teal)"/>
+<text x="492.7" y="121.0" font-size="14" fill="var(--muted)">-7.8% (-15.3 to 0.5)</text>
+<line x1="240.3" x2="399.1" y1="180.0" y2="180.0" stroke="var(--purple)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="317.4" cy="180.0" r="8" fill="var(--purple)"/>
+<text x="409.1" y="185.0" font-size="14" fill="var(--muted)">-10.3% (-15.4 to -5.0)</text>
+</svg>
+<!--/FIG:three_way-->
+    <div class="caption">Programme districts against others, % difference with 95% intervals. Labs 4.1 and 4.2.</div>
+  </div>
+  <aside class="notes"><p>The mixed estimate also moves, from −7.8% to −10.3%: least squares weighs bills, so D17, a programme district with a quarter of all bills and a high level, pulls the programme estimate up; the mixed model weighs districts more evenly. The truth, −5.8%, is inside both honest intervals.</p></aside>
+</section>
+
+<section class="slide" id="which-to-use" data-lo="LO4" data-label="Clustered or mixed">
+  <div class="kicker">Choosing</div>
+  <h2>Clustered errors fix the uncertainty; a mixed model also estimates the districts</h2>
+  <table class="t small">
+    <tr><th></th><th>Clustered errors</th><th>Random intercept</th></tr>
+    <tr><td>Assumes</td><td>districts independent; nothing within</td><td>district levels normal, residuals independent within</td></tr>
+    <tr><td>Gives</td><td>honest standard errors for the same estimates</td><td>estimates, standard errors and each district's level</td></tr>
+    <tr><td>Needs</td><td>enough clusters (30 is about the minimum)</td><td>enough clusters to estimate τ</td></tr>
+  </table>
+  <aside class="notes"><p>Ghaliya asked for district levels for supply targets: the mixed model answers that. For a single comparison, clustered errors are simpler to explain. Either is defensible; the naive interval is not.</p></aside>
+</section>
+
+<section class="slide" id="check-pooling" data-lo="LO4">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which district moves most?</h2>
+  <div class="quiz" data-type="single" data-lo="LO4">
+    <p class="lead">In a random-intercept model, district A has 50 bills and a raw mean 0.12 above average; district B has 5,000 bills and the same raw mean. What do their estimated levels look like?</p>
+    <div class="opts">
+      <div class="opt" data-why="Thinks shrinkage depends on the size of the deviation, not on how much data supports it">Both shrink by the same share, as their raw means are equal</div>
+      <div class="opt" data-why="Has the direction of shrinkage backwards">B shrinks more, because it has more bills to average</div>
+      <div class="opt" data-why="Confuses partial pooling with no pooling">Neither moves: each district keeps its own mean</div>
+      <div class="opt" data-ok>A moves noticeably towards the average; B stays almost at 0.12</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The shrinkage factor τ²/(τ² + σ²/n) is close to 1 for large n; a mean from 50 bills is less reliable, so it borrows more from the other districts.</div>
+  </div>
+  <aside class="notes"><p>Answer: D. Link to the plot: D13 and D30 against D17.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-4-2" data-auto="lab" data-lab="4.2">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-assisted for code. The naive and clustered rows of the table come from the stored result of lab 4.1, the same on every computer, so a participant who skipped 4.1 can still complete the table. The stretch random slope finds a slope SD near zero: the generator gives each band its own slope but not each district.</p></aside>
 </section>
 
 <!-- Session 3 -->
 
 <section class="slide section" id="s3" data-auto="section" data-session="3"></section>
 
-<section class="slide" id="s3-idea" data-lo="LO5">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+<section class="slide" id="candidates" data-lo="LO5" data-label="126 columns">
+  <div class="kicker">The case</div>
+  <h2>Billing exported 126 candidate columns to predict August consumption</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>Useful-looking</h4><p class="small mb0">12 months of past consumption, property details, appliance answers, area climate.</p></div>
+    <div class="card c-purple"><h4>Noise</h4><p class="small mb0">38 survey questions, app logins, bill queries.</p></div>
+    <div class="card c-coral"><h4>Nobody asked for</h4><p class="small mb0">A member's chronic condition, nationality, income band, employer, phone brand, marital status.</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>Nidal Al-Fadhli exported everything the billing system holds for 2,000 households. The purpose of the forecast is next summer's supply plan.</p></aside>
 </section>
 
-<section class="slide" id="s3-steps" data-lo="LO5">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="minimisation" data-lo="LO5" data-label="Minimisation first">
+  <div class="kicker">Lab 4.3, step 1</div>
+  <h2>Remove what the purpose cannot justify, before you check whether it predicts</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>The PDPL limits personal data to the minimum needed for the purpose (Article 11).</li>
+      <li>Health data is sensitive data under the Law.</li>
+      <li>A supply forecast needs none of the six columns.</li>
+    </ul>
+    <div class="callout warn"><b>What goes wrong.</b> "Let the lasso decide." A penalty chooses by prediction; minimisation is decided by the purpose. A column that predicts can still be one you may not use.</div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>Tamadur Al-Hussaini, the DPO, signs off the column list. The national AI ethics principles add fairness: nationality and income in a supply model would steer supply by group. In the lab the check passes only when exactly the six are removed, decided from names and purpose.</p></aside>
+</section>
+
+<section class="slide" id="ridge" data-lo="LO5" data-label="Ridge">
+  <div class="kicker">Lab 4.3, step 2</div>
+  <h2>Ridge shrinks every coefficient a little and keeps them all</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Least squares plus a penalty on the sum of squared coefficients.</li>
+      <li>Correlated predictors share the weight between them.</li>
+      <li>Standardise first, so one penalty treats all alike.</li>
+    </ul>
+    <div class="stat"><div class="big">120</div><div class="lbl">nonzero coefficients at the cross-validated penalty, 34.6</div></div>
+  </div>
+  <aside class="notes"><p>RidgeCV uses efficient leave-one-out cross-validation by default. In R: glmnet with alpha = 0. Ridge predicts well with correlated predictors and does not select.</p></aside>
+</section>
+
+<section class="slide" id="lasso" data-lo="LO5" data-label="Lasso">
+  <div class="kicker">Lab 4.3, step 3</div>
+  <h2>The lasso sets coefficients to zero: one fit selects 27 of 120 predictors</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>A penalty on the sum of absolute coefficients.</li>
+      <li>Cross-validation picks the penalty that predicts best.</li>
+      <li>That penalty is chosen for prediction, not to find the true predictors.</li>
+    </ul>
+    <div class="card c-coral"><h4>Correlated groups</h4><p class="small mb0">The twelve lag months are correlated at about 0.9. The lasso picks some of a group and drops the rest, almost at random.</p></div>
+  </div>
+  <aside class="notes"><p>LassoCV with 5 folds. In R: cv.glmnet with alpha = 1. The generator uses 8 predictors; one lasso fit selects 27, so about 19 are noise that helped the prediction slightly in this sample.</p></aside>
+</section>
+
+<section class="slide" id="selection" data-lo="LO5" data-label="Stability">
+  <div class="kicker">Lab 4.3, step 4</div>
+  <h2>Over 100 bootstrap samples, eight predictors are selected every time; the rest come and go</h2>
+  <div class="figure">
+<!--FIG:selection-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Share of 100 bootstrap samples in which the lasso selects each predictor, for the 40 most often selected: eight are selected every time; the rest fall away gradually, 73 of the 120 between 10% and 90%">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0%</text>
+<line x1="70" x2="700" y1="275.0" y2="275.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="280.0" text-anchor="end" font-size="14" fill="var(--muted)">25%</text>
+<line x1="70" x2="700" y1="200.0" y2="200.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="205.0" text-anchor="end" font-size="14" fill="var(--muted)">50%</text>
+<line x1="70" x2="700" y1="125.0" y2="125.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="130.0" text-anchor="end" font-size="14" fill="var(--muted)">75%</text>
+<line x1="70" x2="700" y1="50.0" y2="50.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="55.0" text-anchor="end" font-size="14" fill="var(--muted)">100%</text>
+<line x1="85.4" x2="85.4" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="85.4" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">1</text>
+<line x1="223.7" x2="223.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="223.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">10</text>
+<line x1="377.3" x2="377.3" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="377.3" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">20</text>
+<line x1="531.0" x2="531.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="531.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">30</text>
+<line x1="684.6" x2="684.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="684.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">40</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">predictors, most often selected first</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">share of samples</text>
+<rect x="79.6" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="95.0" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="110.3" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="125.7" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="141.1" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="156.4" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="171.8" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="187.2" y="50.0" width="11.5" height="300.0" fill="var(--teal)"/>
+<rect x="202.5" y="68.0" width="11.5" height="282.0" fill="var(--coral)"/>
+<rect x="217.9" y="83.0" width="11.5" height="267.0" fill="var(--coral)"/>
+<rect x="233.3" y="89.0" width="11.5" height="261.0" fill="var(--coral)"/>
+<rect x="248.6" y="119.0" width="11.5" height="231.0" fill="var(--coral)"/>
+<rect x="264.0" y="146.0" width="11.5" height="204.0" fill="var(--coral)"/>
+<rect x="279.4" y="152.0" width="11.5" height="198.0" fill="var(--coral)"/>
+<rect x="294.7" y="155.0" width="11.5" height="195.0" fill="var(--coral)"/>
+<rect x="310.1" y="158.0" width="11.5" height="192.0" fill="var(--coral)"/>
+<rect x="325.5" y="161.0" width="11.5" height="189.0" fill="var(--coral)"/>
+<rect x="340.8" y="188.0" width="11.5" height="162.0" fill="var(--coral)"/>
+<rect x="356.2" y="191.0" width="11.5" height="159.0" fill="var(--coral)"/>
+<rect x="371.6" y="200.0" width="11.5" height="150.0" fill="var(--coral)"/>
+<rect x="386.9" y="203.0" width="11.5" height="147.0" fill="var(--coral)"/>
+<rect x="402.3" y="203.0" width="11.5" height="147.0" fill="var(--coral)"/>
+<rect x="417.7" y="209.0" width="11.5" height="141.0" fill="var(--coral)"/>
+<rect x="433.0" y="212.0" width="11.5" height="138.0" fill="var(--coral)"/>
+<rect x="448.4" y="215.0" width="11.5" height="135.0" fill="var(--coral)"/>
+<rect x="463.8" y="221.0" width="11.5" height="129.0" fill="var(--coral)"/>
+<rect x="479.1" y="224.0" width="11.5" height="126.0" fill="var(--coral)"/>
+<rect x="494.5" y="224.0" width="11.5" height="126.0" fill="var(--coral)"/>
+<rect x="509.8" y="233.0" width="11.5" height="117.0" fill="var(--coral)"/>
+<rect x="525.2" y="236.0" width="11.5" height="114.0" fill="var(--coral)"/>
+<rect x="540.6" y="239.0" width="11.5" height="111.0" fill="var(--coral)"/>
+<rect x="555.9" y="245.0" width="11.5" height="105.0" fill="var(--coral)"/>
+<rect x="571.3" y="245.0" width="11.5" height="105.0" fill="var(--coral)"/>
+<rect x="586.7" y="245.0" width="11.5" height="105.0" fill="var(--coral)"/>
+<rect x="602.0" y="245.0" width="11.5" height="105.0" fill="var(--coral)"/>
+<rect x="617.4" y="254.0" width="11.5" height="96.0" fill="var(--coral)"/>
+<rect x="632.8" y="257.0" width="11.5" height="93.0" fill="var(--coral)"/>
+<rect x="648.1" y="263.0" width="11.5" height="87.0" fill="var(--coral)"/>
+<rect x="663.5" y="263.0" width="11.5" height="87.0" fill="var(--coral)"/>
+<rect x="678.9" y="266.0" width="11.5" height="84.0" fill="var(--coral)"/>
+<text x="85.4" y="35.0" text-anchor="start" font-size="15" fill="var(--teal)">selected every time</text>
+<text x="285.1" y="95.0" text-anchor="start" font-size="15" fill="var(--coral)">selected sometimes</text>
+</svg>
+<!--/FIG:selection-->
+    <div class="caption">Share of 100 bootstrap samples in which the lasso selects each predictor, 40 most frequent. Lab 4.3.</div>
+  </div>
+  <aside class="notes"><p>The eight: June, July and August of last year, garden area, pool, AC units, irrigation timer, area summer maximum. All eight are the generator's true terms. lag_m10 is selected in 94% of samples and is noise: a high frequency alone is not proof.</p></aside>
+</section>
+
+<section class="slide" id="report-stable" data-lo="LO5" data-label="What to report">
+  <div class="kicker">Lab 4.3, step 5</div>
+  <h2>Report the stable set for prediction; report no selected predictor as a "driver"</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>Defensible</h4><p class="small mb0">"Eight predictors were selected in every bootstrap sample; the forecast uses the lasso's predictions."</p></div>
+    <div class="card c-coral"><h4>Not defensible</h4><p class="small mb0">"The lasso shows that October consumption and dishwashers drive August demand."</p></div>
+  </div>
+  <div class="callout note mt"><b>Estimating after selecting.</b> Least squares on the data that chose the predictors overstates them; select on one half and estimate on the other (the stretch item).</div>
+  <aside class="notes"><p>The stretch item finds the same eight with intervals excluding zero on the held-out half. That is a sample split, the simplest honest approach to inference after selection.</p></aside>
+</section>
+
+<section class="slide" id="check-lasso" data-lo="LO5">
+  <div class="kicker">Checkpoint</div>
+  <h2>What do you tell the planner?</h2>
+  <div class="quiz" data-type="single" data-lo="LO5">
+    <p class="lead">A lasso with a cross-validated penalty selected 25 of 90 predictors. Over 100 bootstrap samples, 6 are selected every time and 40 are selected between 20% and 80% of the time. What can you say?</p>
+    <div class="opts">
+      <div class="opt" data-why="Treats one fit's selection as a stable finding">The 25 selected predictors are the drivers of demand</div>
+      <div class="opt" data-ok>The 6 are a stable core; the others' selection depends on the sample and should not be reported as findings</div>
+      <div class="opt" data-why="Thinks unstable selection makes the predictions useless">The model is useless and should be dropped</div>
+      <div class="opt" data-why="Thinks a smaller penalty fixes instability, when it only selects more">Lower the penalty until all 40 are always selected</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> Selection is itself uncertain; only what survives resampling is a stable choice, and even that is a predictive, not a causal, statement.</div>
+  </div>
+  <aside class="notes"><p>Answer: B.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-4-3" data-auto="lab" data-lab="4.3">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the minimisation step and the reading; AI-assisted for code. The bootstrap is 100 lasso fits in full mode, about 4 seconds; 20 in quick mode, where a few noise predictors may be selected every time. That is worth showing: fewer samples, less reliable stability.</p></aside>
 </section>
 
 <!-- Session 4 -->
 
 <section class="slide section" id="s4" data-auto="section" data-session="4"></section>
 
-<section class="slide" id="s4-idea" data-lo="LO6">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+<section class="slide" id="report-parts" data-lo="LO6" data-label="Five parts">
+  <div class="kicker">The report</div>
+  <h2>A model report has five parts, and the capstone README has the same five</h2>
+  <div class="flow">
+    <div class="step c-teal"><b>Question</b>in the reader's words</div>
+    <div class="arrow">→</div>
+    <div class="step c-cyan"><b>Use and estimand</b>descriptive, predictive or causal</div>
+    <div class="arrow">→</div>
+    <div class="step c-purple"><b>Model and checks</b>what failed, what changed</div>
+    <div class="arrow">→</div>
+    <div class="step c-navy"><b>Effects</b>in the reader's units, with intervals</div>
+    <div class="arrow">→</div>
+    <div class="step c-coral"><b>Limits</b>what it does not mean</div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>Map to the rubric: specification 20, diagnostics 30, uncertainty 20, interpretation 20, reproducibility 10. Lab 4.4 builds the page from the stored results of labs 1.3, 1.4, 3.4 and 4.2.</p></aside>
 </section>
 
-<section class="slide" id="s4-steps" data-lo="LO6">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="readers-units" data-lo="LO6" data-label="The reader's units">
+  <div class="kicker">Lab 4.4, step 3</div>
+  <h2>Write m³ and percentages, never coefficients on a log scale</h2>
+  <table class="t small">
+    <tr><th>Not for Ghaliya</th><th>For Ghaliya</th></tr>
+    <tr><td>household_size:villa 0.020 (SE 0.004)</td><td>Each extra member: 5.0 m³ a month for villas (4.8 to 5.2), 2.3 on the standard tariff</td></tr>
+    <tr><td>five spline coefficients for temperature</td><td>A typical household: 20.7 m³ in a 30 °C month, 37.9 m³ (37.3 to 38.4) at 40 °C</td></tr>
+    <tr><td>pressure_managed −0.109</td><td>Programme districts used 10.3% less (5.0% to 15.4% less)</td></tr>
+  </table>
+  <aside class="notes"><p>The numbers come from labs 1.3, 1.4 and 4.2. The left column is what a model summary prints (the interaction is about 0.02 on the log scale); the point is that no planner can act on them.</p></aside>
+</section>
+
+<section class="slide" id="three-uses-again" data-lo="LO6" data-label="Words that claim">
+  <div class="kicker">Lab 4.4, steps 1 and 4</div>
+  <h2>The use decides which words you may write</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>Descriptive</h4><p class="small mb0">"used", "differed", "at equal size and band": the consumption report.</p></div>
+    <div class="card c-purple"><h4>Predictive</h4><p class="small mb0">"forecast", "expected", "with this error": the August forecast.</p></div>
+    <div class="card c-coral"><h4>Causal</h4><p class="small mb0">"reduces", "the effect of": only with a randomised or well-argued comparison, as in brief C2.</p></div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>This closes the loop of Day 1's three uses. The stretch item of lab 4.4 searches the page for causal words; a neighbour finds the subtler ones.</p></aside>
+</section>
+
+<section class="slide" id="limits" data-lo="LO6" data-label="Limits">
+  <div class="kicker">Lab 4.4, step 4</div>
+  <h2>Limits say what the numbers are not, what the intervals leave out, and where not to use the model</h2>
+  <ul class="bullets">
+    <li>The programme figure compares districts that chose to join; it is not the saving from joining.</li>
+    <li>Intervals cover sampling and district variation in 2026, not a change of tariff.</li>
+    <li>Temperatures above 44 °C and a new district without history are outside the data.</li>
+  </ul>
+  <aside class="notes"><p>Assessors in the capstone defence ask: "where would your model be wrong?" A limits section written in advance is the answer.</p></aside>
+</section>
+
+<section class="slide" id="briefs" data-lo="LO6" data-label="The capstone briefs">
+  <div class="kicker">Lab 4.4, step 5</div>
+  <h2>Three briefs from Ghaliya; each hides a problem your diagnostics should find</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>C1 · Pressure complaints</h4><p class="small mb0">Complaints per 1,000 customers, 30 districts × 12 months. Counts with an exposure.</p></div>
+    <div class="card c-purple"><h4>C2 · Kit offer</h4><p class="small mb0">6,000 households, letter or text chosen at random. A binary outcome.</p></div>
+    <div class="card c-coral"><h4>C3 · Villa peak</h4><p class="small mb0">Peak-month m³ against garden, pool, timer and heat. A positive outcome.</p></div>
+  </div>
+  <p class="caption">Or a public dataset of your own, such as one from open.data.gov.sa, with the same five parts.</p>
+  <aside class="notes"><p>The planted problems are in the trainer's file, not on this slide. Participants choose today and write the use and estimand in the lab; the choice is saved to artifacts/capstone_choice.json.</p></aside>
+</section>
+
+<section class="slide" id="check-report" data-lo="LO6">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which sentence can go in the report?</h2>
+  <div class="quiz" data-type="single" data-lo="LO6">
+    <p class="lead">Households with a smart meter display used less water than comparable households without one. They asked for the displays themselves. Which sentence fits the report?</p>
+    <div class="opts">
+      <div class="opt" data-why="Turns an observational comparison into a causal promise">Installing displays will cut demand across Sahil</div>
+      <div class="opt" data-why="Reports a log-scale coefficient the reader cannot use">The display coefficient is −0.07 on the log scale</div>
+      <div class="opt" data-ok>Households with a display used about 7% less than comparable ones (with its interval); they chose it, so this is not the effect of installing one</div>
+      <div class="opt" data-why="Drops the uncertainty and the comparison it rests on">Displays save water</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The sentence is descriptive, in the reader's terms, with its uncertainty and its limit stated.</div>
+  </div>
+  <aside class="notes"><p>Answer: C. The answer models the register expected in the capstone: descriptive, in the reader's units, with an interval and a limit.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-4-4" data-auto="lab" data-lab="4.4">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the report text and the capstone choice. The checks confirm each number is quoted as printed, the word limits, and that a causal use is chosen only for C2. Collect the choices before the end of the day so the capstone day can be planned.</p></aside>
 </section>
 
 <section class="slide" id="wrap-up">
   <div class="kicker">Day 4 · wrap-up</div>
   <h2>Three things to keep</h2>
   <div class="cols cols-3">
-    <div class="card c-teal"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-coral"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-purple"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
+    <div class="card c-teal"><h4>Count the evidence</h4><p class="small mb0">A district-level predictor has 30 districts behind it, not 40,000 bills.</p></div>
+    <div class="card c-purple"><h4>Purpose before penalty</h4><p class="small mb0">Minimise first; then trust only the selections that survive resampling.</p></div>
+    <div class="card c-coral"><h4>Five parts</h4><p class="small mb0">Question, use and estimand, model and checks, effects, limits.</p></div>
   </div>
+  <aside class="notes"><p>Ask each participant to say which brief they chose and its use in one sentence.</p></aside>
 </section>
 
 <section class="slide dark" id="next" data-label="Next">
   <div class="kicker">Next</div>
-  <h2>Capstone: Capstone project presentations</h2>
-  <p class="lead">REPLACE: what participants prepare before then; unfinished labs can be finished at home</p>
-  <aside class="notes">REPLACE: accounts, installs or reading participants need before the next unit</aside>
+  <h2>Capstone day: build and defend your model</h2>
+  <p class="lead">A repository that reruns from the raw data, a README with the five parts, an eight-minute defence and four minutes of questions in which the assessor changes one term or the family.</p>
+  <aside class="notes"><p>Point to labs/capstone/README.md for the submission checklist and the rubric.</p></aside>
 </section>

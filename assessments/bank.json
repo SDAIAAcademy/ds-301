@@ -643,6 +643,282 @@
       "pool": "practice",
       "weight": 1,
       "timer": 75
+    },
+    {
+      "id": "q-cluster-01",
+      "type": "single",
+      "prompt": "A model of 60,000 hospital visits in 40 hospitals includes the patient's age and whether the hospital has a new triage system. Which coefficient's standard error is most understated if visits are treated as independent?",
+      "options": [
+        "Patient age, because it varies most",
+        "The triage system, because it varies only between the 40 hospitals",
+        "Both equally, because all visits in a hospital are correlated",
+        "Neither, because 60,000 visits is a large sample"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "A hospital-level predictor draws its evidence from 40 hospitals; patient age is compared within every hospital, where the hospital's shared level cancels.",
+      "misconceptions": [
+        "Links the size of the error to the predictor's spread rather than to the level at which it varies",
+        "",
+        "Assumes clustering inflates every standard error by the same factor",
+        "Counts rows instead of independent units"
+      ],
+      "lo": [
+        "LO4"
+      ],
+      "day": "day4",
+      "session": 1,
+      "slide": "unit-of-variation",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-cluster-02",
+      "type": "single",
+      "prompt": "You refit a consumption model with standard errors clustered by district. The programme coefficient was −0.081 with a naive standard error of 0.003. What do you expect?",
+      "options": [
+        "A coefficient different from −0.081 and a standard error near 0.003",
+        "The same coefficient and the same standard error, since clustering only matters for small samples",
+        "The same coefficient, −0.081, with a much larger standard error",
+        "A smaller coefficient, because clustering removes district effects"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "Clustered standard errors change only the estimated uncertainty; for a district-level predictor they grow because the evidence is the districts.",
+      "misconceptions": [
+        "Thinks clustering refits the model",
+        "Counts rows instead of independent units",
+        "",
+        "Confuses clustered errors with district fixed effects"
+      ],
+      "lo": [
+        "LO4"
+      ],
+      "day": "day4",
+      "session": 1,
+      "slide": "clustered-se",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-pool-01",
+      "type": "single",
+      "prompt": "A random-intercept model reports a district SD of 0.08 and a residual SD of 0.30 on the log scale. About what share of the variance lies between districts?",
+      "options": [
+        "27%",
+        "8%",
+        "About 7%",
+        "0.3%"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "0.08² / (0.08² + 0.30²) = 0.0064 / 0.0964, about 7%.",
+      "misconceptions": [
+        "Divides the SDs instead of the variances",
+        "Reads the district SD as the share",
+        "",
+        "Multiplies the variances instead of dividing"
+      ],
+      "lo": [
+        "LO4"
+      ],
+      "day": "day4",
+      "session": 2,
+      "slide": "variances",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-pool-02",
+      "type": "single",
+      "prompt": "In a random-intercept model, a district with 30 bills has a raw mean far above average; its estimated level is about two thirds of that distance from the average. A colleague says the model is \"hiding a problem district\". What do you answer?",
+      "options": [
+        "The colleague is right; use the raw mean for that district",
+        "The shrinkage reflects how little 30 bills say about the district; its estimate borrows strength from the other districts, and more data would move it back if the difference is real",
+        "The district should be removed as an outlier",
+        "The model should use a larger district SD so that nothing shrinks"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Shrinkage is weighted by how reliable each district's own mean is; it is a better estimate of the district's level, not a cover-up.",
+      "misconceptions": [
+        "Trusts a noisy mean over a pooled estimate",
+        "",
+        "Treats a small district as an outlier",
+        "Wants to choose the variance to get a preferred answer"
+      ],
+      "lo": [
+        "LO4"
+      ],
+      "day": "day4",
+      "session": 2,
+      "slide": "shrinkage",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-pool-03",
+      "type": "tf",
+      "prompt": "Clustered standard errors and a random-intercept model can both give honest uncertainty for a district-level predictor, but only the random-intercept model also estimates each district's level.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "Clustering corrects the standard errors of the same estimates; the mixed model estimates a level for each district as well.",
+      "misconceptions": [
+        "",
+        "Believes the two methods answer the same questions"
+      ],
+      "lo": [
+        "LO4"
+      ],
+      "day": "day4",
+      "session": 2,
+      "slide": "which-to-use",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-lasso-01",
+      "type": "single",
+      "prompt": "Before fitting a lasso to forecast summer water demand, you see that the export includes household members' health conditions, which the lasso might find predictive. What do you do?",
+      "options": [
+        "Keep the column and let the lasso decide whether it is useful",
+        "Keep it only if cross-validation shows it improves the forecast",
+        "Remove it before modelling, because the purpose does not justify processing health data",
+        "Keep it but do not report its coefficient"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "Data minimisation is decided by the purpose of the processing, not by predictive power; health data is sensitive and not needed for a supply forecast.",
+      "misconceptions": [
+        "Delegates a legal and ethical decision to a penalty",
+        "Uses predictive gain to justify processing",
+        "",
+        "Thinks hiding a coefficient makes using the data acceptable"
+      ],
+      "lo": [
+        "LO5",
+        "LO6"
+      ],
+      "day": "day4",
+      "session": 3,
+      "slide": "minimisation",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-lasso-02",
+      "type": "single",
+      "prompt": "Which statement about ridge and lasso with standardised predictors is right?",
+      "options": [
+        "Ridge sets some coefficients to zero; the lasso shrinks all of them",
+        "The lasso can set coefficients exactly to zero; ridge shrinks them all but keeps every one",
+        "Both select the true predictors when the penalty is chosen by cross-validation",
+        "Neither needs the predictors to be standardised"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "The absolute-value penalty of the lasso produces exact zeros; the squared penalty of ridge does not.",
+      "misconceptions": [
+        "Swaps the two penalties",
+        "",
+        "Thinks a penalty tuned for prediction recovers the true model",
+        "Forgets that one penalty treats predictors on different scales unequally"
+      ],
+      "lo": [
+        "LO5"
+      ],
+      "day": "day4",
+      "session": 3,
+      "slide": "lasso",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-lasso-03",
+      "type": "single",
+      "prompt": "A lasso selects October consumption in 60% of 100 bootstrap samples. October is correlated at 0.9 with September and November, which are selected 45% and 50% of the time. What should the report say?",
+      "options": [
+        "October consumption is a key driver of demand",
+        "September and November should be removed so October is always selected",
+        "The autumn months carry similar information and the lasso picks among them unstably; none is reported as a finding",
+        "October is significant at the 60% level"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "With correlated predictors the lasso's choice within the group depends on the sample; a selection frequency well below 100% is not a finding.",
+      "misconceptions": [
+        "Treats one selection as a stable result",
+        "Manipulates the candidate set to force a preferred selection",
+        "",
+        "Reads a selection frequency as a significance level"
+      ],
+      "lo": [
+        "LO5"
+      ],
+      "day": "day4",
+      "session": 3,
+      "slide": "selection",
+      "level": "evaluate",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-report-01",
+      "type": "single",
+      "prompt": "A log-consumption model gives programme districts a coefficient of −0.109 with a 95% interval of −0.167 to −0.051. How should the planning report state it?",
+      "options": [
+        "Programme districts: −0.109 (−0.167 to −0.051)",
+        "Programme districts used 10.9% less water, which the programme saved",
+        "Households in programme districts used about 10% less (5% to 15% less) than comparable households elsewhere",
+        "The programme reduces consumption by 0.109 m³"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "exp(−0.109) − 1 is about −10%, and the interval converts the same way; the sentence keeps the comparison descriptive.",
+      "misconceptions": [
+        "Leaves the reader a log-scale coefficient",
+        "Reads a log coefficient as a percentage directly and adds a causal claim",
+        "",
+        "Reads a log-scale coefficient as cubic metres"
+      ],
+      "lo": [
+        "LO6"
+      ],
+      "day": "day4",
+      "session": 4,
+      "slide": "readers-units",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
     }
   ]
 }
