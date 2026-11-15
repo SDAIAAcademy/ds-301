@@ -1,0 +1,771 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-ax="deck" data-track="data-science">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Day 3 · Check and repair · Regression and Generalised Linear Modelling</title>
+<meta name="generator" content="SDAIA Academy engine 1.0.0">
+<link rel="icon" href="../_engine/icon.svg">
+<link rel="alternate" type="text/markdown" href="day3.md">
+<link rel="describedby" href="../llms.txt">
+<link rel="stylesheet" href="../_engine/academy.css">
+</head>
+<body>
+<div class="deck" data-course="Regression and Generalised Linear Modelling" data-track="data-science" data-day="Day 3">
+<section class="slide title" id="title" data-auto="title" data-label="Welcome" data-n="1">
+  <div class="kicker">SDAIA Academy · Regression and Generalised Linear Modelling</div>
+  <h1>Check and repair</h1>
+  <p class="lead mt">Day 3: Five seeded problems in a previous analyst's models, found and repaired</p>
+  <div class="meta"><span class="track">Data Science Track</span><span>4 teaching days + capstone day</span><span>4 sessions · 4 labs</span><span>DS-301</span></div>
+  <aside class="notes"><p>Day 3 is detective work. Qusai Al-Mufarrij, the analyst who left, sent five model specifications for four questions. Five problems are planted in them. By the end of the day each participant has a diagnosis log with at least four of them and the corrected models: the evidence of LO3.</p></aside>
+</section>
+
+<section class="slide" id="agenda" data-auto="agenda" data-label="Agenda" data-n="2">
+  <div class="kicker">Today</div>
+  <h2>Check and repair</h2>
+  <div class="agenda"><div class="item"><div><b>Session 1 · Residuals that tell you something</b><small>Raw residuals of a yes-or-no model say nothing; binned residuals against each predictor show what the model missed</small></div></div><div class="item"><div><b>Session 2 · Influential observations</b><small>A few observations can carry a fit: leverage and Cook's distance find them, and the data tell you what to do with them</small></div></div><div class="item"><div><b>Session 3 · Simulation-based checks</b><small>Simulate new data from the fitted model and ask whether it looks like the data you have</small></div></div><div class="item"><div><b>Session 4 · Separation and error structure</b><small>A variable that separates the outcome breaks a logistic fit, and a variance funnel breaks the classical standard errors</small></div></div></div>
+  <aside class="notes"><p>Each session finds one or two problems with one tool: binned residuals, influence measures, simulation from the fit, cross-tables and robust errors. Each lab writes its line of the log to artifacts/diagnosis_log.json; lab 3.4 assembles it, using reference lines for any lab that was skipped.</p></aside>
+</section>
+
+<section class="slide" id="review-day2" data-lo="LO2" data-label="Review" data-n="3">
+  <div class="kicker">Review of Day 2</div>
+  <h2>Which statement about the leak model is right?</h2>
+  <div class="quiz" data-type="single" data-lo="LO2" data-id="review-day2-q1">
+    <p class="lead">A Poisson leak model with offset log(km-years) gives asbestos cement a rate ratio of 1.62; its dispersion is 2.3. What can Basil's note say?</p>
+    <div class="opts">
+      <div class="opt" data-why="Reads a rate ratio as a difference in counts" data-k="A">Asbestos-cement mains have 1.62 more leaks a year than PVC mains</div>
+      <div class="opt" data-ok data-k="B">Asbestos cement leaks at about 1.6 times the rate of PVC at equal age and pressure, with an interval wider than the Poisson one</div>
+      <div class="opt" data-why="Thinks the offset makes the comparison causal" data-k="C">Replacing asbestos cement with PVC will cut leaks by 38%</div>
+      <div class="opt" data-why="Thinks overdispersion makes the estimate unusable rather than its interval too narrow" data-k="D">Nothing, because the model is overdispersed</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> A rate ratio compares rates per kilometre-year; with dispersion 2.3 the honest interval is about one and a half times as wide, as the negative binomial showed.</div>
+  </div>
+  <aside class="notes"><p>Answer: B. C is tempting for engineers: the comparison is between different mains in different places, not of replacing one.</p></aside>
+</section>
+
+<!-- Session 1 -->
+
+<section class="slide section" id="s1" data-auto="section" data-session="1" data-n="4">
+  <div class="kicker">Session 1</div>
+  <h1>Residuals that tell you something</h1>
+  <ul class="bullets outcomes"><li>Explain why raw logistic residuals are uninformative</li><li>Draw binned residuals against a predictor with their band</li><li>Find a missing term and show the repaired fit</li></ul>
+  <div class="sess-no">01</div>
+</section>
+
+<section class="slide" id="qusai-files" data-lo="LO3" data-label="Qusai's models" data-n="5" data-session="1">
+  <div class="kicker">The case</div>
+  <h2>Five model specifications, four questions, and nobody has checked them</h2>
+  <table class="t small">
+    <tr><th>Model</th><th>What it is for</th><th>Family</th></tr>
+    <tr><td>late_v1</td><td>monthly late-payment forecast</td><td>logistic</td></tr>
+    <tr><td>late_v2</td><td>the "improved" version, said to fit almost perfectly</td><td>logistic</td></tr>
+    <tr><td>district_leaks</td><td>district leak rates against age and pressure</td><td>least squares</td></tr>
+    <tr><td>leaks</td><td>leaks per segment for the renewal plan</td><td>Poisson with offset</td></tr>
+    <tr><td>consumption</td><td>m³ a month for the supply plan</td><td>least squares, classical errors</td></tr>
+  </table>
+  <aside class="notes"><p>The specifications are in data/qusai/models.json. Ask the room which one they would check first, and why. A good answer: the one with the most at stake (the renewal plan or the supply plan), or the one that looks too good (late_v2).</p></aside>
+</section>
+
+<section class="slide" id="check-before-trust" data-lo="LO3" data-label="Check before trust" data-n="6" data-session="1">
+  <div class="kicker">The habit</div>
+  <h2>A fit that converged has passed no check at all</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Every one of Qusai's models runs, converges and prints sensible-looking coefficients.</li>
+      <li>Checks compare what the model implies with what the data show.</li>
+      <li>Each check targets one assumption: form, influence, distribution, structure.</li>
+    </ul>
+    <div class="card c-coral"><h4>The log</h4><p class="small mb0">Problem, evidence, fix. One line per problem, with numbers. It is the diagnostics section of the capstone, which carries 30% of its rubric.</p></div>
+  </div>
+  <aside class="notes"><p>Point to the capstone rubric: diagnostics is the largest criterion, 30 of 100. The log format of today is what the assessors expect there.</p></aside>
+</section>
+
+<section class="slide" id="raw-residuals" data-lo="LO3" data-label="Raw residuals" data-n="7" data-session="1">
+  <div class="kicker">Lab 3.1, step 2</div>
+  <h2>Raw residuals of a yes-or-no model make two bands, whatever the model</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>A late bill leaves 1 − p; an on-time bill leaves −p.</li>
+      <li>Plotted against anything, they form two curved bands.</li>
+      <li>Information appears only in <b>averages</b> of many residuals.</li>
+    </ul>
+    <div class="card c-teal"><h4>Binned residuals</h4><p class="small mb0">Sort by a predictor, cut into 20 bins, plot each bin's mean residual with a ±2 standard-error band. About one bin in 20 falls outside when the form is right.</p></div>
+  </div>
+  <aside class="notes"><p>The binned residual plot is from Gelman and Hill, and appears in Regression and Other Stories. The band is 2·√(p̄(1 − p̄)/n) for each bin. U.binned_residuals computes it; a predictor with few values gets one bin per value.</p></aside>
+</section>
+
+<section class="slide" id="binned-plot" data-lo="LO3" data-label="The bill term" data-n="8" data-session="1">
+  <div class="kicker">Lab 3.1, steps 3 and 4</div>
+  <h2>Against the bill, 7 of 20 bins fall outside the band; with its log, none</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:binned-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Binned residuals against the bill: with the bill as a straight term, 7 of 20 bin means fall outside the grey band, negative for small bills and positive in the middle; with the log of the bill, all 20 sit inside it">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="322.5" y2="322.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="327.5" text-anchor="end" font-size="14" fill="var(--muted)">-0.06</text>
+<line x1="70" x2="700" y1="267.5" y2="267.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="272.5" text-anchor="end" font-size="14" fill="var(--muted)">-0.04</text>
+<line x1="70" x2="700" y1="212.5" y2="212.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="217.5" text-anchor="end" font-size="14" fill="var(--muted)">-0.02</text>
+<line x1="70" x2="700" y1="157.5" y2="157.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="162.5" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="102.5" y2="102.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="107.5" text-anchor="end" font-size="14" fill="var(--muted)">0.02</text>
+<line x1="70" x2="700" y1="47.5" y2="47.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="52.5" text-anchor="end" font-size="14" fill="var(--muted)">0.04</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="160.0" x2="160.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="160.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">100</text>
+<line x1="250.0" x2="250.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="250.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">200</text>
+<line x1="340.0" x2="340.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="340.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">300</text>
+<line x1="430.0" x2="430.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="430.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">400</text>
+<line x1="520.0" x2="520.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="520.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">500</text>
+<line x1="610.0" x2="610.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="610.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">600</text>
+<line x1="700.0" x2="700.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="700.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">700</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">bill, SAR (bin means)</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">mean residual</text>
+<polygon points="113.3,104.5 123.6,104.6 130.6,105.2 136.7,106.5 142.4,107.3 148.2,108.0 153.7,108.6 159.6,108.4 165.7,108.6 172.1,109.3 179.2,109.4 187.3,109.0 196.6,108.4 207.9,108.7 222.0,108.3 240.8,108.3 266.8,108.2 305.6,107.1 366.8,105.9 536.7,99.6 536.7,215.4 366.8,209.1 305.6,207.9 266.8,206.8 240.8,206.7 222.0,206.7 207.9,206.3 196.6,206.6 187.3,206.0 179.2,205.6 172.1,205.7 165.7,206.4 159.6,206.6 153.7,206.4 148.2,207.0 142.4,207.7 136.7,208.5 130.6,209.8 123.6,210.4 113.3,210.5" fill="var(--muted)" fill-opacity="0.2" stroke="none"/>
+<line x1="70" x2="700" y1="157.5" y2="157.5" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+<polyline points="113.3,303.5 123.6,230.7 130.6,172.6 136.7,174.6 142.4,212.9 148.2,153.6 153.7,146.3 159.6,166.9 165.7,142.2 172.1,136.9 179.2,134.0 187.3,169.2 196.6,130.6 207.9,92.2 222.0,122.8 240.8,82.6 266.8,123.0 305.6,78.0 366.8,140.7 536.7,236.6" fill="none" stroke="var(--coral)" stroke-width="2"/>
+<circle cx="113.3" cy="303.5" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="123.6" cy="230.7" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="130.6" cy="172.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="136.7" cy="174.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="142.4" cy="212.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="148.2" cy="153.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="153.7" cy="146.3" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="159.6" cy="166.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="165.7" cy="142.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="172.1" cy="136.9" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="179.2" cy="134.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="187.3" cy="169.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="196.6" cy="130.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="207.9" cy="92.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="222.0" cy="122.8" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="240.8" cy="82.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="266.8" cy="123.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="305.6" cy="78.0" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="366.8" cy="140.7" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="536.7" cy="236.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<polyline points="113.3,184.3 123.6,162.1 130.6,127.6 136.7,140.4 142.4,190.8 148.2,138.4 153.7,137.4 159.6,164.9 165.7,145.6 172.1,146.0 179.2,150.8 187.3,195.2 196.6,167.2 207.9,134.6 222.0,173.7 240.8,139.0 266.8,182.9 305.6,134.2 366.8,179.4 536.7,155.7" fill="none" stroke="var(--teal)" stroke-width="2"/>
+<circle cx="113.3" cy="184.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="123.6" cy="162.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="130.6" cy="127.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="136.7" cy="140.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="142.4" cy="190.8" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="148.2" cy="138.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="153.7" cy="137.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="159.6" cy="164.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="165.7" cy="145.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="172.1" cy="146.0" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="179.2" cy="150.8" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="187.3" cy="195.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="196.6" cy="167.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="207.9" cy="134.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="222.0" cy="173.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="240.8" cy="139.0" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="266.8" cy="182.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="305.6" cy="134.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="366.8" cy="179.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="536.7" cy="155.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<text x="367.0" y="53.0" text-anchor="start" font-size="15" fill="var(--coral)">bill as a straight term</text>
+<text x="367.0" y="281.2" text-anchor="start" font-size="15" fill="var(--teal)">log of the bill</text>
+</svg>
+<!--/FIG:binned-->
+      <div class="caption">Mean residual in 20 bins of 2,000 bills. Lab 3.1.</div>
+    </div>
+    <ul class="bullets">
+      <li>Small bills: late less often than the model says (−5.3 points).</li>
+      <li>Middle bills: more often (+2 to +3 points).</li>
+      <li>The largest bills: less often again.</li>
+      <li>AIC falls from 35,947 to 35,798 with the log.</li>
+    </ul>
+  </div>
+  <aside class="notes"><p>Against household size no bin falls outside, against past late payments one: what chance gives. The pattern against the bill is the shape of a log: the burden of a bill grows fast at first and slowly later. The generator uses log(bill/100); the repaired coefficient is 0.85 against 0.90 planted.</p></aside>
+</section>
+
+<section class="slide" id="per-predictor" data-lo="LO3" data-label="One plot per predictor" data-n="9" data-session="1">
+  <div class="kicker">Why per predictor</div>
+  <h2>Plot against each predictor; the fitted probability alone can hide the problem</h2>
+  <div class="cols cols-3">
+    <div class="stat"><div class="big">7</div><div class="lbl">bins outside, against the bill</div></div>
+    <div class="stat"><div class="big">0</div><div class="lbl">against household size</div></div>
+    <div class="stat"><div class="big">1</div><div class="lbl">against past late payments</div></div>
+  </div>
+  <div class="callout warn mt"><b>What goes wrong.</b> A misfit in one predictor is averaged away when residuals are binned by the fitted probability, which mixes all predictors. The stretch item tests it.</div>
+  <aside class="notes"><p>The same logic applies to linear models: plot residuals against each predictor, not only against fitted values. Day 1's residual pattern in temperature was found this way.</p></aside>
+</section>
+
+<section class="slide" id="log-line-one" data-lo="LO3" data-label="First line of the log" data-n="10" data-session="1">
+  <div class="kicker">Lab 3.1, step 5</div>
+  <h2>A log line names the problem, the evidence with its number, and the fix</h2>
+  <table class="t small">
+    <tr><th>Problem</th><th>Evidence</th><th>Fix</th></tr>
+    <tr><td>missing non-linear term</td><td>late_v1: 7 of 20 binned residuals against bill_sar outside the 2-SE band, negative for small bills</td><td>np.log(bill_sar): 0 bins outside; AIC 35,947 to 35,798</td></tr>
+  </table>
+  <div class="callout tip mt"><b>Not acceptable.</b> "Residuals looked a bit off, so I added a log." Without the number nobody can check the claim.</div>
+  <aside class="notes"><p>The log is the evidence of LO3: at least four problems named, each with its evidence and fix, plus the corrected models. Assessors in the capstone defence ask "what did your diagnostics show?" and expect a line like this.</p></aside>
+</section>
+
+<section class="slide" id="check-binned" data-lo="LO3" data-n="11" data-session="1">
+  <div class="kicker">Checkpoint</div>
+  <h2>What does this residual plot tell you?</h2>
+  <div class="quiz" data-type="single" data-lo="LO3" data-id="check-binned-q1">
+    <p class="lead">For a logistic model of meter faults, binned residuals against meter age are positive for the youngest and oldest meters and negative in between; 6 of 20 bins sit outside the band. What do you do?</p>
+    <div class="opts">
+      <div class="opt" data-why="Thinks a 2-SE band allows many bins outside by chance; about one in 20 is expected" data-k="A">Nothing: some bins always fall outside</div>
+      <div class="opt" data-why="Reaches for a different family when the problem is the form of one predictor" data-k="B">Switch to a Poisson model of faults</div>
+      <div class="opt" data-why="Treats a pattern in the mean as a problem of the standard errors" data-k="C">Use robust standard errors</div>
+      <div class="opt" data-ok data-k="D">Give age a curved term, such as a spline, and plot the binned residuals again</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> A U-shaped pattern against one predictor means its effect is not straight on the log odds scale; a flexible term for it is the repair, checked by the same plot.</div>
+  </div>
+  <aside class="notes"><p>Answer: D. Many in the room will remember the spline of Day 1: same idea, now on the logit scale.</p></aside>
+</section>
+
+<section class="slide lab top" id="lab-3-1" data-auto="lab" data-lab="3.1" data-label="Lab 3.1" data-n="12" data-session="1">
+  <div class="cols cols-2 mid"><div><div class="lab-tag">Lab 3.1 · 25 min</div><h2>Binned residuals</h2><p class="lead small">Draw binned residual plots for Qusai's late-payment model, find the bill term that should be on the log scale, refit, and write the first line of the diagnosis log.</p><a class="nb" href="../labs/D3_1_binned_residuals.ipynb">D3_1_binned_residuals.ipynb</a></div><ul class="checklist"><li>Fit Qusai's model as he wrote it <span class="min">3 min</span></li><li>Raw residuals, and why they do not help <span class="min">3 min</span></li><li>Binned residuals against each predictor <span class="min">8 min</span></li><li>Add the log term and refit <span class="min">6 min</span></li><li>The first line of the diagnosis log <span class="min">5 min</span></li><li class="stretch">✱ Stretch: Draw binned residuals against the fitted probability</li></ul></div>
+  <aside class="notes"><p>AI-off for the diagnosis. The plot of step 3 is the moment of the lab: let participants say what they see before they read the solution. The log line is saved to artifacts/; if a laptop cannot write there, lab 3.4 uses the reference line.</p></aside>
+</section>
+
+<!-- Session 2 -->
+
+<section class="slide section" id="s2" data-auto="section" data-session="2" data-n="13">
+  <div class="kicker">Session 2</div>
+  <h1>Influential observations</h1>
+  <ul class="bullets outcomes"><li>Compute leverage and Cook's distance for a fitted model</li><li>Find the most influential units and refit without them</li><li>Trace an influential unit to its cause before deciding</li></ul>
+  <div class="sess-no">02</div>
+</section>
+
+<section class="slide" id="age-backwards" data-lo="LO3" data-label="A coefficient backwards" data-n="14" data-session="2">
+  <div class="kicker">Lab 3.2, step 1</div>
+  <h2>Qusai's district model says older mains leak less</h2>
+  <div class="cols cols-2">
+    <div class="stat"><div class="big">−4.5</div><div class="lbl">leaks per 100 km for each year of mean age, 30 districts</div></div>
+    <div class="card c-coral"><h4>Against lab 2.3</h4><p class="small mb0">On 1,200 segments, each 10 years of age went with about 38% more leaks per kilometre-year.</p></div>
+  </div>
+  <p class="lead mt">A fit on 30 points can be carried by a few of them.</p>
+  <aside class="notes"><p>The model: leaks per 100 km on mean age and mean pressure, one row per district, from data/qusai/district_leaks.csv. Ask: what could make a district-level slope point the wrong way? Data errors, an unusual district, or averaging hiding the segment-level relation.</p></aside>
+</section>
+
+<section class="slide" id="districts-plot" data-lo="LO3" data-label="Thirty districts" data-n="15" data-session="2">
+  <div class="kicker">Lab 3.2, step 2</div>
+  <h2>Two districts sit far above the rest; a third sits alone at an age of 2.5 years</h2>
+  <div class="figure">
+<!--FIG:districts-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Leaks per 100 km against mean main age for 30 districts: D21 at 1,690 and D08 at 1,188 sit far above the rest, which lie between 90 and 340; D30 sits alone at an age of 2.5 years">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="276.7" y2="276.7" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="281.7" text-anchor="end" font-size="14" fill="var(--muted)">400</text>
+<line x1="70" x2="700" y1="203.3" y2="203.3" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="208.3" text-anchor="end" font-size="14" fill="var(--muted)">800</text>
+<line x1="70" x2="700" y1="130.0" y2="130.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="135.0" text-anchor="end" font-size="14" fill="var(--muted)">1,200</text>
+<line x1="70" x2="700" y1="56.7" y2="56.7" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="61.7" text-anchor="end" font-size="14" fill="var(--muted)">1,600</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="168.4" x2="168.4" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="168.4" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">5</text>
+<line x1="266.9" x2="266.9" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="266.9" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">10</text>
+<line x1="365.3" x2="365.3" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="365.3" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">15</text>
+<line x1="463.8" x2="463.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="463.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">20</text>
+<line x1="562.2" x2="562.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="562.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">25</text>
+<line x1="660.6" x2="660.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="660.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">30</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">mean age of mains, years</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">leaks per 100 km</text>
+<circle cx="581.9" cy="309.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="416.5" cy="309.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="585.8" cy="303.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="406.7" cy="315.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="442.1" cy="306.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="534.6" cy="320.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="477.5" cy="313.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="568.1" cy="320.4" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="475.6" cy="332.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="459.8" cy="302.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="444.1" cy="310.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="438.2" cy="320.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="607.5" cy="327.0" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="457.8" cy="295.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="410.6" cy="316.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="477.5" cy="314.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="489.3" cy="308.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="451.9" cy="312.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="446.0" cy="305.7" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="558.2" cy="311.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="422.4" cy="322.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="623.2" cy="289.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="548.4" cy="306.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="422.4" cy="322.0" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="513.0" cy="309.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="509.0" cy="324.0" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="501.2" cy="313.1" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="495.2" cy="40.2" r="9" fill="var(--coral)" fill-opacity="1.0"/>
+<text x="509.0" y="34.7" text-anchor="start" font-size="16" fill="var(--coral)">D21</text>
+<circle cx="501.2" cy="132.1" r="9" fill="var(--coral)" fill-opacity="1.0"/>
+<text x="514.9" y="126.6" text-anchor="start" font-size="16" fill="var(--coral)">D08</text>
+<circle cx="119.2" cy="328.8" r="9" fill="var(--purple)" fill-opacity="1.0"/>
+<text x="133.0" y="323.3" text-anchor="start" font-size="16" fill="var(--purple)">D30</text>
+</svg>
+<!--/FIG:districts-->
+    <div class="caption">Qusai's summary: leaks per 100 km against mean main age, 30 districts.</div>
+  </div>
+  <aside class="notes"><p>D21 at 1,690 and D08 at 1,188 leaks per 100 km; the other districts lie between about 90 and 340. D30 is the new development: mean age 2.5 years, pressure 6.5 bar, both far from the others.</p></aside>
+</section>
+
+<section class="slide" id="leverage-cooks" data-lo="LO3" data-label="Leverage and influence" data-n="16" data-session="2">
+  <div class="kicker">Lab 3.2, step 2</div>
+  <h2>Leverage is how unusual the predictors are; Cook's distance is how much the fit moves</h2>
+  <table class="t">
+    <tr><th>District</th><th class="num">Leverage</th><th class="num">Cook's distance</th><th>Why it stands out</th></tr>
+    <tr><td>D21</td><td class="num">0.08</td><td class="num">0.50</td><td>a huge residual</td></tr>
+    <tr><td>D30</td><td class="num">0.70</td><td class="num">0.39</td><td>predictors far from the rest</td></tr>
+    <tr><td>D08</td><td class="num">0.07</td><td class="num">0.18</td><td>a huge residual</td></tr>
+    <tr><td>D24</td><td class="num">0.25</td><td class="num">0.04</td><td>next largest</td></tr>
+  </table>
+  <p class="caption">Mean leverage 3/30 = 0.10; a common flag for Cook's distance is 4/n = 0.13.</p>
+  <aside class="notes"><p>From fit.get_influence(): hat_matrix_diag and cooks_distance. In R: hatvalues() and cooks.distance(). Thresholds are flags for a look, not rules for deletion.</p></aside>
+</section>
+
+<section class="slide" id="dont-just-drop" data-lo="LO3" data-label="Trace, then decide" data-n="17" data-session="2">
+  <div class="kicker">Lab 3.2, steps 3 and 4</div>
+  <h2>Without the three, the age slope turns positive; but first ask what each district is</h2>
+  <div class="flow">
+    <div class="step c-coral"><b>D08, D21</b>Kilometres a tenth of the segment table's: keyed in tens of km</div>
+    <div class="arrow">→</div>
+    <div class="step c-teal"><b>Correct</b>Recompute from segments.csv</div>
+    <div class="arrow">→</div>
+    <div class="step c-purple"><b>D30</b>Real: a new district of young mains at high pressure</div>
+    <div class="arrow">→</div>
+    <div class="step c-navy"><b>Keep</b>Report with and without it</div>
+  </div>
+  <div class="callout warn mt"><b>What goes wrong.</b> Dropping points until the fit looks right. Errors are corrected; real units stay.</div>
+  <aside class="notes"><p>Age coefficient: −4.5 with all 30, +2.8 without the three. With the two lengths corrected and D30 kept: +5.3 per year (0.3 to 10.4); without D30: +2.7. D30's Cook's distance after the correction is 1.52, because its pressure of 6.5 bar is outside the range of every other district: the pressure coefficient leans on one district.</p></aside>
+</section>
+
+<section class="slide" id="aggregation-loses" data-lo="LO3" data-label="Thirty points or 1,200" data-n="18" data-session="2">
+  <div class="kicker">A better model</div>
+  <h2>A model of 30 district averages throws away what 1,200 segments know</h2>
+  <div class="cols cols-2">
+    <div class="card c-coral"><h4>District averages</h4><p class="small mb0">30 points; one keying error reverses a slope; age and pressure barely vary between districts.</p></div>
+    <div class="card c-teal"><h4>Segment level</h4><p class="small mb0">1,200 rows with their own age and pressure; the count model of Day 2, with exposure and the right family.</p></div>
+  </div>
+  <aside class="notes"><p>Influence diagnostics are the repair for this model; the better answer to Basil's question is the segment-level negative binomial model of lab 2.4. Day 4 returns to how to model rows grouped in districts without averaging them away.</p></aside>
+</section>
+
+<section class="slide" id="check-influence" data-lo="LO3" data-n="19" data-session="2">
+  <div class="kicker">Checkpoint</div>
+  <h2>What do you do with this district?</h2>
+  <div class="quiz" data-type="single" data-lo="LO3" data-id="check-influence-q1">
+    <p class="lead">In a model of 30 district rates, one district has leverage 0.7 and Cook's distance 1.5. Its data are correct: a new district with unusually high pressure. What goes in the report?</p>
+    <div class="opts">
+      <div class="opt" data-ok data-k="A">Keep it, and report the estimates with and without it, saying the pressure result leans on one district</div>
+      <div class="opt" data-why="Treats high influence as proof of an error; this district's data were checked and are correct" data-k="B">Delete it as an outlier, since its Cook's distance is above 1</div>
+      <div class="opt" data-why="Hides the influence instead of reporting it; a robust fit still leaves the reader unaware" data-k="C">Keep it and say nothing, since the data are correct</div>
+      <div class="opt" data-why="Thinks a log transform removes influence that comes from the predictors' position" data-k="D">Take the log of the leak rate so that it is no longer influential</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> A real unit stays in. Because the conclusions depend on it, the reader must see both fits and the reason.</div>
+  </div>
+  <aside class="notes"><p>Answer: A. C is the subtle trap: correct data, but a reader deserves to know that one district carries a coefficient.</p></aside>
+</section>
+
+<section class="slide lab top" id="lab-3-2" data-auto="lab" data-lab="3.2" data-label="Lab 3.2" data-n="20" data-session="2">
+  <div class="cols cols-2 mid"><div><div class="lab-tag">Lab 3.2 · 25 min</div><h2>Influential districts</h2><p class="lead small">Fit Qusai's district model of leaks per 100 km, find the three most influential districts, refit without them, then trace two to a unit error in the pipe lengths and keep the third.</p><a class="nb" href="../labs/D3_2_influential_districts.ipynb">D3_2_influential_districts.ipynb</a></div><ul class="checklist"><li>Fit the district model <span class="min">3 min</span></li><li>Leverage and Cook's distance <span class="min">6 min</span></li><li>The three districts and the refit without them <span class="min">6 min</span></li><li>Recompute the kilometres from the segment table <span class="min">6 min</span></li><li>The second line of the diagnosis log <span class="min">4 min</span></li><li class="stretch">✱ Stretch: Compute DFBETA for the age coefficient</li></ul></div>
+  <aside class="notes"><p>AI-off for the influence measures and the decision. The recompute in step 4 uses U.segment_totals(); kilometre-years are length times weeks in service over 52, the same definition Qusai used. The match for the other 28 districts is within rounding.</p></aside>
+</section>
+
+<!-- Session 3 -->
+
+<section class="slide section" id="s3" data-auto="section" data-session="3" data-n="21">
+  <div class="kicker">Session 3</div>
+  <h1>Simulation-based checks</h1>
+  <ul class="bullets outcomes"><li>Simulate replicate data sets from a fitted count model</li><li>Choose a test statistic that matters to the question</li><li>Judge a model by where the observed statistic falls</li></ul>
+  <div class="sess-no">03</div>
+</section>
+
+<section class="slide" id="simulate-from-fit" data-lo="LO3" data-label="Simulate from the fit" data-n="22" data-session="3">
+  <div class="kicker">The idea</div>
+  <h2>If the model is right, data simulated from it look like the data you have</h2>
+  <div class="flow">
+    <div class="step c-teal"><b>1 · Fit</b>the model to the data</div>
+    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · Simulate</b>1,000 replicate data sets from the fit</div>
+    <div class="arrow frag" data-frag="c">→</div><div class="step c-purple frag" data-frag="c"><b>3 · Compute</b>a statistic that matters, in each</div>
+    <div class="arrow frag" data-frag="d">→</div><div class="step c-coral frag" data-frag="d"><b>4 · Compare</b>with the observed value</div>
+  </div>
+  <div class="callout tip mt frag" data-frag="d"><b>Day 1 in reverse.</b> Fake data checked the method; these replicates check the model against the data.</div>
+  <aside class="notes"><p>This is a posterior predictive check in its simplest form, as in Regression and Other Stories, here without Bayesian machinery: the fitted coefficients are taken as known (the stretch item adds their uncertainty).</p></aside>
+</section>
+
+<section class="slide" id="choose-statistic" data-lo="LO3" data-label="Choose the statistic" data-n="23" data-session="3">
+  <div class="kicker">Lab 3.3, step 1</div>
+  <h2>Choose a statistic the model was not fitted to match</h2>
+  <div class="cols cols-3">
+    <div class="card c-coral"><h4>Total leaks</h4><p class="small mb0">Useless: a Poisson model reproduces 3,055 by construction.</p></div>
+    <div class="card c-teal"><h4>Share with no leak</h4><p class="small mb0">36.4% of segments. Basil plans inspection crews with it.</p></div>
+    <div class="card c-purple"><h4>Largest count</h4><p class="small mb0">75 leaks on one segment. The worst main sets the repair budget.</p></div>
+  </div>
+  <aside class="notes"><p>Ask for other useful statistics: the share of segments with five or more leaks, the variance between districts. The best ones are tied to a decision.</p></aside>
+</section>
+
+<section class="slide" id="zeros-plot" data-lo="LO3" data-label="The share of zeros" data-n="24" data-session="3">
+  <div class="kicker">Lab 3.3, steps 2 to 4</div>
+  <h2>No Poisson replicate has as many zero-leak segments as Sahil; the negative binomial does</h2>
+  <div class="figure">
+<!--FIG:zeros-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Share of segments with no leak in 1,000 replicate years: Poisson replicates run from 23% to 31%, negative binomial ones from 33% to 42%; the observed share, 36.4%, is beyond every Poisson replicate and in the middle of the negative binomial ones">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="270.7" y2="270.7" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="275.7" text-anchor="end" font-size="14" fill="var(--muted)">50</text>
+<line x1="70" x2="700" y1="191.5" y2="191.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="196.5" text-anchor="end" font-size="14" fill="var(--muted)">100</text>
+<line x1="70" x2="700" y1="112.2" y2="112.2" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="117.2" text-anchor="end" font-size="14" fill="var(--muted)">150</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">22%</text>
+<line x1="184.5" x2="184.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="184.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">26%</text>
+<line x1="299.1" x2="299.1" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="299.1" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">30%</text>
+<line x1="413.6" x2="413.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="413.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">34%</text>
+<line x1="528.2" x2="528.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="528.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">38%</text>
+<line x1="642.7" x2="642.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="642.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">42%</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">share of segments with no leak</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">replicate years</text>
+<rect x="70.7" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="85.0" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="99.4" y="348.4" width="12.9" height="1.6" fill="var(--coral)"/>
+<rect x="113.7" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="128.0" y="346.8" width="12.9" height="3.2" fill="var(--coral)"/>
+<rect x="142.3" y="327.8" width="12.9" height="22.2" fill="var(--coral)"/>
+<rect x="156.6" y="307.2" width="12.9" height="42.8" fill="var(--coral)"/>
+<rect x="170.9" y="253.3" width="12.9" height="96.7" fill="var(--coral)"/>
+<rect x="185.3" y="188.3" width="12.9" height="161.7" fill="var(--coral)"/>
+<rect x="199.6" y="126.5" width="12.9" height="223.5" fill="var(--coral)"/>
+<rect x="213.9" y="105.8" width="12.9" height="244.2" fill="var(--coral)"/>
+<rect x="228.2" y="63.0" width="12.9" height="287.0" fill="var(--coral)"/>
+<rect x="242.5" y="86.8" width="12.9" height="263.2" fill="var(--coral)"/>
+<rect x="256.9" y="220.0" width="12.9" height="130.0" fill="var(--coral)"/>
+<rect x="271.2" y="283.4" width="12.9" height="66.6" fill="var(--coral)"/>
+<rect x="285.5" y="326.2" width="12.9" height="23.8" fill="var(--coral)"/>
+<rect x="299.8" y="335.7" width="12.9" height="14.3" fill="var(--coral)"/>
+<rect x="314.1" y="346.8" width="12.9" height="3.2" fill="var(--coral)"/>
+<rect x="328.4" y="348.4" width="12.9" height="1.6" fill="var(--coral)"/>
+<rect x="342.8" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="357.1" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="371.4" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="385.7" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="400.0" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="414.4" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="428.7" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="443.0" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="457.3" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="471.6" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="485.9" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="500.3" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="514.6" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="528.9" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="543.2" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="557.5" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="571.9" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="586.2" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="600.5" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="614.8" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="629.1" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="643.4" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="657.8" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="672.1" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="686.4" y="350.0" width="12.9" height="0.5" fill="var(--coral)"/>
+<rect x="70.7" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="85.0" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="99.4" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="113.7" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="128.0" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="142.3" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="156.6" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="170.9" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="185.3" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="199.6" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="213.9" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="228.2" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="242.5" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="256.9" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="271.2" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="285.5" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="299.8" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="314.1" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="328.4" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="342.8" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="357.1" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="371.4" y="348.4" width="12.9" height="1.6" fill="var(--teal)"/>
+<rect x="385.7" y="340.5" width="12.9" height="9.5" fill="var(--teal)"/>
+<rect x="400.0" y="315.1" width="12.9" height="34.9" fill="var(--teal)"/>
+<rect x="414.4" y="285.0" width="12.9" height="65.0" fill="var(--teal)"/>
+<rect x="428.7" y="231.1" width="12.9" height="118.9" fill="var(--teal)"/>
+<rect x="443.0" y="177.2" width="12.9" height="172.8" fill="var(--teal)"/>
+<rect x="457.3" y="121.7" width="12.9" height="228.3" fill="var(--teal)"/>
+<rect x="471.6" y="121.7" width="12.9" height="228.3" fill="var(--teal)"/>
+<rect x="485.9" y="90.0" width="12.9" height="260.0" fill="var(--teal)"/>
+<rect x="500.3" y="140.7" width="12.9" height="209.3" fill="var(--teal)"/>
+<rect x="514.6" y="245.4" width="12.9" height="104.6" fill="var(--teal)"/>
+<rect x="528.9" y="273.9" width="12.9" height="76.1" fill="var(--teal)"/>
+<rect x="543.2" y="300.9" width="12.9" height="49.1" fill="var(--teal)"/>
+<rect x="557.5" y="338.9" width="12.9" height="11.1" fill="var(--teal)"/>
+<rect x="571.9" y="343.7" width="12.9" height="6.3" fill="var(--teal)"/>
+<rect x="586.2" y="346.8" width="12.9" height="3.2" fill="var(--teal)"/>
+<rect x="600.5" y="345.2" width="12.9" height="4.8" fill="var(--teal)"/>
+<rect x="614.8" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="629.1" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="643.4" y="348.4" width="12.9" height="1.6" fill="var(--teal)"/>
+<rect x="657.8" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="672.1" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<rect x="686.4" y="350.0" width="12.9" height="0.5" fill="var(--teal)"/>
+<line x1="482.8" x2="482.8" y1="20" y2="350" stroke="var(--ink, currentColor)" stroke-width="3"/>
+<text x="113.0" y="48.7" text-anchor="start" font-size="15" fill="var(--coral)">Poisson</text>
+<text x="571.1" y="116.0" text-anchor="start" font-size="15" fill="var(--teal)">negative binomial</text>
+<text x="491.4" y="40.1" text-anchor="start" font-size="15" fill="var(--ink, currentColor)">observed 36.4%</text>
+</svg>
+<!--/FIG:zeros-->
+    <div class="caption">Share of segments with no leak in 1,000 replicate years from each fit. Lab 3.3.</div>
+  </div>
+  <aside class="notes"><p>Poisson replicates: 23.3% to 31.0%; observed 36.4%; tail share 0. Negative binomial: 32.6% to 42.3%, tail share 0.48. The largest count tells the same story: Poisson replicates top out at 62, the observed is 75; the negative binomial's median is 64.</p></aside>
+</section>
+
+<section class="slide" id="nb-simulation" data-lo="LO3" data-label="Simulating counts" data-n="25" data-session="3">
+  <div class="kicker">Lab 3.3, step 3</div>
+  <h2>A negative binomial count is a Poisson count with a gamma-distributed rate</h2>
+  <pre class="code"><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">replicate_nb</span>(<span class="hljs-params">mu, alpha, R, gen</span>):
+    lam = mu * gen.gamma(<span class="hljs-number">1</span> / alpha, alpha, size=(R, <span class="hljs-built_in">len</span>(mu)))   <span class="hljs-comment"># mean 1, variance alpha</span>
+    <span class="hljs-keyword">return</span> gen.poisson(lam)</code></pre>
+  <p class="lead">Each replicate gives each segment its own hidden leakiness: exactly what the Poisson model leaves out.</p>
+  <aside class="notes"><p>This is also how the generator built Sahil's leaks: a gamma frailty with shape 1.5 per segment. In R: rnbinom(n, size = 1/alpha, mu = mu).</p></aside>
+</section>
+
+<section class="slide" id="zero-inflation" data-lo="LO3" data-label="Before a fancier model" data-n="26" data-session="3">
+  <div class="kicker">The next model</div>
+  <h2>Reach for a zero-inflated model only when the simpler one fails the check</h2>
+  <ul class="bullets">
+    <li>Excess zeros against a Poisson model are often just overdispersion.</li>
+    <li>Here the negative binomial reproduces both the zeros and the largest count.</li>
+    <li>A zero-inflated model would need its own story: mains that cannot leak at all.</li>
+  </ul>
+  <aside class="notes"><p>Zero-inflated and hurdle models are outside this course's entry; mention them by name only. The check of this session is how you would know you needed one.</p></aside>
+</section>
+
+<section class="slide" id="check-simulation" data-lo="LO3" data-n="27" data-session="3">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which check would reveal the problem?</h2>
+  <div class="quiz" data-type="single" data-lo="LO3" data-id="check-simulation-q1">
+    <p class="lead">A Poisson model of complaints per district-month will be used to staff the call centre for the busiest months. You can simulate 1,000 replicate years from it. Which statistic makes the most useful check?</p>
+    <div class="opts">
+      <div class="opt" data-why="Uses a statistic the model reproduces by construction, so the check cannot fail" data-k="A">The total number of complaints in the year</div>
+      <div class="opt" data-why="Checks the predictors' distribution, which the model does not generate" data-k="B">The mean temperature of the months</div>
+      <div class="opt" data-ok data-k="C">The largest monthly count in any district</div>
+      <div class="opt" data-why="Uses the fitted coefficients themselves, which replicate exactly by definition" data-k="D">The coefficient of temperature</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> Staffing depends on the peaks, and a Poisson model with too little variance under-produces them; the total says nothing.</div>
+  </div>
+  <aside class="notes"><p>Answer: C. This is capstone brief C1's data: complaints per district-month with customers as the exposure.</p></aside>
+</section>
+
+<section class="slide lab top" id="lab-3-3" data-auto="lab" data-lab="3.3" data-label="Lab 3.3" data-n="28" data-session="3">
+  <div class="cols cols-2 mid"><div><div class="lab-tag">Lab 3.3 · 25 min</div><h2>The share of zeros</h2><p class="lead small">Simulate replicate leak counts from the Poisson and negative binomial fits, compare the share of segments with no leak and the largest count with the observed values, and log the result.</p><a class="nb" href="../labs/D3_3_share_of_zeros.ipynb">D3_3_share_of_zeros.ipynb</a></div><ul class="checklist"><li>Observed share of zeros and largest count <span class="min">3 min</span></li><li>Simulate from the Poisson fit <span class="min">7 min</span></li><li>Simulate from the negative binomial fit <span class="min">6 min</span></li><li>Where the observed values fall <span class="min">5 min</span></li><li>The third line of the diagnosis log <span class="min">4 min</span></li><li class="stretch">✱ Stretch: Add the uncertainty of the coefficients to the simulation</li></ul></div>
+  <aside class="notes"><p>AI-off for the simulation. 1,000 replicates of 1,200 segments is 1.2 million draws: under a second. In quick mode 200. The gamma in NumPy takes shape and scale: shape 1/α, scale α, not the rate.</p></aside>
+</section>
+
+<!-- Session 4 -->
+
+<section class="slide section" id="s4" data-auto="section" data-session="4" data-n="29">
+  <div class="kicker">Session 4</div>
+  <h1>Separation and error structure</h1>
+  <ul class="bullets outcomes"><li>Recognise separation from its symptoms</li><li>Repair a separated fit and say why the variable does not belong</li><li>Use heteroskedasticity-consistent standard errors on a funnel</li></ul>
+  <div class="sess-no">04</div>
+</section>
+
+<section class="slide" id="too-good" data-lo="LO3" data-label="A fit too good" data-n="30" data-session="4">
+  <div class="kicker">Lab 3.4, step 1</div>
+  <h2>A coefficient of 27 with a standard error of 6,675 is a symptom, not a finding</h2>
+  <div class="cols cols-2">
+    <table class="t small">
+      <tr><th>late_v2 term</th><th class="num">Coefficient</th><th class="num">Std. error</th></tr>
+      <tr><td>log bill</td><td class="num">0.88</td><td class="num">0.05</td></tr>
+      <tr><td>autopay</td><td class="num">−2.30</td><td class="num">0.05</td></tr>
+      <tr class="hl"><td>notice_sent</td><td class="num">27.2</td><td class="num">6,675</td></tr>
+    </table>
+    <ul class="bullets">
+      <li>A convergence warning.</li>
+      <li>AIC 28,434 against 35,798: "almost perfect".</li>
+      <li>One term's standard error in the thousands.</li>
+    </ul>
+  </div>
+  <aside class="notes"><p>These are the symptoms of separation. The algorithm keeps increasing the coefficient because the likelihood keeps rising; it stops at an arbitrary large value. Some software refuses to fit; statsmodels warns and returns it.</p></aside>
+</section>
+
+<section class="slide" id="separation-table" data-lo="LO3" data-label="The cross-table" data-n="31" data-session="4">
+  <div class="kicker">Lab 3.4, step 2</div>
+  <h2>Every one of the 2,622 bills with a notice was late: the notice follows the outcome</h2>
+  <div class="cols cols-2">
+    <table class="t">
+      <tr><th>notice_sent</th><th class="num">on time</th><th class="num">late</th></tr>
+      <tr><td>0</td><td class="num">31,406</td><td class="num">5,972</td></tr>
+      <tr class="hl"><td>1</td><td class="num">0</td><td class="num">2,622</td></tr>
+    </table>
+    <div class="card c-coral"><h4>The repair</h4><p class="small mb0">Remove it. A disconnection notice is sent after a bill is 30 days late: a consequence of the outcome cannot predict it.</p></div>
+  </div>
+  <div class="callout note mt"><b>When the separating variable is legitimate</b> (a rare category with no late bills), use a penalised fit, such as Firth's method or a small ridge penalty, and say so.</div>
+  <aside class="notes"><p>The empty cell is the diagnosis. Without the notice, the largest standard error is 0.18. The stretch item fits it with a penalty: the coefficient becomes finite (7.6), and the flag is still a consequence of the outcome. Penalties fix arithmetic, not logic.</p></aside>
+</section>
+
+<section class="slide" id="funnel" data-lo="LO3" data-label="The funnel" data-n="32" data-session="4">
+  <div class="kicker">Lab 3.4, step 3</div>
+  <h2>In cubic metres, the residual spread grows almost fourfold with the fitted value</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:funnel-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Residual standard deviation by decile of fitted consumption: it rises from 4.9 cubic metres in the lowest decile to 19.3 in the highest">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="275.5" y2="275.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="280.5" text-anchor="end" font-size="14" fill="var(--muted)">5</text>
+<line x1="70" x2="700" y1="201.0" y2="201.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="206.0" text-anchor="end" font-size="14" fill="var(--muted)">10</text>
+<line x1="70" x2="700" y1="126.5" y2="126.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="131.5" text-anchor="end" font-size="14" fill="var(--muted)">15</text>
+<line x1="70" x2="700" y1="52.1" y2="52.1" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="57.1" text-anchor="end" font-size="14" fill="var(--muted)">20</text>
+<line x1="101.5" x2="101.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="101.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">1</text>
+<line x1="164.5" x2="164.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="164.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">2</text>
+<line x1="227.5" x2="227.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="227.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">3</text>
+<line x1="290.5" x2="290.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="290.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">4</text>
+<line x1="353.5" x2="353.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="353.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">5</text>
+<line x1="416.5" x2="416.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="416.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">6</text>
+<line x1="479.5" x2="479.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="479.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">7</text>
+<line x1="542.5" x2="542.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="542.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">8</text>
+<line x1="605.5" x2="605.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="605.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">9</text>
+<line x1="668.5" x2="668.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="668.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">10</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">decile of fitted m³</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">residual SD, m³</text>
+<rect x="79.5" y="276.5" width="44.1" height="73.5" fill="var(--teal)"/>
+<rect x="142.4" y="268.5" width="44.1" height="81.5" fill="var(--teal)"/>
+<rect x="205.4" y="260.7" width="44.1" height="89.3" fill="var(--teal)"/>
+<rect x="268.4" y="254.7" width="44.1" height="95.3" fill="var(--teal)"/>
+<rect x="331.5" y="246.0" width="44.1" height="104.0" fill="var(--teal)"/>
+<rect x="394.4" y="236.4" width="44.1" height="113.6" fill="var(--teal)"/>
+<rect x="457.4" y="223.5" width="44.1" height="126.5" fill="var(--teal)"/>
+<rect x="520.5" y="204.1" width="44.1" height="145.9" fill="var(--teal)"/>
+<rect x="583.5" y="177.6" width="44.1" height="172.4" fill="var(--teal)"/>
+<rect x="646.5" y="63.0" width="44.1" height="287.0" fill="var(--teal)"/>
+</svg>
+<!--/FIG:funnel-->
+      <div class="caption">Qusai's consumption model on the m³ scale, 40,000 bills. Lab 3.4.</div>
+    </div>
+    <ul class="bullets">
+      <li>4.9 m³ in the lowest decile, 19.3 in the highest.</li>
+      <li>Classical standard errors assume one spread for every bill.</li>
+      <li>The estimates are fine; their uncertainty is not.</li>
+    </ul>
+  </div>
+  <aside class="notes"><p>Consumption is multiplicative: households that use more vary more. Day 1's log model has a nearly constant spread on the log scale; that is the other repair.</p></aside>
+</section>
+
+<section class="slide" id="hc3" data-lo="LO3" data-label="Robust errors" data-n="33" data-session="4">
+  <div class="kicker">Lab 3.4, step 4</div>
+  <h2>Heteroskedasticity-consistent errors change the uncertainty, not the estimates</h2>
+  <table class="t">
+    <tr><th>Term</th><th class="num">Estimate, m³</th><th class="num">Classical SE</th><th class="num">HC3 SE</th><th class="num">Ratio</th></tr>
+    <tr><td>household size</td><td class="num">2.63</td><td class="num">0.026</td><td class="num">0.033</td><td class="num">1.31</td></tr>
+    <tr><td>social band</td><td class="num">−5.75</td><td class="num">0.122</td><td class="num">0.103</td><td class="num">0.85</td></tr>
+    <tr class="hl"><td>villa band</td><td class="num">16.06</td><td class="num">0.134</td><td class="num">0.187</td><td class="num">1.40</td></tr>
+  </table>
+  <p class="lead mt">Not always wider: the social band sits where the spread is small, so its robust error is smaller.</p>
+  <aside class="notes"><p>HC3 is the default to reach for with a funnel; in statsmodels fit(cov_type="HC3"), in R sandwich::vcovHC(type = "HC3"). DS-201 used it on the same kind of funnel; here it is one line of the log.</p></aside>
+</section>
+
+<section class="slide" id="the-log" data-lo="LO3" data-label="The diagnosis log" data-n="34" data-session="4">
+  <div class="kicker">Lab 3.4, step 5</div>
+  <h2>Five problems, five pieces of evidence, five repairs</h2>
+  <table class="t small">
+    <tr><th>Problem</th><th>Evidence</th><th>Fix</th></tr>
+    <tr><td>missing non-linear term</td><td>7 of 20 bins outside, against the bill</td><td>log of the bill</td></tr>
+    <tr><td>influential districts</td><td>D21, D30, D08 reverse the age slope</td><td>correct D08 and D21; report with and without D30</td></tr>
+    <tr><td>overdispersion</td><td>36.4% zeros; Poisson replicates at most 31.0%</td><td>negative binomial</td></tr>
+    <tr><td>separation</td><td>notice_sent: 27.2 with SE 6,675</td><td>remove a post-outcome flag</td></tr>
+    <tr><td>non-constant variance</td><td>spread 3.9 times larger at the top</td><td>HC3, or the log model</td></tr>
+  </table>
+  <aside class="notes"><p>This table with the corrected models is the evidence of LO3, which asks for at least four problems. In the capstone defence the assessor asks for the diagnostics in exactly this form.</p></aside>
+</section>
+
+<section class="slide" id="check-separation" data-lo="LO3" data-n="35" data-session="4">
+  <div class="kicker">Checkpoint</div>
+  <h2>What explains this fit?</h2>
+  <div class="quiz" data-type="single" data-lo="LO3" data-id="check-separation-q1">
+    <p class="lead">A logistic model of whether a customer cancels includes "closing letter printed". Its coefficient is 31 with a standard error of 9,000, and the model's AIC is far better than without it. What is the likely explanation?</p>
+    <div class="opts">
+      <div class="opt" data-why="Reads a runaway coefficient as a very strong real effect" data-k="A">The letter is by far the strongest driver of cancelling</div>
+      <div class="opt" data-ok data-k="B">The letter is printed only for customers who cancel, so it separates the outcome and must be removed</div>
+      <div class="opt" data-why="Treats a structural problem as a sampling one that more data would solve" data-k="C">The sample is too small; collect more months</div>
+      <div class="opt" data-why="Uses robust errors for a problem of the estimate itself" data-k="D">Use HC3 standard errors and keep the term</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> A huge coefficient with a huge standard error points to separation; a flag created by the outcome is leakage as well, so no estimation method rescues it.</div>
+  </div>
+  <aside class="notes"><p>Answer: B. Connect to DS-204's leakage lessons if the room took it: the same flag would leak into a predictive model.</p></aside>
+</section>
+
+<section class="slide lab top" id="lab-3-4" data-auto="lab" data-lab="3.4" data-label="Lab 3.4" data-n="36" data-session="4">
+  <div class="cols cols-2 mid"><div><div class="lab-tag">Lab 3.4 · 25 min</div><h2>Separation and robust errors</h2><p class="lead small">Repair Qusai's logistic fit, which a notice flag separates, then find the funnel in his consumption model, set classical and heteroskedasticity-consistent errors side by side, and close the diagnosis log with the corrected models.</p><a class="nb" href="../labs/D3_4_separation_hc.ipynb">D3_4_separation_hc.ipynb</a></div><ul class="checklist"><li>The separated fit and its symptoms <span class="min">5 min</span></li><li>The cross-table that explains it, and the repair <span class="min">5 min</span></li><li>The funnel in the consumption model <span class="min">5 min</span></li><li>Classical against robust standard errors <span class="min">5 min</span></li><li>The full diagnosis log and the corrected models <span class="min">5 min</span></li><li class="stretch">✱ Stretch: Fit the separated model with a small penalty and compare</li></ul></div>
+  <aside class="notes"><p>AI-off for the diagnosis and the repair. Step 5 assembles the log from artifacts/diagnosis_log.json; lines of labs that did not run on this laptop come from the reference and are marked as such. Remind participants to keep their log: it is the LO3 evidence.</p></aside>
+</section>
+
+<section class="slide" id="wrap-up" data-n="37" data-session="4">
+  <div class="kicker">Day 3 · wrap-up</div>
+  <h2>Three things to keep</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>One tool per assumption</h4><p class="small mb0">Binned residuals for form, influence for single units, replicates for the distribution.</p></div>
+    <div class="card c-coral"><h4>Trace before you delete</h4><p class="small mb0">Errors are corrected; real units stay and are reported both ways.</p></div>
+    <div class="card c-purple"><h4>Log with numbers</h4><p class="small mb0">Problem, evidence, fix: the diagnostics section of your capstone.</p></div>
+  </div>
+  <aside class="notes"><p>Ask which of the five problems would have changed a decision at Sahil. Usually: the district model (renewal) and the overdispersion (renewal list confidence).</p></aside>
+</section>
+
+<section class="slide dark" id="next" data-label="Next" data-n="38" data-session="4">
+  <div class="kicker">Next</div>
+  <h2>Day 4: Grouped data and many predictors</h2>
+  <p class="lead">Households grouped in districts of very different sizes, 120 candidate predictors, and a report Ghaliya can read. Tomorrow you also choose your capstone brief.</p>
+  <aside class="notes"><p>Ask participants to read the three briefs in labs/capstone/briefs.json tonight; lab 4.4 ends with the choice.</p></aside>
+</section>
+</div>
+<script type="application/json" id="academy-data">{"v":1,"engine":"1.0.0","build":{"at":"2026-11-15T15:57:16Z","version":"2027.1.0","commit":"5c64064"},"course":{"id":"ds-301","code":"DS-301","title":"Regression and Generalised Linear Modelling","track":"data-science","lang":"en","dir":"ltr","url":"https://sdaiaacademy.github.io/ds-301/","repo":"SDAIAAcademy/ds-301","home":"../index.html"},"deck":{"id":"day3","kind":"day","day":3,"label":"Day 3","title":"Check and repair","prev":"day2.html","next":"day4.html","md":"day3.md","alt":{}},"sessions":[{"n":1,"label":"Session 1","title":"Residuals that tell you something","slide":"s1","outcomes":["Explain why raw logistic residuals are uninformative","Draw binned residuals against a predictor with their band","Find a missing term and show the repaired fit"],"minutes":50,"lab":{"id":"3.1","title":"Binned residuals","minutes":25,"href":"../labs/D3_1_binned_residuals.ipynb"}},{"n":2,"label":"Session 2","title":"Influential observations","slide":"s2","outcomes":["Compute leverage and Cook's distance for a fitted model","Find the most influential units and refit without them","Trace an influential unit to its cause before deciding"],"minutes":50,"lab":{"id":"3.2","title":"Influential districts","minutes":25,"href":"../labs/D3_2_influential_districts.ipynb"}},{"n":3,"label":"Session 3","title":"Simulation-based checks","slide":"s3","outcomes":["Simulate replicate data sets from a fitted count model","Choose a test statistic that matters to the question","Judge a model by where the observed statistic falls"],"minutes":50,"lab":{"id":"3.3","title":"The share of zeros","minutes":25,"href":"../labs/D3_3_share_of_zeros.ipynb"}},{"n":4,"label":"Session 4","title":"Separation and error structure","slide":"s4","outcomes":["Recognise separation from its symptoms","Repair a separated fit and say why the variable does not belong","Use heteroskedasticity-consistent standard errors on a funnel"],"minutes":50,"lab":{"id":"3.4","title":"Separation and robust errors","minutes":25,"href":"../labs/D3_4_separation_hc.ipynb"}}],"slides":[{"id":"title","n":1,"title":"Check and repair","kind":"title","session":0,"hash":"3eaf0c17","md":"#### [day3#title] Check and repair\n\n*SDAIA Academy · Regression and Generalised Linear Modelling*\n\nDay 3: Five seeded problems in a previous analyst's models, found and repaired\n\nData Science Track · 4 teaching days + capstone day · 4 sessions · 4 labs · DS-301","notes":"Day 3 is detective work. Qusai Al-Mufarrij, the analyst who left, sent five model specifications for four questions. Five problems are planted in them. By the end of the day each participant has a diagnosis log with at least four of them and the corrected models: the evidence of LO3.","minutes":null,"lo":[]},{"id":"agenda","n":2,"title":"Check and repair","kind":"content","session":0,"hash":"aad74dce","md":"#### [day3#agenda] Check and repair\n\n*Today*\n\n- **Session 1 · Residuals that tell you something**: Raw residuals of a yes-or-no model say nothing; binned residuals against each predictor show what the model missed\n- **Session 2 · Influential observations**: A few observations can carry a fit: leverage and Cook's distance find them, and the data tell you what to do with them\n- **Session 3 · Simulation-based checks**: Simulate new data from the fitted model and ask whether it looks like the data you have\n- **Session 4 · Separation and error structure**: A variable that separates the outcome breaks a logistic fit, and a variance funnel breaks the classical standard errors","notes":"Each session finds one or two problems with one tool: binned residuals, influence measures, simulation from the fit, cross-tables and robust errors. Each lab writes its line of the log to artifacts/diagnosis_log.json; lab 3.4 assembles it, using reference lines for any lab that was skipped.","minutes":null,"lo":[]},{"id":"review-day2","n":3,"title":"Which statement about the leak model is right?","kind":"quiz","session":0,"hash":"b557f708","md":"#### [day3#review-day2] Which statement about the leak model is right?\n\n*Review of Day 2*\n\n**Question:** A Poisson leak model with offset log(km-years) gives asbestos cement a rate ratio of 1.62; its dispersion is 2.3. What can Basil's note say?\n\n- A. Asbestos-cement mains have 1.62 more leaks a year than PVC mains\n- B. Asbestos cement leaks at about 1.6 times the rate of PVC at equal age and pressure, with an interval wider than the Poisson one\n- C. Replacing asbestos cement with PVC will cut leaks by 38%\n- D. Nothing, because the model is overdispersed","notes":"Answer: B. C is tempting for engineers: the comparison is between different mains in different places, not of replacing one.","minutes":null,"lo":["LO2"]},{"id":"s1","n":4,"title":"Residuals that tell you something","kind":"section","session":1,"hash":"b4b9e637","md":"#### [day3#s1] Residuals that tell you something\n\n*Session 1*\n\n- Explain why raw logistic residuals are uninformative\n- Draw binned residuals against a predictor with their band\n- Find a missing term and show the repaired fit","notes":"","minutes":null,"lo":["LO3"]},{"id":"qusai-files","n":5,"title":"Five model specifications, four questions, and nobody has checked them","kind":"content","session":1,"hash":"06af2782","md":"#### [day3#qusai-files] Five model specifications, four questions, and nobody has checked them\n\n*The case*\n\n| Model | What it is for | Family |\n| --- | --- | --- |\n| late_v1 | monthly late-payment forecast | logistic |\n| late_v2 | the \"improved\" version, said to fit almost perfectly | logistic |\n| district_leaks | district leak rates against age and pressure | least squares |\n| leaks | leaks per segment for the renewal plan | Poisson with offset |\n| consumption | m³ a month for the supply plan | least squares, classical errors |","notes":"The specifications are in data/qusai/models.json. Ask the room which one they would check first, and why. A good answer: the one with the most at stake (the renewal plan or the supply plan), or the one that looks too good (late_v2).","minutes":null,"lo":["LO3"]},{"id":"check-before-trust","n":6,"title":"A fit that converged has passed no check at all","kind":"content","session":1,"hash":"e8618b1d","md":"#### [day3#check-before-trust] A fit that converged has passed no check at all\n\n*The habit*\n\n- Every one of Qusai's models runs, converges and prints sensible-looking coefficients.\n- Checks compare what the model implies with what the data show.\n- Each check targets one assumption: form, influence, distribution, structure.\n\n- **The log.** Problem, evidence, fix. One line per problem, with numbers. It is the diagnostics section of the capstone, which carries 30% of its rubric.","notes":"Point to the capstone rubric: diagnostics is the largest criterion, 30 of 100. The log format of today is what the assessors expect there.","minutes":null,"lo":["LO3"]},{"id":"raw-residuals","n":7,"title":"Raw residuals of a yes-or-no model make two bands, whatever the model","kind":"content","session":1,"hash":"089a4933","md":"#### [day3#raw-residuals] Raw residuals of a yes-or-no model make two bands, whatever the model\n\n*Lab 3.1, step 2*\n\n- A late bill leaves 1 − p; an on-time bill leaves −p.\n- Plotted against anything, they form two curved bands.\n- Information appears only in **averages** of many residuals.\n\n- **Binned residuals.** Sort by a predictor, cut into 20 bins, plot each bin's mean residual with a ±2 standard-error band. About one bin in 20 falls outside when the form is right.","notes":"The binned residual plot is from Gelman and Hill, and appears in Regression and Other Stories. The band is 2·√(p̄(1 − p̄)/n) for each bin. U.binned_residuals computes it; a predictor with few values gets one bin per value.","minutes":null,"lo":["LO3"]},{"id":"binned-plot","n":8,"title":"Against the bill, 7 of 20 bins fall outside the band; with its log, none","kind":"content","session":1,"hash":"d596fd51","md":"#### [day3#binned-plot] Against the bill, 7 of 20 bins fall outside the band; with its log, none\n\n*Lab 3.1, steps 3 and 4*\n\nFigure: Mean residual in 20 bins of 2,000 bills. Lab 3.1.\n\n- Small bills: late less often than the model says (−5.3 points).\n- Middle bills: more often (+2 to +3 points).\n- The largest bills: less often again.\n- AIC falls from 35,947 to 35,798 with the log.","notes":"Against household size no bin falls outside, against past late payments one: what chance gives. The pattern against the bill is the shape of a log: the burden of a bill grows fast at first and slowly later. The generator uses log(bill/100); the repaired coefficient is 0.85 against 0.90 planted.","minutes":null,"lo":["LO3"]},{"id":"per-predictor","n":9,"title":"Plot against each predictor; the fitted probability alone can hide the problem","kind":"content","session":1,"hash":"083a0347","md":"#### [day3#per-predictor] Plot against each predictor; the fitted probability alone can hide the problem\n\n*Why per predictor*\n\n- **7** bins outside, against the bill\n- **0** against household size\n- **1** against past late payments\n\n> **What goes wrong.** A misfit in one predictor is averaged away when residuals are binned by the fitted probability, which mixes all predictors. The stretch item tests it.","notes":"The same logic applies to linear models: plot residuals against each predictor, not only against fitted values. Day 1's residual pattern in temperature was found this way.","minutes":null,"lo":["LO3"]},{"id":"log-line-one","n":10,"title":"A log line names the problem, the evidence with its number, and the fix","kind":"content","session":1,"hash":"a82e80c3","md":"#### [day3#log-line-one] A log line names the problem, the evidence with its number, and the fix\n\n*Lab 3.1, step 5*\n\n| Problem | Evidence | Fix |\n| --- | --- | --- |\n| missing non-linear term | late_v1: 7 of 20 binned residuals against bill_sar outside the 2-SE band, negative for small bills | np.log(bill_sar): 0 bins outside; AIC 35,947 to 35,798 |\n\n> **Not acceptable.** \"Residuals looked a bit off, so I added a log.\" Without the number nobody can check the claim.","notes":"The log is the evidence of LO3: at least four problems named, each with its evidence and fix, plus the corrected models. Assessors in the capstone defence ask \"what did your diagnostics show?\" and expect a line like this.","minutes":null,"lo":["LO3"]},{"id":"check-binned","n":11,"title":"What does this residual plot tell you?","kind":"quiz","session":1,"hash":"85678be3","md":"#### [day3#check-binned] What does this residual plot tell you?\n\n*Checkpoint*\n\n**Question:** For a logistic model of meter faults, binned residuals against meter age are positive for the youngest and oldest meters and negative in between; 6 of 20 bins sit outside the band. What do you do?\n\n- A. Nothing: some bins always fall outside\n- B. Switch to a Poisson model of faults\n- C. Use robust standard errors\n- D. Give age a curved term, such as a spline, and plot the binned residuals again","notes":"Answer: D. Many in the room will remember the spline of Day 1: same idea, now on the logit scale.","minutes":null,"lo":["LO3"]},{"id":"lab-3-1","n":12,"title":"Binned residuals","kind":"lab","session":1,"hash":"36d59c05","md":"#### [day3#lab-3-1] Binned residuals\n\nLab 3.1 · 25 min\n\nDraw binned residual plots for Qusai's late-payment model, find the bill term that should be on the log scale, refit, and write the first line of the diagnosis log.\n\n[D3_1_binned_residuals.ipynb](https://sdaiaacademy.github.io/ds-301/labs/D3_1_binned_residuals.ipynb)\n\n- [ ] Fit Qusai's model as he wrote it (3 min)\n- [ ] Raw residuals, and why they do not help (3 min)\n- [ ] Binned residuals against each predictor (8 min)\n- [ ] Add the log term and refit (6 min)\n- [ ] The first line of the diagnosis log (5 min)\n- [ ] ✱ Stretch: Draw binned residuals against the fitted probability","notes":"AI-off for the diagnosis. The plot of step 3 is the moment of the lab: let participants say what they see before they read the solution. The log line is saved to artifacts/; if a laptop cannot write there, lab 3.4 uses the reference line.","minutes":null,"lo":[]},{"id":"s2","n":13,"title":"Influential observations","kind":"section","session":2,"hash":"c31fe6a9","md":"#### [day3#s2] Influential observations\n\n*Session 2*\n\n- Compute leverage and Cook's distance for a fitted model\n- Find the most influential units and refit without them\n- Trace an influential unit to its cause before deciding","notes":"","minutes":null,"lo":["LO3"]},{"id":"age-backwards","n":14,"title":"Qusai's district model says older mains leak less","kind":"content","session":2,"hash":"7fedec56","md":"#### [day3#age-backwards] Qusai's district model says older mains leak less\n\n*Lab 3.2, step 1*\n\n**−4.5** leaks per 100 km for each year of mean age, 30 districts\n\n- **Against lab 2.3.** On 1,200 segments, each 10 years of age went with about 38% more leaks per kilometre-year.\n\nA fit on 30 points can be carried by a few of them.","notes":"The model: leaks per 100 km on mean age and mean pressure, one row per district, from data/qusai/district_leaks.csv. Ask: what could make a district-level slope point the wrong way? Data errors, an unusual district, or averaging hiding the segment-level relation.","minutes":null,"lo":["LO3"]},{"id":"districts-plot","n":15,"title":"Two districts sit far above the rest; a third sits alone at an age of 2.5 years","kind":"content","session":2,"hash":"a2cdff69","md":"#### [day3#districts-plot] Two districts sit far above the rest; a third sits alone at an age of 2.5 years\n\n*Lab 3.2, step 2*\n\nFigure: Qusai's summary: leaks per 100 km against mean main age, 30 districts.","notes":"D21 at 1,690 and D08 at 1,188 leaks per 100 km; the other districts lie between about 90 and 340. D30 is the new development: mean age 2.5 years, pressure 6.5 bar, both far from the others.","minutes":null,"lo":["LO3"]},{"id":"leverage-cooks","n":16,"title":"Leverage is how unusual the predictors are; Cook's distance is how much the fit moves","kind":"content","session":2,"hash":"6101cc13","md":"#### [day3#leverage-cooks] Leverage is how unusual the predictors are; Cook's distance is how much the fit moves\n\n*Lab 3.2, step 2*\n\n| District | Leverage | Cook's distance | Why it stands out |\n| --- | --- | --- | --- |\n| D21 | 0.08 | 0.50 | a huge residual |\n| D30 | 0.70 | 0.39 | predictors far from the rest |\n| D08 | 0.07 | 0.18 | a huge residual |\n| D24 | 0.25 | 0.04 | next largest |\n\nMean leverage 3/30 = 0.10; a common flag for Cook's distance is 4/n = 0.13.","notes":"From fit.get_influence(): hat_matrix_diag and cooks_distance. In R: hatvalues() and cooks.distance(). Thresholds are flags for a look, not rules for deletion.","minutes":null,"lo":["LO3"]},{"id":"dont-just-drop","n":17,"title":"Without the three, the age slope turns positive; but first ask what each district is","kind":"content","session":2,"hash":"8c79357a","md":"#### [day3#dont-just-drop] Without the three, the age slope turns positive; but first ask what each district is\n\n*Lab 3.2, steps 3 and 4*\n\n1. **D08, D21** Kilometres a tenth of the segment table's: keyed in tens of km\n2. **Correct** Recompute from segments.csv\n3. **D30** Real: a new district of young mains at high pressure\n4. **Keep** Report with and without it\n\n> **What goes wrong.** Dropping points until the fit looks right. Errors are corrected; real units stay.","notes":"Age coefficient: −4.5 with all 30, +2.8 without the three. With the two lengths corrected and D30 kept: +5.3 per year (0.3 to 10.4); without D30: +2.7. D30's Cook's distance after the correction is 1.52, because its pressure of 6.5 bar is outside the range of every other district: the pressure coefficient leans on one district.","minutes":null,"lo":["LO3"]},{"id":"aggregation-loses","n":18,"title":"A model of 30 district averages throws away what 1,200 segments know","kind":"content","session":2,"hash":"f1b04b61","md":"#### [day3#aggregation-loses] A model of 30 district averages throws away what 1,200 segments know\n\n*A better model*\n\n- **District averages.** 30 points; one keying error reverses a slope; age and pressure barely vary between districts.\n- **Segment level.** 1,200 rows with their own age and pressure; the count model of Day 2, with exposure and the right family.","notes":"Influence diagnostics are the repair for this model; the better answer to Basil's question is the segment-level negative binomial model of lab 2.4. Day 4 returns to how to model rows grouped in districts without averaging them away.","minutes":null,"lo":["LO3"]},{"id":"check-influence","n":19,"title":"What do you do with this district?","kind":"quiz","session":2,"hash":"629bb0d7","md":"#### [day3#check-influence] What do you do with this district?\n\n*Checkpoint*\n\n**Question:** In a model of 30 district rates, one district has leverage 0.7 and Cook's distance 1.5. Its data are correct: a new district with unusually high pressure. What goes in the report?\n\n- A. Keep it, and report the estimates with and without it, saying the pressure result leans on one district\n- B. Delete it as an outlier, since its Cook's distance is above 1\n- C. Keep it and say nothing, since the data are correct\n- D. Take the log of the leak rate so that it is no longer influential","notes":"Answer: A. C is the subtle trap: correct data, but a reader deserves to know that one district carries a coefficient.","minutes":null,"lo":["LO3"]},{"id":"lab-3-2","n":20,"title":"Influential districts","kind":"lab","session":2,"hash":"3162fab7","md":"#### [day3#lab-3-2] Influential districts\n\nLab 3.2 · 25 min\n\nFit Qusai's district model of leaks per 100 km, find the three most influential districts, refit without them, then trace two to a unit error in the pipe lengths and keep the third.\n\n[D3_2_influential_districts.ipynb](https://sdaiaacademy.github.io/ds-301/labs/D3_2_influential_districts.ipynb)\n\n- [ ] Fit the district model (3 min)\n- [ ] Leverage and Cook's distance (6 min)\n- [ ] The three districts and the refit without them (6 min)\n- [ ] Recompute the kilometres from the segment table (6 min)\n- [ ] The second line of the diagnosis log (4 min)\n- [ ] ✱ Stretch: Compute DFBETA for the age coefficient","notes":"AI-off for the influence measures and the decision. The recompute in step 4 uses U.segment_totals(); kilometre-years are length times weeks in service over 52, the same definition Qusai used. The match for the other 28 districts is within rounding.","minutes":null,"lo":[]},{"id":"s3","n":21,"title":"Simulation-based checks","kind":"section","session":3,"hash":"b4d1c3bf","md":"#### [day3#s3] Simulation-based checks\n\n*Session 3*\n\n- Simulate replicate data sets from a fitted count model\n- Choose a test statistic that matters to the question\n- Judge a model by where the observed statistic falls","notes":"","minutes":null,"lo":["LO3"]},{"id":"simulate-from-fit","n":22,"title":"If the model is right, data simulated from it look like the data you have","kind":"content","session":3,"hash":"4d0a702f","md":"#### [day3#simulate-from-fit] If the model is right, data simulated from it look like the data you have\n\n*The idea*\n\n1. **1 · Fit** the model to the data\n2. **2 · Simulate** 1,000 replicate data sets from the fit\n3. **3 · Compute** a statistic that matters, in each\n4. **4 · Compare** with the observed value\n\n> **Day 1 in reverse.** Fake data checked the method; these replicates check the model against the data.","notes":"This is a posterior predictive check in its simplest form, as in Regression and Other Stories, here without Bayesian machinery: the fitted coefficients are taken as known (the stretch item adds their uncertainty).","minutes":null,"lo":["LO3"]},{"id":"choose-statistic","n":23,"title":"Choose a statistic the model was not fitted to match","kind":"content","session":3,"hash":"8c808441","md":"#### [day3#choose-statistic] Choose a statistic the model was not fitted to match\n\n*Lab 3.3, step 1*\n\n- **Total leaks.** Useless: a Poisson model reproduces 3,055 by construction.\n- **Share with no leak.** 36.4% of segments. Basil plans inspection crews with it.\n- **Largest count.** 75 leaks on one segment. The worst main sets the repair budget.","notes":"Ask for other useful statistics: the share of segments with five or more leaks, the variance between districts. The best ones are tied to a decision.","minutes":null,"lo":["LO3"]},{"id":"zeros-plot","n":24,"title":"No Poisson replicate has as many zero-leak segments as Sahil; the negative binomial does","kind":"content","session":3,"hash":"7d888b19","md":"#### [day3#zeros-plot] No Poisson replicate has as many zero-leak segments as Sahil; the negative binomial does\n\n*Lab 3.3, steps 2 to 4*\n\nFigure: Share of segments with no leak in 1,000 replicate years from each fit. Lab 3.3.","notes":"Poisson replicates: 23.3% to 31.0%; observed 36.4%; tail share 0. Negative binomial: 32.6% to 42.3%, tail share 0.48. The largest count tells the same story: Poisson replicates top out at 62, the observed is 75; the negative binomial's median is 64.","minutes":null,"lo":["LO3"]},{"id":"nb-simulation","n":25,"title":"A negative binomial count is a Poisson count with a gamma-distributed rate","kind":"content","session":3,"hash":"0962a746","md":"#### [day3#nb-simulation] A negative binomial count is a Poisson count with a gamma-distributed rate\n\n*Lab 3.3, step 3*\n\n```python\ndef replicate_nb(mu, alpha, R, gen):\n    lam = mu * gen.gamma(1 / alpha, alpha, size=(R, len(mu)))   # mean 1, variance alpha\n    return gen.poisson(lam)\n```\n\nEach replicate gives each segment its own hidden leakiness: exactly what the Poisson model leaves out.","notes":"This is also how the generator built Sahil's leaks: a gamma frailty with shape 1.5 per segment. In R: rnbinom(n, size = 1/alpha, mu = mu).","minutes":null,"lo":["LO3"]},{"id":"zero-inflation","n":26,"title":"Reach for a zero-inflated model only when the simpler one fails the check","kind":"content","session":3,"hash":"0ccb7ddf","md":"#### [day3#zero-inflation] Reach for a zero-inflated model only when the simpler one fails the check\n\n*The next model*\n\n- Excess zeros against a Poisson model are often just overdispersion.\n- Here the negative binomial reproduces both the zeros and the largest count.\n- A zero-inflated model would need its own story: mains that cannot leak at all.","notes":"Zero-inflated and hurdle models are outside this course's entry; mention them by name only. The check of this session is how you would know you needed one.","minutes":null,"lo":["LO3"]},{"id":"check-simulation","n":27,"title":"Which check would reveal the problem?","kind":"quiz","session":3,"hash":"3fb69938","md":"#### [day3#check-simulation] Which check would reveal the problem?\n\n*Checkpoint*\n\n**Question:** A Poisson model of complaints per district-month will be used to staff the call centre for the busiest months. You can simulate 1,000 replicate years from it. Which statistic makes the most useful check?\n\n- A. The total number of complaints in the year\n- B. The mean temperature of the months\n- C. The largest monthly count in any district\n- D. The coefficient of temperature","notes":"Answer: C. This is capstone brief C1's data: complaints per district-month with customers as the exposure.","minutes":null,"lo":["LO3"]},{"id":"lab-3-3","n":28,"title":"The share of zeros","kind":"lab","session":3,"hash":"271ab2e3","md":"#### [day3#lab-3-3] The share of zeros\n\nLab 3.3 · 25 min\n\nSimulate replicate leak counts from the Poisson and negative binomial fits, compare the share of segments with no leak and the largest count with the observed values, and log the result.\n\n[D3_3_share_of_zeros.ipynb](https://sdaiaacademy.github.io/ds-301/labs/D3_3_share_of_zeros.ipynb)\n\n- [ ] Observed share of zeros and largest count (3 min)\n- [ ] Simulate from the Poisson fit (7 min)\n- [ ] Simulate from the negative binomial fit (6 min)\n- [ ] Where the observed values fall (5 min)\n- [ ] The third line of the diagnosis log (4 min)\n- [ ] ✱ Stretch: Add the uncertainty of the coefficients to the simulation","notes":"AI-off for the simulation. 1,000 replicates of 1,200 segments is 1.2 million draws: under a second. In quick mode 200. The gamma in NumPy takes shape and scale: shape 1/α, scale α, not the rate.","minutes":null,"lo":[]},{"id":"s4","n":29,"title":"Separation and error structure","kind":"section","session":4,"hash":"0f65c342","md":"#### [day3#s4] Separation and error structure\n\n*Session 4*\n\n- Recognise separation from its symptoms\n- Repair a separated fit and say why the variable does not belong\n- Use heteroskedasticity-consistent standard errors on a funnel","notes":"","minutes":null,"lo":["LO3"]},{"id":"too-good","n":30,"title":"A coefficient of 27 with a standard error of 6,675 is a symptom, not a finding","kind":"content","session":4,"hash":"50984f8a","md":"#### [day3#too-good] A coefficient of 27 with a standard error of 6,675 is a symptom, not a finding\n\n*Lab 3.4, step 1*\n\n| late_v2 term | Coefficient | Std. error |\n| --- | --- | --- |\n| log bill | 0.88 | 0.05 |\n| autopay | −2.30 | 0.05 |\n| notice_sent | 27.2 | 6,675 |\n\n- A convergence warning.\n- AIC 28,434 against 35,798: \"almost perfect\".\n- One term's standard error in the thousands.","notes":"These are the symptoms of separation. The algorithm keeps increasing the coefficient because the likelihood keeps rising; it stops at an arbitrary large value. Some software refuses to fit; statsmodels warns and returns it.","minutes":null,"lo":["LO3"]},{"id":"separation-table","n":31,"title":"Every one of the 2,622 bills with a notice was late: the notice follows the outcome","kind":"content","session":4,"hash":"55502957","md":"#### [day3#separation-table] Every one of the 2,622 bills with a notice was late: the notice follows the outcome\n\n*Lab 3.4, step 2*\n\n| notice_sent | on time | late |\n| --- | --- | --- |\n| 0 | 31,406 | 5,972 |\n| 1 | 0 | 2,622 |\n\n- **The repair.** Remove it. A disconnection notice is sent after a bill is 30 days late: a consequence of the outcome cannot predict it.\n\n> **When the separating variable is legitimate** (a rare category with no late bills), use a penalised fit, such as Firth's method or a small ridge penalty, and say so.","notes":"The empty cell is the diagnosis. Without the notice, the largest standard error is 0.18. The stretch item fits it with a penalty: the coefficient becomes finite (7.6), and the flag is still a consequence of the outcome. Penalties fix arithmetic, not logic.","minutes":null,"lo":["LO3"]},{"id":"funnel","n":32,"title":"In cubic metres, the residual spread grows almost fourfold with the fitted value","kind":"content","session":4,"hash":"54f4040a","md":"#### [day3#funnel] In cubic metres, the residual spread grows almost fourfold with the fitted value\n\n*Lab 3.4, step 3*\n\nFigure: Qusai's consumption model on the m³ scale, 40,000 bills. Lab 3.4.\n\n- 4.9 m³ in the lowest decile, 19.3 in the highest.\n- Classical standard errors assume one spread for every bill.\n- The estimates are fine; their uncertainty is not.","notes":"Consumption is multiplicative: households that use more vary more. Day 1's log model has a nearly constant spread on the log scale; that is the other repair.","minutes":null,"lo":["LO3"]},{"id":"hc3","n":33,"title":"Heteroskedasticity-consistent errors change the uncertainty, not the estimates","kind":"content","session":4,"hash":"c476ac03","md":"#### [day3#hc3] Heteroskedasticity-consistent errors change the uncertainty, not the estimates\n\n*Lab 3.4, step 4*\n\n| Term | Estimate, m³ | Classical SE | HC3 SE | Ratio |\n| --- | --- | --- | --- | --- |\n| household size | 2.63 | 0.026 | 0.033 | 1.31 |\n| social band | −5.75 | 0.122 | 0.103 | 0.85 |\n| villa band | 16.06 | 0.134 | 0.187 | 1.40 |\n\nNot always wider: the social band sits where the spread is small, so its robust error is smaller.","notes":"HC3 is the default to reach for with a funnel; in statsmodels fit(cov_type=\"HC3\"), in R sandwich::vcovHC(type = \"HC3\"). DS-201 used it on the same kind of funnel; here it is one line of the log.","minutes":null,"lo":["LO3"]},{"id":"the-log","n":34,"title":"Five problems, five pieces of evidence, five repairs","kind":"content","session":4,"hash":"5451f0df","md":"#### [day3#the-log] Five problems, five pieces of evidence, five repairs\n\n*Lab 3.4, step 5*\n\n| Problem | Evidence | Fix |\n| --- | --- | --- |\n| missing non-linear term | 7 of 20 bins outside, against the bill | log of the bill |\n| influential districts | D21, D30, D08 reverse the age slope | correct D08 and D21; report with and without D30 |\n| overdispersion | 36.4% zeros; Poisson replicates at most 31.0% | negative binomial |\n| separation | notice_sent: 27.2 with SE 6,675 | remove a post-outcome flag |\n| non-constant variance | spread 3.9 times larger at the top | HC3, or the log model |","notes":"This table with the corrected models is the evidence of LO3, which asks for at least four problems. In the capstone defence the assessor asks for the diagnostics in exactly this form.","minutes":null,"lo":["LO3"]},{"id":"check-separation","n":35,"title":"What explains this fit?","kind":"quiz","session":4,"hash":"87e82949","md":"#### [day3#check-separation] What explains this fit?\n\n*Checkpoint*\n\n**Question:** A logistic model of whether a customer cancels includes \"closing letter printed\". Its coefficient is 31 with a standard error of 9,000, and the model's AIC is far better than without it. What is the likely explanation?\n\n- A. The letter is by far the strongest driver of cancelling\n- B. The letter is printed only for customers who cancel, so it separates the outcome and must be removed\n- C. The sample is too small; collect more months\n- D. Use HC3 standard errors and keep the term","notes":"Answer: B. Connect to DS-204's leakage lessons if the room took it: the same flag would leak into a predictive model.","minutes":null,"lo":["LO3"]},{"id":"lab-3-4","n":36,"title":"Separation and robust errors","kind":"lab","session":4,"hash":"06d4d495","md":"#### [day3#lab-3-4] Separation and robust errors\n\nLab 3.4 · 25 min\n\nRepair Qusai's logistic fit, which a notice flag separates, then find the funnel in his consumption model, set classical and heteroskedasticity-consistent errors side by side, and close the diagnosis log with the corrected models.\n\n[D3_4_separation_hc.ipynb](https://sdaiaacademy.github.io/ds-301/labs/D3_4_separation_hc.ipynb)\n\n- [ ] The separated fit and its symptoms (5 min)\n- [ ] The cross-table that explains it, and the repair (5 min)\n- [ ] The funnel in the consumption model (5 min)\n- [ ] Classical against robust standard errors (5 min)\n- [ ] The full diagnosis log and the corrected models (5 min)\n- [ ] ✱ Stretch: Fit the separated model with a small penalty and compare","notes":"AI-off for the diagnosis and the repair. Step 5 assembles the log from artifacts/diagnosis_log.json; lines of labs that did not run on this laptop come from the reference and are marked as such. Remind participants to keep their log: it is the LO3 evidence.","minutes":null,"lo":[]},{"id":"wrap-up","n":37,"title":"Three things to keep","kind":"content","session":4,"hash":"cd1787c4","md":"#### [day3#wrap-up] Three things to keep\n\n*Day 3 · wrap-up*\n\n- **One tool per assumption.** Binned residuals for form, influence for single units, replicates for the distribution.\n- **Trace before you delete.** Errors are corrected; real units stay and are reported both ways.\n- **Log with numbers.** Problem, evidence, fix: the diagnostics section of your capstone.","notes":"Ask which of the five problems would have changed a decision at Sahil. Usually: the district model (renewal) and the overdispersion (renewal list confidence).","minutes":null,"lo":[]},{"id":"next","n":38,"title":"Day 4: Grouped data and many predictors","kind":"content","session":4,"hash":"af93ef13","md":"#### [day3#next] Day 4: Grouped data and many predictors\n\n*Next*\n\nHouseholds grouped in districts of very different sizes, 120 candidate predictors, and a report Ghaliya can read. Tomorrow you also choose your capstone brief.","notes":"Ask participants to read the three briefs in labs/capstone/briefs.json tonight; lab 4.4 ends with the choice.","minutes":null,"lo":[]}],"activities":[{"id":"review-day2-q1","slide":"review-day2","type":"single","prompt":"A Poisson leak model with offset log(km-years) gives asbestos cement a rate ratio of 1.62; its dispersion is 2.3. What can Basil's note say?","options":[{"key":"A","text":"Asbestos-cement mains have 1.62 more leaks a year than PVC mains"},{"key":"B","text":"Asbestos cement leaks at about 1.6 times the rate of PVC at equal age and pressure, with an interval wider than the Poisson one"},{"key":"C","text":"Replacing asbestos cement with PVC will cut leaks by 38%"},{"key":"D","text":"Nothing, because the model is overdispersed"}],"correct":[1],"explanation":"A rate ratio compares rates per kilometre-year; with dispersion 2.3 the honest interval is about one and a half times as wide, as the negative binomial showed.","misconceptions":["Reads a rate ratio as a difference in counts","","Thinks the offset makes the comparison causal","Thinks overdispersion makes the estimate unusable rather than its interval too narrow"],"lo":["LO2"]},{"id":"check-binned-q1","slide":"check-binned","type":"single","prompt":"For a logistic model of meter faults, binned residuals against meter age are positive for the youngest and oldest meters and negative in between; 6 of 20 bins sit outside the band. What do you do?","options":[{"key":"A","text":"Nothing: some bins always fall outside"},{"key":"B","text":"Switch to a Poisson model of faults"},{"key":"C","text":"Use robust standard errors"},{"key":"D","text":"Give age a curved term, such as a spline, and plot the binned residuals again"}],"correct":[3],"explanation":"A U-shaped pattern against one predictor means its effect is not straight on the log odds scale; a flexible term for it is the repair, checked by the same plot.","misconceptions":["Thinks a 2-SE band allows many bins outside by chance; about one in 20 is expected","Reaches for a different family when the problem is the form of one predictor","Treats a pattern in the mean as a problem of the standard errors",""],"lo":["LO3"]},{"id":"check-influence-q1","slide":"check-influence","type":"single","prompt":"In a model of 30 district rates, one district has leverage 0.7 and Cook's distance 1.5. Its data are correct: a new district with unusually high pressure. What goes in the report?","options":[{"key":"A","text":"Keep it, and report the estimates with and without it, saying the pressure result leans on one district"},{"key":"B","text":"Delete it as an outlier, since its Cook's distance is above 1"},{"key":"C","text":"Keep it and say nothing, since the data are correct"},{"key":"D","text":"Take the log of the leak rate so that it is no longer influential"}],"correct":[0],"explanation":"A real unit stays in. Because the conclusions depend on it, the reader must see both fits and the reason.","misconceptions":["","Treats high influence as proof of an error; this district's data were checked and are correct","Hides the influence instead of reporting it; a robust fit still leaves the reader unaware","Thinks a log transform removes influence that comes from the predictors' position"],"lo":["LO3"]},{"id":"check-simulation-q1","slide":"check-simulation","type":"single","prompt":"A Poisson model of complaints per district-month will be used to staff the call centre for the busiest months. You can simulate 1,000 replicate years from it. Which statistic makes the most useful check?","options":[{"key":"A","text":"The total number of complaints in the year"},{"key":"B","text":"The mean temperature of the months"},{"key":"C","text":"The largest monthly count in any district"},{"key":"D","text":"The coefficient of temperature"}],"correct":[2],"explanation":"Staffing depends on the peaks, and a Poisson model with too little variance under-produces them; the total says nothing.","misconceptions":["Uses a statistic the model reproduces by construction, so the check cannot fail","Checks the predictors' distribution, which the model does not generate","","Uses the fitted coefficients themselves, which replicate exactly by definition"],"lo":["LO3"]},{"id":"check-separation-q1","slide":"check-separation","type":"single","prompt":"A logistic model of whether a customer cancels includes \"closing letter printed\". Its coefficient is 31 with a standard error of 9,000, and the model's AIC is far better than without it. What is the likely explanation?","options":[{"key":"A","text":"The letter is by far the strongest driver of cancelling"},{"key":"B","text":"The letter is printed only for customers who cancel, so it separates the outcome and must be removed"},{"key":"C","text":"The sample is too small; collect more months"},{"key":"D","text":"Use HC3 standard errors and keep the term"}],"correct":[1],"explanation":"A huge coefficient with a huge standard error points to separation; a flag created by the outcome is leakage as well, so no estimation method rescues it.","misconceptions":["Reads a runaway coefficient as a very strong real effect","","Treats a structural problem as a sampling one that more data would solve","Uses robust errors for a problem of the estimate itself"],"lo":["LO3"]}],"ai":{"context":{"course":"../context/course.md","courseJs":"../context/course.js","day":"day3.md","llms":"../llms.txt"},"tasks":[],"tools":[]},"bridge":{"allowedOrigins":[]},"features":{},"strings":{}}</script>
+<script src="../_engine/academy.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-ax="page" data-track="data-science">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regression and Generalised Linear Modelling · SDAIA Academy</title>
+<meta name="generator" content="SDAIA Academy engine 1.0.0">
+<meta name="description" content="Fit linear, logistic and count models that answer a stated question, check them by simulating from the fit, and report effects with intervals people can read">
+<link rel="icon" href="_engine/icon.svg">
+<link rel="alternate" type="text/markdown" href="index.md">
+<link rel="describedby" href="llms.txt">
+<link rel="stylesheet" href="_engine/academy.css">
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="top"><div class="logo" id="logo"></div><nav><a href="slides/day1.html">Slides</a><a href="practice.html">Practice</a><a href="index.md" type="text/markdown">Markdown</a></nav></div>
+<div class="kicker">Data Science Track · SDAIA Academy · DS-301</div>
+<h1>Regression and Generalised Linear Modelling<span class="sub ar" lang="ar" dir="rtl">الانحدار والنماذج الخطية المُعمَّمة</span></h1>
+<p>Fit linear, logistic and count models that answer a stated question, check them by simulating from the fit, and report effects with intervals people can read</p>
+<div class="meta"><span class="track">Data Science Track</span><span>4 teaching days + capstone day</span><span>26 hours</span><span>Level 300</span><span>Data Science · Associate badge</span></div>
+</div>
+</header>
+<main class="wrap">
+<h2>About the course</h2>
+<p>Participants build regression models that answer a stated question and defend what each term means. On synthetic data from Sahil Water, a fictional utility with 30 districts, they fit linear models with splines and interactions, logistic models for late payment and count models for leak reports, diagnose misfit by simulating from the fit, handle grouped data with clustered errors and random intercepts, and penalise many predictors. Results are reported as marginal effects with intervals.</p>
+<p><b>Who it is for:</b> Specialists. Analysts and data scientists who have completed the level 200 set or can show equivalent work: an analysis or model they built, validated and can explain.</p>
+<p><b>Format:</b> Intensive: 4 teaching days of four sessions and a capstone day, with guided pre-work and a tracked follow-up task</p>
+<h2>The case study</h2>
+<div class="note info"><b>Sahil Water.</b> Sahil Water (شركة ساحل للمياه) is a fictional utility serving 40,000 households in 30 districts of very different sizes, and all of its data are synthetic, generated with a fixed seed: one month's bill for every household with tariff band, household size, temperature and a late-payment flag, weekly leak reports on 1,200 pipe segments with their lengths, a district leak summary from a previous analyst, and 126 candidate columns for next summer's demand. Planted problems (a missing log term, two districts with pipe lengths keyed a tenth too small, overdispersed leaks, a notice flag that separates late payers, a variance funnel) are found by named labs; participants work as Arjuwan Al-Sabhan, a junior data scientist answering the planner Ghaliya Al-Muhairi, household keys are pseudonyms and results are reported by band or district only.</div>
+<h2>The course</h2>
+<div class="day">
+<div class="day-head c-teal"><div><div class="t">Day 1 · 4 sessions · 4 labs</div><h3>Linear models that answer a question</h3></div><a class="btn" href="slides/day1.html">Open the slides</a></div>
+<div class="scroll"><table>
+<tr><th>Session</th><th>Topic</th><th>Lab</th></tr>
+<tr><td>1</td><td><b>A regression answers a question</b><br>A regression is chosen for its question: describe, predict or explain a cause, and the estimand comes before the model<ul><li>Distinguish descriptive, predictive and causal uses of a regression</li><li>State the estimand of a question before choosing a model</li><li>Judge whether the evidence behind a published claim supports the use it states</li></ul></td><td><a href="labs/D1_1_three_uses.ipynb">Lab 1.1 · Three uses of a regression</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D1_1_three_uses.ipynb">Open in Colab</a></td></tr>
+<tr><td>2</td><td><b>Fake data first</b><br>Simulate data from a model you choose, then fit it: if the fit cannot recover what you planted, the code or the design is wrong<ul><li>Simulate an outcome from a stated model with a seed</li><li>Recover known coefficients and check their intervals by coverage</li><li>Show what leaving out a correlated term does to a coefficient</li></ul></td><td><a href="labs/D1_2_fake_data.ipynb">Lab 1.2 · Fake data first</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D1_2_fake_data.ipynb">Open in Colab</a></td></tr>
+<tr><td>3</td><td><b>Transformations and splines</b><br>A log outcome makes effects multiplicative, and a spline lets temperature bend without guessing its shape<ul><li>Fit a model of log consumption and read its coefficients as percentages</li><li>Replace a straight temperature term with a spline and compare the fits</li><li>Plot a fitted curve with its band and back-transform it correctly</li></ul></td><td><a href="labs/D1_3_temperature_spline.ipynb">Lab 1.3 · A temperature spline</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D1_3_temperature_spline.ipynb">Open in Colab</a></td></tr>
+<tr><td>4</td><td><b>Interactions and marginal effects</b><br>An interaction lets the effect of household size differ by tariff band, and an average marginal effect turns coefficients into cubic metres<ul><li>Add an interaction and say what each of its coefficients means</li><li>Compute an average marginal effect on the outcome scale</li><li>Report marginal effects by group with intervals from simulation</li></ul></td><td><a href="labs/D1_4_interaction_effects.ipynb">Lab 1.4 · Interaction and marginal effects</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D1_4_interaction_effects.ipynb">Open in Colab</a></td></tr>
+</table></div>
+</div>
+<div class="day">
+<div class="day-head c-cyan"><div><div class="t">Day 2 · 4 sessions · 4 labs</div><h3>Generalised linear models</h3></div><a class="btn" href="slides/day2.html">Open the slides</a></div>
+<div class="scroll"><table>
+<tr><th>Session</th><th>Topic</th><th>Lab</th></tr>
+<tr><td>1</td><td><b>Links and families</b><br>The outcome decides the family: a straight line for a yes-or-no outcome predicts impossible probabilities<ul><li>Name the family and link that fit an outcome</li><li>Fit a linear probability model and a logistic model to the same outcome</li><li>Show where the linear model breaks</li></ul></td><td><a href="labs/D2_1_linear_vs_logistic.ipynb">Lab 2.1 · Linear against logistic</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D2_1_linear_vs_logistic.ipynb">Open in Colab</a></td></tr>
+<tr><td>2</td><td><b>Reading a logistic model</b><br>A logistic coefficient is a change in log odds; its effect on the probability depends on who the household is<ul><li>Convert logistic coefficients to odds ratios</li><li>Turn a coefficient into probability differences for stated profiles</li><li>Report a probability difference with an interval</li></ul></td><td><a href="labs/D2_2_three_profiles.ipynb">Lab 2.2 · Three household profiles</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D2_2_three_profiles.ipynb">Open in Colab</a></td></tr>
+<tr><td>3</td><td><b>Counts and exposure</b><br>Counts need a count model, and segments of different lengths need an exposure term<ul><li>Fit a Poisson model to counts</li><li>Use the log of the exposure as an offset</li><li>Read coefficients as rate ratios</li></ul></td><td><a href="labs/D2_3_poisson_offset.ipynb">Lab 2.3 · Leaks with an exposure</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D2_3_poisson_offset.ipynb">Open in Colab</a></td></tr>
+<tr><td>4</td><td><b>Overdispersion</b><br>When the counts vary more than the Poisson allows, its intervals are too narrow; a negative binomial model widens them<ul><li>Measure dispersion from a fitted Poisson model</li><li>Fit a negative binomial model with the same exposure</li><li>Compare effects and intervals on the count scale</li></ul></td><td><a href="labs/D2_4_negative_binomial.ipynb">Lab 2.4 · Dispersion and the negative binomial</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D2_4_negative_binomial.ipynb">Open in Colab</a></td></tr>
+</table></div>
+</div>
+<div class="day">
+<div class="day-head c-coral"><div><div class="t">Day 3 · 4 sessions · 4 labs</div><h3>Check and repair</h3></div><a class="btn" href="slides/day3.html">Open the slides</a></div>
+<div class="scroll"><table>
+<tr><th>Session</th><th>Topic</th><th>Lab</th></tr>
+<tr><td>1</td><td><b>Residuals that tell you something</b><br>Raw residuals of a yes-or-no model say nothing; binned residuals against each predictor show what the model missed<ul><li>Explain why raw logistic residuals are uninformative</li><li>Draw binned residuals against a predictor with their band</li><li>Find a missing term and show the repaired fit</li></ul></td><td><a href="labs/D3_1_binned_residuals.ipynb">Lab 3.1 · Binned residuals</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D3_1_binned_residuals.ipynb">Open in Colab</a></td></tr>
+<tr><td>2</td><td><b>Influential observations</b><br>A few observations can carry a fit: leverage and Cook's distance find them, and the data tell you what to do with them<ul><li>Compute leverage and Cook's distance for a fitted model</li><li>Find the most influential units and refit without them</li><li>Trace an influential unit to its cause before deciding</li></ul></td><td><a href="labs/D3_2_influential_districts.ipynb">Lab 3.2 · Influential districts</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D3_2_influential_districts.ipynb">Open in Colab</a></td></tr>
+<tr><td>3</td><td><b>Simulation-based checks</b><br>Simulate new data from the fitted model and ask whether it looks like the data you have<ul><li>Simulate replicate data sets from a fitted count model</li><li>Choose a test statistic that matters to the question</li><li>Judge a model by where the observed statistic falls</li></ul></td><td><a href="labs/D3_3_share_of_zeros.ipynb">Lab 3.3 · The share of zeros</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D3_3_share_of_zeros.ipynb">Open in Colab</a></td></tr>
+<tr><td>4</td><td><b>Separation and error structure</b><br>A variable that separates the outcome breaks a logistic fit, and a variance funnel breaks the classical standard errors<ul><li>Recognise separation from its symptoms</li><li>Repair a separated fit and say why the variable does not belong</li><li>Use heteroskedasticity-consistent standard errors on a funnel</li></ul></td><td><a href="labs/D3_4_separation_hc.ipynb">Lab 3.4 · Separation and robust errors</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D3_4_separation_hc.ipynb">Open in Colab</a></td></tr>
+</table></div>
+</div>
+<div class="day">
+<div class="day-head c-purple"><div><div class="t">Day 4 · 4 sessions · 4 labs</div><h3>Grouped data and many predictors</h3></div><a class="btn" href="slides/day4.html">Open the slides</a></div>
+<div class="scroll"><table>
+<tr><th>Session</th><th>Topic</th><th>Lab</th></tr>
+<tr><td>1</td><td><b>Clustered data</b><br>Households in one district share more than the model knows, so a district-level effect has far fewer independent pieces of evidence than rows<ul><li>Identify the unit at which a predictor varies</li><li>Compute standard errors clustered by district</li><li>Explain why clustering widens some intervals and not others</li></ul></td><td><a href="labs/D4_1_clustered_errors.ipynb">Lab 4.1 · Clustered standard errors</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D4_1_clustered_errors.ipynb">Open in Colab</a></td></tr>
+<tr><td>2</td><td><b>Partial pooling</b><br>A random intercept for each district pools what districts share, so small districts borrow strength and shrink<ul><li>Fit a random-intercept model</li><li>Read the district variance and the share of variance between districts</li><li>Show how small districts shrink towards the average</li></ul></td><td><a href="labs/D4_2_partial_pooling.ipynb">Lab 4.2 · Partial pooling</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D4_2_partial_pooling.ipynb">Open in Colab</a></td></tr>
+<tr><td>3</td><td><b>Penalised regression</b><br>With many correlated predictors, a penalty trades a little bias for stability; which predictors it keeps is itself uncertain<ul><li>Screen candidate predictors for necessity before modelling</li><li>Tune ridge and lasso penalties by cross-validation</li><li>Measure how stable the lasso's selection is</li></ul></td><td><a href="labs/D4_3_ridge_lasso.ipynb">Lab 4.3 · Ridge and lasso</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D4_3_ridge_lasso.ipynb">Open in Colab</a></td></tr>
+<tr><td>4</td><td><b>Reporting a model</b><br>A model report says what was asked, what was fitted, how it was checked and what the numbers do not mean<ul><li>Write predictions and effects in the units of the reader</li><li>Separate descriptive, predictive and causal statements</li><li>State the limits of a model in a report</li></ul></td><td><a href="labs/D4_4_model_report.ipynb">Lab 4.4 · A one-page model report</a> <span class="muted">(25 min)</span><br><a href="https://colab.research.google.com/github/SDAIAAcademy/ds-301/blob/main/labs/D4_4_model_report.ipynb">Open in Colab</a></td></tr>
+</table></div>
+</div>
+<div class="day">
+<div class="day-head c-amber"><div><div class="t">Capstone</div><h3>Capstone project presentations</h3></div><a class="btn" href="slides/capstone.html">Open the slides</a></div>
+<div class="scroll"><table><tr><td>An eight-minute defence of a regression analysis, then four minutes of questions</td></tr></table></div>
+</div>
+<h2>Capstone</h2>
+<div class="two">
+<div><p>A regression analysis of a planner's brief on a supplied or public dataset, in a public repository whose README reports choices, diagnostics, effects with intervals and limits; eight-minute defence plus questions</p><p><b>What you submit:</b> A link to a public GitHub repository with a notebook that reruns from the raw data with a fixed seed, a report, and a README that states the brief, the use (descriptive, predictive or causal), the estimand, the model and its family, the diagnostics run, the effects with intervals and the limits, with the commit history and the run log. Then an eight-minute live defence and four minutes of questions, in which the assessor changes one term or the family and the participant predicts the effect before re-running.</p><p><b>Format:</b> 8 min talk and demo · 4 min Q&amp;A</p></div>
+<div><h3>Rubric</h3><div class="bar c-teal"><span>Specification<i style="--w:67%"></i></span><b>20%</b></div><div class="bar c-cyan"><span>Diagnostics<i style="--w:100%"></i></span><b>30%</b></div><div class="bar c-coral"><span>Uncertainty<i style="--w:67%"></i></span><b>20%</b></div><div class="bar c-purple"><span>Interpretation<i style="--w:67%"></i></span><b>20%</b></div><div class="bar c-amber"><span>Reproducibility<i style="--w:33%"></i></span><b>10%</b></div></div>
+</div>
+<h2>Outcomes</h2>
+<p>By the end of the course, participants can:</p>
+<div class="day"><div class="scroll"><table>
+<tr><th></th><th>Outcomes</th><th>Level</th><th>Evidence</th></tr>
+<tr><td><b>LO1</b></td><td>Implement linear models with interactions and splines and report average marginal effects with intervals, given household consumption with tariff band, household size and temperature</td><td>Applied</td><td>effect plots and an interval table matching the reference</td></tr>
+<tr><td><b>LO2</b></td><td>Apply logistic and count models, choosing between Poisson and negative binomial from a dispersion check, given late-payment flags and weekly leak reports with pipe length as exposure</td><td>Applied</td><td>a notebook stating effects on the probability and count scales</td></tr>
+<tr><td><b>LO3</b></td><td>Diagnose misfit with residuals, influence measures and simulation from the fitted model, then correct the model, given a model with five seeded problems such as overdispersion and separation</td><td>Performance</td><td>a diagnosis log naming at least four problems, and the corrected model</td></tr>
+<tr><td><b>LO4</b></td><td>Analyse grouped data with clustered standard errors and a random-intercept model and explain how the intervals change, given readings nested in 30 districts of very different sizes</td><td>Applied</td><td>a table of naive, clustered and mixed-effects estimates with a short explanation</td></tr>
+<tr><td><b>LO5</b></td><td>Apply ridge and lasso with cross-validated tuning and measure the stability of the selected predictors, given 120 correlated candidate predictors</td><td>Applied</td><td>a coefficient path, the chosen penalty and a bootstrap selection-frequency table</td></tr>
+<tr><td><b>LO6</b></td><td>Build and defend a regression model for a planner's question, justifying terms, family, uncertainty and whether the use is descriptive, predictive or causal, given a supplied dataset and a written brief</td><td>Performance</td><td>a report and notebook defended live</td></tr>
+</table></div></div>
+<h2>Tools</h2>
+<div class="grid">
+<div class="card c-teal"><h3>Analysis language and notebooks</h3><p>Python with Jupyter or marimo · R with Quarto</p></div>
+<div class="card c-cyan"><h3>Regression, mixed-effects and penalised models</h3><p>statsmodels · scikit-learn · R with lme4 and glmnet</p></div>
+<div class="card c-coral"><h3>Marginal effects</h3><p>marginaleffects for R and Python · course-provided functions</p></div>
+</div>
+<h2>Before you start</h2>
+<h3>Prerequisites</h3>
+<ul><li>DS-201 Statistical Inference by Simulation</li><li>Fits a simple linear regression and reads its coefficient table</li><li>Pre-work: about two hours on simple regression, labs/P0_prework_simple_regression.ipynb, before the supervised entry quiz</li><li>Setup: a laptop with uv, or Google Colab. Nothing calls or downloads a model. Run 00_setup_check before Day 1; see labs/README.md.</li></ul>
+<div class="note tip">The labs are notebooks. Open each one in Google Colab from the table above, or clone the repository and run them locally.</div>
+<h2>Sources</h2>
+<h3>National references</h3>
+<ul><li><a href="https://sdaia.gov.sa/en/SDAIA/about/Documents/PersonalDataProtectionLaw.pdf">Personal Data Protection Law (SDAIA)</a></li><li><a href="https://sdaia.gov.sa/en/SDAIA/about/Documents/ImplementingRegulationPersonalDataProtectionLaw.pdf">Implementing Regulation of the Personal Data Protection Law (SDAIA)</a></li><li><a href="https://sdaia.gov.sa/Documents/GeneralRulesForSecondaryUseOfData_EN.pdf">General Rules for Secondary Use of Data (SDAIA)</a></li><li><a href="https://sdaia.gov.sa/en/SDAIA/about/Documents/ai-principles.pdf">AI Ethics Principles (SDAIA)</a></li></ul>
+<h3>Methods</h3>
+<ul><li><a href="https://avehtari.github.io/ROS-Examples/">Gelman, Hill and Vehtari, Regression and Other Stories: examples and code</a></li></ul>
+<h3>Library documentation</h3>
+<ul><li><a href="https://www.statsmodels.org/stable/glm.html">statsmodels: generalized linear models</a></li><li><a href="https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.NegativeBinomial.html">statsmodels: NegativeBinomial</a></li><li><a href="https://www.statsmodels.org/stable/mixed_linear.html">statsmodels: linear mixed effects models</a></li><li><a href="https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.get_robustcov_results.html">statsmodels: robust and cluster-robust covariance (get_robustcov_results)</a></li><li><a href="https://www.statsmodels.org/stable/generated/statsmodels.stats.outliers_influence.OLSInfluence.html">statsmodels: OLSInfluence (leverage, Cook's distance, DFBETA)</a></li><li><a href="https://patsy.readthedocs.io/en/latest/spline-regression.html">patsy: spline regression</a></li><li><a href="https://scikit-learn.org/stable/modules/linear_model.html">scikit-learn: linear models (ridge, lasso)</a></li><li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoCV.html">scikit-learn: LassoCV</a></li><li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.lasso_path.html">scikit-learn: lasso_path</a></li><li><a href="https://marginaleffects.com/">marginaleffects (R and Python)</a></li><li><a href="https://pypi.org/project/marginaleffects/">marginaleffects on PyPI</a></li><li><a href="https://cran.r-project.org/package=lme4">lme4 on CRAN</a></li><li><a href="https://cran.r-project.org/package=glmnet">glmnet on CRAN</a></li></ul>
+<h3>Tools</h3>
+<ul><li><a href="https://jupyter.org/">Project Jupyter</a></li><li><a href="https://marimo.io/">marimo</a></li><li><a href="https://quarto.org/">Quarto</a></li><li><a href="https://colab.research.google.com/">Google Colab</a></li><li><a href="https://open.data.gov.sa/">Saudi Open Data Platform</a></li></ul>
+<h2>Files and links</h2>
+<div class="files">
+<a href="practice.html"><b>practice.html</b><span>Practice questions with feedback</span></a>
+<a href="index.md"><b>index.md</b><span>This page as Markdown, for an AI assistant</span></a>
+<a href="llms.txt"><b>llms.txt</b><span>The course for AI assistants (llms.txt)</span></a>
+<a href="https://github.com/SDAIAAcademy/ds-301"><b>SDAIAAcademy/ds-301</b><span>The course repository</span></a>
+</div>
+</main>
+<footer><div class="wrap">SDAIA Academy · Data Science Track · Regression and Generalised Linear Modelling<br><span class="muted">Course version 2027.1.0 · engine 1.0.0 · built 2026-11-15 · commit 5c64064</span></div></footer>
+<script type="application/json" id="academy-data">{"v":1,"engine":"1.0.0","build":{"at":"2026-11-15T15:57:16Z","version":"2027.1.0","commit":"5c64064"},"course":{"id":"ds-301","code":"DS-301","title":"Regression and Generalised Linear Modelling","track":"data-science","lang":"en","dir":"ltr","url":"https://sdaiaacademy.github.io/ds-301/","repo":"SDAIAAcademy/ds-301","home":"index.html"},"ai":{"context":{"course":"context/course.md","courseJs":"context/course.js","day":null,"llms":"llms.txt"},"tasks":[],"tools":[]},"features":{},"strings":{}}</script>
+<script src="_engine/academy.js"></script>
+</body>
+</html>

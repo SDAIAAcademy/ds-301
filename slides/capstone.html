@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-ax="deck" data-track="data-science">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capstone · Capstone project presentations · Regression and Generalised Linear Modelling</title>
+<meta name="generator" content="SDAIA Academy engine 1.0.0">
+<link rel="icon" href="../_engine/icon.svg">
+<link rel="alternate" type="text/markdown" href="capstone.md">
+<link rel="describedby" href="../llms.txt">
+<link rel="stylesheet" href="../_engine/academy.css">
+</head>
+<body>
+<div class="deck" data-course="Regression and Generalised Linear Modelling" data-track="data-science" data-day="Capstone">
+<section class="slide title" id="title" data-auto="title" data-label="Welcome" data-n="1">
+  <div class="kicker">SDAIA Academy · Regression and Generalised Linear Modelling</div>
+  <h1>Capstone project presentations</h1>
+  <p class="lead mt">Capstone: An eight-minute defence of a regression analysis, then four minutes of questions</p>
+  <div class="meta"><span class="track">Data Science Track</span><span>4 teaching days + capstone day</span><span>8 min talk and demo · 4 min Q&amp;A</span><span>DS-301</span></div>
+  <aside class="notes">Today is theirs: keep your own talking to the opening and the closing. Confirm the running order, screen sharing and that every repository link opens. Each defence is 8 minutes of talk and 4 of questions.</aside>
+</section>
+
+<section class="slide" id="agenda" data-label="Agenda" data-n="2">
+  <div class="kicker">Capstone</div>
+  <h2>How the day runs</h2>
+  <div class="agenda">
+    <div class="item now"><div><b>Expectations and final preparation</b><small>the rubric, the defence, a last rerun from the raw data</small></div></div>
+    <div class="item"><div><b>Defences</b><small>each defence, then questions in which the assessor changes the model</small></div></div>
+    <div class="item"><div><b>Review and closing</b><small>peer feedback, the trainer's review, what next</small></div></div>
+  </div>
+  <aside class="notes">Morning: final preparation and the first defences. Plan the order from the brief choices collected at the end of lab 4.4, so that the three briefs alternate.</aside>
+</section>
+
+<section class="slide" id="rubric" data-label="The rubric" data-n="3">
+  <div class="kicker">How defences are scored</div>
+  <h2>The rubric</h2>
+  <div class="bars">
+    <div class="row"><span>Specification</span><div class="bar c-teal" style="--w:67%"></div><span class="val">20%</span></div>
+    <div class="row"><span>Diagnostics</span><div class="bar c-cyan" style="--w:100%"></div><span class="val">30%</span></div>
+    <div class="row"><span>Uncertainty</span><div class="bar c-coral" style="--w:67%"></div><span class="val">20%</span></div>
+    <div class="row"><span>Interpretation</span><div class="bar c-purple" style="--w:67%"></div><span class="val">20%</span></div>
+    <div class="row"><span>Reproducibility</span><div class="bar c-amber" style="--w:33%"></div><span class="val">10%</span></div>
+  </div>
+  <div class="callout tip mt"><b>Every check with its number.</b> A diagnostic named without its evidence and its fix scores as not done.</div>
+  <aside class="notes">Full marks look like this. Specification: use and estimand stated, terms and family justified from the data. Diagnostics: at least three checks with numbers, what failed and what changed. Uncertainty: every effect with an interval, at the right level of clustering. Interpretation: reader's units, no causal word the design cannot carry. Reproducibility: the notebook reruns from the raw data with a fixed seed.</aside>
+</section>
+
+<section class="slide" id="format" data-label="Format" data-n="4">
+  <div class="kicker">Format</div>
+  <h2>8 minutes of defence, then 4 minutes of questions</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>1 · The brief</h4><p class="small mb0">The question, the use and the estimand. One slide or one README section.</p></div>
+    <div class="card c-cyan"><h4>2 · The model and its checks</h4><p class="small mb0">Terms, family, diagnostics: what failed and what you changed.</p></div>
+    <div class="card c-coral"><h4>3 · Effects and limits</h4><p class="small mb0">In the reader's units with intervals, and what they do not mean.</p></div>
+  </div>
+  <div class="callout note mt"><b>Peer feedback.</b> After each defence, everyone writes one strength, one question and one suggestion.</div>
+  <aside class="notes">Participants may present from the README itself; slides are optional. The repository, not the slides, is what is scored.</aside>
+</section>
+
+<section class="slide" id="the-question-round" data-label="The question round" data-n="5">
+  <div class="kicker">The 4 minutes of questions</div>
+  <h2>The assessor changes one term or the family; you predict the result before re-running</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>"Drop the interaction: what happens to the villa effect?"</li>
+      <li>"Use Poisson instead: which interval narrows?"</li>
+      <li>"Remove the district term: what happens to the programme's standard error?"</li>
+    </ul>
+    <div class="card c-purple"><h4>What is scored</h4><p class="small mb0">The direction and rough size of the change, and the reason. A wrong prediction with the right reasoning still earns credit.</p></div>
+  </div>
+  <aside class="notes">Pick the change from the participant's own model before the defence. Allow one re-run of the notebook. This is the live check that the work is the participant's own, since the capstone is open to an assistant.</aside>
+</section>
+
+<section class="slide order" id="running-order" data-label="Running order" data-n="6">
+  <div class="kicker">Running order</div>
+  <h2>Who defends when</h2>
+  <table class="t small">
+    <tr><th>#</th><th>Participant</th><th>Brief</th></tr>
+    <tr><td>1</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>2</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>3</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>4</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>5</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>6</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>7</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+    <tr><td>8</td><td><input placeholder="name"></td><td><input placeholder="C1, C2, C3 or own"></td></tr>
+  </table>
+  <aside class="notes">Type the names in at the start; the fields can be edited live and are not saved, so keep the list in your notes too.</aside>
+</section>
+
+<section class="slide dark" id="final-prep" data-label="Before the first defence" data-n="7">
+  <div class="kicker">Before the first defence</div>
+  <h1>Final preparation · 20 minutes</h1>
+  <div class="timer" data-minutes="20"></div>
+  <p class="lead">Clone your repository into a fresh folder and rerun the notebook from the raw data. Then rehearse once.</p>
+  <aside class="notes">Press T to start the timer. Breaks are not slides: press B when the room needs one. A notebook that fails in a fresh clone loses the reproducibility criterion; this is the last chance to find out.</aside>
+</section>
+
+<section class="slide dark presenting" id="now-presenting" data-label="Now defending" data-n="8">
+  <div class="kicker center">Now defending</div>
+  <div class="center"><input placeholder="Participant · brief"></div>
+  <div class="timers mt">
+    <div><h3>Defence</h3><div class="timer" data-minutes="8"></div></div>
+    <div><h3>Questions</h3><div class="timer" data-minutes="4"></div></div>
+  </div>
+  <aside class="notes">Type the participant's name and press T to start the defence timer, then the questions timer. Reuse this slide for every participant.</aside>
+</section>
+
+<section class="slide" id="review" data-label="Trainer review" data-n="9">
+  <div class="kicker">Trainer review</div>
+  <h2>What the defences showed</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>Strongest patterns</h4><p class="small mb0">What several analyses got right.</p></div>
+    <div class="card c-coral"><h4>Common gaps</h4><p class="small mb0">What most analyses would fix next.</p></div>
+    <div class="card c-purple"><h4>Planted problems found</h4><p class="small mb0">Which briefs' hidden problems were caught, and by which check.</p></div>
+  </div>
+  <aside class="notes">Fill these in from your scoring notes during the last break. Name analyses for strengths; keep gaps anonymous. The planted problems are listed under "capstone" in labs/solutions/truth.json.</aside>
+</section>
+
+<section class="slide" id="what-next" data-label="After the course" data-n="10">
+  <div class="kicker">After the course</div>
+  <h2>Keep going</h2>
+  <ul class="bullets">
+    <li><b>Follow-up task:</b> critique a published regression from your own field with the checklist in labs/followup/README.md</li>
+    <li><b>Your repository stays yours:</b> keep it rerunnable and add the next check you named today</li>
+    <li><b>Next Academy courses:</b> DS-303 Causal Inference from Observational Data, DS-305 Uncertainty, Interpretability and Model Validation, DS-401 Bayesian Modelling and Decisions under Uncertainty</li>
+  </ul>
+  <aside class="notes">DS-303 takes up the causal questions this course kept descriptive; DS-401 takes partial pooling into a full Bayesian model. The follow-up task is tracked; give the date it is due.</aside>
+</section>
+
+<section class="slide dark" id="thanks" data-label="Thank you" data-n="11">
+  <div class="kicker">SDAIA Academy</div>
+  <h1>Thank you</h1>
+  <p class="lead">Regression and Generalised Linear Modelling</p>
+  <aside class="notes">Thank the participants and collect the peer feedback sheets.</aside>
+</section>
+</div>
+<script type="application/json" id="academy-data">{"v":1,"engine":"1.0.0","build":{"at":"2026-11-15T15:57:16Z","version":"2027.1.0","commit":"5c64064"},"course":{"id":"ds-301","code":"DS-301","title":"Regression and Generalised Linear Modelling","track":"data-science","lang":"en","dir":"ltr","url":"https://sdaiaacademy.github.io/ds-301/","repo":"SDAIAAcademy/ds-301","home":"../index.html"},"deck":{"id":"capstone","kind":"capstone","day":5,"label":"Capstone","title":"Capstone project presentations","prev":"day4.html","next":null,"md":"capstone.md","alt":{}},"sessions":[],"slides":[{"id":"title","n":1,"title":"Capstone project presentations","kind":"title","session":0,"hash":"fee83a8f","md":"#### [capstone#title] Capstone project presentations\n\n*SDAIA Academy · Regression and Generalised Linear Modelling*\n\nCapstone: An eight-minute defence of a regression analysis, then four minutes of questions\n\nData Science Track · 4 teaching days + capstone day · 8 min talk and demo · 4 min Q&A · DS-301","notes":"Today is theirs: keep your own talking to the opening and the closing. Confirm the running order, screen sharing and that every repository link opens. Each defence is 8 minutes of talk and 4 of questions.","minutes":null,"lo":[]},{"id":"agenda","n":2,"title":"How the day runs","kind":"content","session":0,"hash":"0ba79192","md":"#### [capstone#agenda] How the day runs\n\n*Capstone*\n\n- **Expectations and final preparation**: the rubric, the defence, a last rerun from the raw data\n- **Defences**: each defence, then questions in which the assessor changes the model\n- **Review and closing**: peer feedback, the trainer's review, what next","notes":"Morning: final preparation and the first defences. Plan the order from the brief choices collected at the end of lab 4.4, so that the three briefs alternate.","minutes":null,"lo":[]},{"id":"rubric","n":3,"title":"The rubric","kind":"content","session":0,"hash":"ef091f68","md":"#### [capstone#rubric] The rubric\n\n*How defences are scored*\n\n| Item | Value |\n| --- | --- |\n| Specification | 20% |\n| Diagnostics | 30% |\n| Uncertainty | 20% |\n| Interpretation | 20% |\n| Reproducibility | 10% |\n\n> **Every check with its number.** A diagnostic named without its evidence and its fix scores as not done.","notes":"Full marks look like this. Specification: use and estimand stated, terms and family justified from the data. Diagnostics: at least three checks with numbers, what failed and what changed. Uncertainty: every effect with an interval, at the right level of clustering. Interpretation: reader's units, no causal word the design cannot carry. Reproducibility: the notebook reruns from the raw data with a fixed seed.","minutes":null,"lo":[]},{"id":"format","n":4,"title":"8 minutes of defence, then 4 minutes of questions","kind":"content","session":0,"hash":"58f18599","md":"#### [capstone#format] 8 minutes of defence, then 4 minutes of questions\n\n*Format*\n\n- **1 · The brief.** The question, the use and the estimand. One slide or one README section.\n- **2 · The model and its checks.** Terms, family, diagnostics: what failed and what you changed.\n- **3 · Effects and limits.** In the reader's units with intervals, and what they do not mean.\n\n> **Peer feedback.** After each defence, everyone writes one strength, one question and one suggestion.","notes":"Participants may present from the README itself; slides are optional. The repository, not the slides, is what is scored.","minutes":null,"lo":[]},{"id":"the-question-round","n":5,"title":"The assessor changes one term or the family; you predict the result before re-running","kind":"content","session":0,"hash":"25ce35fe","md":"#### [capstone#the-question-round] The assessor changes one term or the family; you predict the result before re-running\n\n*The 4 minutes of questions*\n\n- \"Drop the interaction: what happens to the villa effect?\"\n- \"Use Poisson instead: which interval narrows?\"\n- \"Remove the district term: what happens to the programme's standard error?\"\n\n- **What is scored.** The direction and rough size of the change, and the reason. A wrong prediction with the right reasoning still earns credit.","notes":"Pick the change from the participant's own model before the defence. Allow one re-run of the notebook. This is the live check that the work is the participant's own, since the capstone is open to an assistant.","minutes":null,"lo":[]},{"id":"running-order","n":6,"title":"Who defends when","kind":"order","session":0,"hash":"c9b72f0b","md":"#### [capstone#running-order] Who defends when\n\n*Running order*\n\n| # | Participant | Brief |\n| --- | --- | --- |\n| 1 |  |  |\n| 2 |  |  |\n| 3 |  |  |\n| 4 |  |  |\n| 5 |  |  |\n| 6 |  |  |\n| 7 |  |  |\n| 8 |  |  |","notes":"Type the names in at the start; the fields can be edited live and are not saved, so keep the list in your notes too.","minutes":null,"lo":[]},{"id":"final-prep","n":7,"title":"Final preparation · 20 minutes","kind":"content","session":0,"hash":"79565424","md":"#### [capstone#final-prep] Final preparation · 20 minutes\n\n*Before the first defence*\n\nClone your repository into a fresh folder and rerun the notebook from the raw data. Then rehearse once.","notes":"Press T to start the timer. Breaks are not slides: press B when the room needs one. A notebook that fails in a fresh clone loses the reproducibility criterion; this is the last chance to find out.","minutes":null,"lo":[]},{"id":"now-presenting","n":8,"title":"Defence","kind":"presenting","session":0,"hash":"d994de6e","md":"#### [capstone#now-presenting] Defence\n\n*Now defending*\n\n##### Questions","notes":"Type the participant's name and press T to start the defence timer, then the questions timer. Reuse this slide for every participant.","minutes":null,"lo":[]},{"id":"review","n":9,"title":"What the defences showed","kind":"content","session":0,"hash":"824b5855","md":"#### [capstone#review] What the defences showed\n\n*Trainer review*\n\n- **Strongest patterns.** What several analyses got right.\n- **Common gaps.** What most analyses would fix next.\n- **Planted problems found.** Which briefs' hidden problems were caught, and by which check.","notes":"Fill these in from your scoring notes during the last break. Name analyses for strengths; keep gaps anonymous. The planted problems are listed under \"capstone\" in labs/solutions/truth.json.","minutes":null,"lo":[]},{"id":"what-next","n":10,"title":"Keep going","kind":"content","session":0,"hash":"eb713e0e","md":"#### [capstone#what-next] Keep going\n\n*After the course*\n\n- **Follow-up task:** critique a published regression from your own field with the checklist in labs/followup/README.md\n- **Your repository stays yours:** keep it rerunnable and add the next check you named today\n- **Next Academy courses:** DS-303 Causal Inference from Observational Data, DS-305 Uncertainty, Interpretability and Model Validation, DS-401 Bayesian Modelling and Decisions under Uncertainty","notes":"DS-303 takes up the causal questions this course kept descriptive; DS-401 takes partial pooling into a full Bayesian model. The follow-up task is tracked; give the date it is due.","minutes":null,"lo":[]},{"id":"thanks","n":11,"title":"Thank you","kind":"content","session":0,"hash":"ef23edf1","md":"#### [capstone#thanks] Thank you\n\n*SDAIA Academy*\n\nRegression and Generalised Linear Modelling","notes":"Thank the participants and collect the peer feedback sheets.","minutes":null,"lo":[]}],"activities":[],"ai":{"context":{"course":"../context/course.md","courseJs":"../context/course.js","day":"capstone.md","llms":"../llms.txt"},"tasks":[],"tools":[]},"bridge":{"allowedOrigins":[]},"features":{},"strings":{}}</script>
+<script src="../_engine/academy.js"></script>
+</body>
+</html>

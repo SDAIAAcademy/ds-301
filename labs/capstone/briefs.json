@@ -1,0 +1,26 @@
+[
+ {
+  "id": "C1",
+  "file": "c1_pressure_complaints.csv",
+  "title": "Low-pressure complaints",
+  "brief": "Ghaliya asks how low-pressure complaints per 1,000 customers move with temperature, and whether districts in the pressure management programme report more of them. The planning committee wants to know which districts to watch next summer.",
+  "family_hint": "counts with an exposure",
+  "grouping": "12 months in each of 30 districts"
+ },
+ {
+  "id": "C2",
+  "file": "c2_kit_offer.csv",
+  "title": "The water-saving kit offer",
+  "brief": "6,000 households were offered a free water-saving kit by a letter or a text message, the channel chosen at random. Ghaliya asks which channel the next offer should use, and whether the answer differs by tariff band.",
+  "family_hint": "a binary outcome",
+  "grouping": "households in 30 districts"
+ },
+ {
+  "id": "C3",
+  "file": "c3_villa_peak.csv",
+  "title": "Villa peak demand",
+  "brief": "Ghaliya asks how much a villa's peak-month consumption rises with garden size and with temperature, and whether an irrigation timer changes the garden effect, to size the summer supply of the villa districts.",
+  "family_hint": "a positive continuous outcome",
+  "grouping": "villas in 30 districts"
+ }
+]

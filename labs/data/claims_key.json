@@ -1,0 +1,32 @@
+[
+ {
+  "id": 1,
+  "stated_use": "causal",
+  "supported": false,
+  "reason": "a comparison of different households cannot separate the tariff from income, size and housing"
+ },
+ {
+  "id": 2,
+  "stated_use": "predictive",
+  "supported": true,
+  "reason": "forecasts were made before the outcome and checked against it, which is what a predictive claim needs"
+ },
+ {
+  "id": 3,
+  "stated_use": "descriptive",
+  "supported": true,
+  "reason": "it reports a difference between groups in one year and claims nothing about what caused it"
+ },
+ {
+  "id": 4,
+  "stated_use": "causal",
+  "supported": true,
+  "reason": "random assignment makes the two groups alike except for the letter, so the difference estimates its effect"
+ },
+ {
+  "id": 5,
+  "stated_use": "causal",
+  "supported": false,
+  "reason": "accuracy supports the prediction, but no reminders were sent, so the halving is not evidence of an effect"
+ }
+]

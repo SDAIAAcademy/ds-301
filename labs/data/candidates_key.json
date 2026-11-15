@@ -1,0 +1,11 @@
+{
+ "flagged": [
+  "member_chronic_condition",
+  "nationality_group",
+  "monthly_income_band",
+  "employer_sector",
+  "phone_brand",
+  "head_marital_status"
+ ],
+ "purpose": "planning next summer's supply, from data collected for billing"
+}

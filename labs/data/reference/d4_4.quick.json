@@ -1,0 +1,15 @@
+{
+ "choice": {
+  "brief": "C2",
+  "estimand": "the difference in the share of households taking the kit between a text message and a letter, overall and within each tariff band, for the 6,000 households offered it",
+  "use": "causal"
+ },
+ "effects": "Each extra household member goes with 1.6 m³ a month more on the social tariff (1.5 to 1.7), 2.3 on the standard (2.3 to 2.4) and 5.0 for villas (4.8 to 5.2). A typical household uses 20.7 m³ in a 30 °C month and 37.9 m³ (37.3 to 38.4) in a 40 °C month. Households in programme districts used 10.3% less (5.0% to 15.4% less).",
+ "head": {
+  "estimand": "mean m³ a month per extra household member in each band, mean m³ at 20, 30 and 40 °C, and the percentage difference between programme and other districts at equal size, band and temperature, for Sahil's billed households in 2026",
+  "question": "How does a household's monthly consumption differ with its size, band and the month's temperature, and do programme districts use less?",
+  "use": "descriptive"
+ },
+ "limits": "The programme figure is a comparison of districts that chose to join, not the saving from joining. Intervals cover sampling and district variation in 2026, not a change in tariffs or habits. Temperatures above 43 °C are outside the data, and a new district, like D30, has no history of its own.",
+ "model": "Linear model of log monthly consumption with band, household size and their interaction, a spline in temperature; the programme flag added with a random intercept per district. Checked by residual plots against each predictor (the straight temperature term failed, the spline passed), a funnel on the m³ scale that the log removes, and fake data with known effects that the model recovered."
+}

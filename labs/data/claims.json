@@ -1,0 +1,32 @@
+[
+ {
+  "id": 1,
+  "source": "A daily newspaper, on the region's water bills",
+  "text": "Households on the social tariff use 12% less water than other households. The social tariff is teaching low-income families to save water.",
+  "evidence": "a comparison of one month of bills across 40,000 households"
+ },
+ {
+  "id": 2,
+  "source": "A utility's annual report",
+  "text": "Our demand model, fitted on three years of bills, forecast last summer's peak demand in each district within 6%.",
+  "evidence": "forecasts made before the summer, checked against the summer's meter readings"
+ },
+ {
+  "id": 3,
+  "source": "A ministry dashboard note",
+  "text": "Districts in the pressure management programme reported 18% fewer leaks per kilometre of main than the other districts in 2026.",
+  "evidence": "leak reports and network lengths for all districts in one year"
+ },
+ {
+  "id": 4,
+  "source": "A research abstract",
+  "text": "Households randomly chosen to receive a monthly usage letter used 4% less water over six months (95% interval 2% to 6%) than households that were not.",
+  "evidence": "a randomised trial in 1,200 households"
+ },
+ {
+  "id": 5,
+  "source": "A software vendor's brochure",
+  "text": "Our model flags the customers who will pay late with 85% accuracy, and reminders sent to flagged customers cut late payment in half.",
+  "evidence": "a model scored on past bills; no reminders were sent while it was tested"
+ }
+]
