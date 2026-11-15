@@ -9,7 +9,7 @@
     "en": "Regression and Generalised Linear Modelling",
     "ar": "الانحدار والنماذج الخطية المُعمَّمة"
   },
-  "tagline": "REPLACE: one line under the title: what participants can do after the course",
+  "tagline": "Fit linear, logistic and count models that answer a stated question, check them by simulating from the fit, and report effects with intervals people can read",
   "description": "Participants build regression models that answer a stated question and defend what each term means. On synthetic data from Sahil Water, a fictional utility with 30 districts, they fit linear models with splines and interactions, logistic models for late payment and count models for leak reports, diagnose misfit by simulating from the fit, handle grouped data with clustered errors and random intercepts, and penalise many predictors. Results are reported as marginal effects with intervals.",
   "track": "data-science",
   "level": 300,
@@ -20,7 +20,9 @@
   "audience": "Specialists. Analysts and data scientists who have completed the level 200 set or can show equivalent work: an analysis or model they built, validated and can explain.",
   "prerequisites": [
     "DS-201 Statistical Inference by Simulation",
-    "Fits a simple linear regression and reads its coefficient table"
+    "Fits a simple linear regression and reads its coefficient table",
+    "Pre-work: about two hours on simple regression, labs/P0_prework_simple_regression.ipynb, before the supervised entry quiz",
+    "Setup: a laptop with uv, or Google Colab. Nothing calls or downloads a model. Run 00_setup_check before Day 1; see labs/README.md."
   ],
   "site": {
     "url": "https://sdaiaacademy.github.io/ds-301/",
@@ -65,8 +67,8 @@
     }
   ],
   "case_study": {
-    "name": "REPLACE: the name of the fictional organisation every lab works on",
-    "summary": "REPLACE: two sentences on the case study and its synthetic data"
+    "name": "Sahil Water",
+    "summary": "Sahil Water (شركة ساحل للمياه) is a fictional utility serving 40,000 households in 30 districts of very different sizes, and all of its data are synthetic, generated with a fixed seed: one month's bill for every household with tariff band, household size, temperature and a late-payment flag, weekly leak reports on 1,200 pipe segments with their lengths, a district leak summary from a previous analyst, and 126 candidate columns for next summer's demand. Planted problems (a missing log term, two districts with pipe lengths keyed a tenth too small, overdispersed leaks, a notice flag that separates late payers, a variance funnel) are found by named labs; participants work as Arjuwan Al-Sabhan, a junior data scientist answering the planner Ghaliya Al-Muhairi, household keys are pseudonyms and results are reported by band or district only."
   },
   "format": "intensive",
   "format_note": "Intensive: 4 teaching days of four sessions and a capstone day, with guided pre-work and a tracked follow-up task",
@@ -87,69 +89,174 @@
       "sessions": [
         {
           "title": "A regression answers a question",
+          "summary": "A regression is chosen for its question: describe, predict or explain a cause, and the estimand comes before the model",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Distinguish descriptive, predictive and causal uses of a regression",
+            "State the estimand of a question before choosing a model",
+            "Judge whether the evidence behind a published claim supports the use it states"
           ],
           "lo": [
             "LO6"
           ],
           "lab": {
             "id": "1.1",
-            "title": "Label five published regression claims descriptive, predictive or causal",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Three uses of a regression",
             "minutes": 25,
-            "href": "D1_1_label_five_published.ipynb"
+            "summary": "Label five published regression claims descriptive, predictive or causal, decide whether the evidence named supports each, and write the estimand of two of them.",
+            "href": "D1_1_three_uses.ipynb",
+            "steps": [
+              {
+                "text": "Read the five claims and the evidence each names",
+                "minutes": 4
+              },
+              {
+                "text": "Label the use each claim states",
+                "minutes": 6
+              },
+              {
+                "text": "Decide whether the evidence supports it, with a reason",
+                "minutes": 7
+              },
+              {
+                "text": "Write the estimand of claims 1 and 3",
+                "minutes": 5
+              },
+              {
+                "text": "Mark the sheet against the key",
+                "minutes": 3
+              }
+            ],
+            "stretch": "Rewrite claim 1 so that the evidence supports it"
           }
         },
         {
           "title": "Fake data first",
+          "summary": "Simulate data from a model you choose, then fit it: if the fit cannot recover what you planted, the code or the design is wrong",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Simulate an outcome from a stated model with a seed",
+            "Recover known coefficients and check their intervals by coverage",
+            "Show what leaving out a correlated term does to a coefficient"
           ],
           "lo": [
             "LO1"
           ],
           "lab": {
             "id": "1.2",
-            "title": "Simulate consumption from a known model and recover its coefficients",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Fake data first",
             "minutes": 25,
-            "href": "D1_2_simulate_consumption_from.ipynb"
+            "summary": "Simulate monthly consumption for 40,000 households from a known model, recover its coefficients, count the coverage of the intervals over repeated simulations and see the bias of a model that leaves out the tariff band.",
+            "href": "D1_2_fake_data.ipynb",
+            "steps": [
+              {
+                "text": "Write the simulator with known coefficients",
+                "minutes": 7
+              },
+              {
+                "text": "Fit and compare estimates with the truth",
+                "minutes": 4
+              },
+              {
+                "text": "Coverage of the size interval over repeated simulations",
+                "minutes": 7
+              },
+              {
+                "text": "Leave out the band and watch the size coefficient",
+                "minutes": 5
+              },
+              {
+                "text": "Write the recovery table",
+                "minutes": 2
+              }
+            ],
+            "stretch": "Make the error spread grow with household size and repeat the coverage count"
           }
         },
         {
           "title": "Transformations and splines",
+          "summary": "A log outcome makes effects multiplicative, and a spline lets temperature bend without guessing its shape",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Fit a model of log consumption and read its coefficients as percentages",
+            "Replace a straight temperature term with a spline and compare the fits",
+            "Plot a fitted curve with its band and back-transform it correctly"
           ],
           "lo": [
             "LO1"
           ],
           "lab": {
             "id": "1.3",
-            "title": "Fit log consumption with a temperature spline and plot its band",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "A temperature spline",
             "minutes": 25,
-            "href": "D1_3_fit_log_consumption.ipynb"
+            "summary": "Fit log consumption with a straight temperature term and with a spline, compare them, and plot the spline's curve in cubic metres with its 95% band, using the mean and not the median on the original scale.",
+            "href": "D1_3_temperature_spline.ipynb",
+            "steps": [
+              {
+                "text": "Log consumption against temperature",
+                "minutes": 4
+              },
+              {
+                "text": "The straight-line model and its residual pattern",
+                "minutes": 5
+              },
+              {
+                "text": "The spline model and the comparison",
+                "minutes": 6
+              },
+              {
+                "text": "The curve with its band",
+                "minutes": 6
+              },
+              {
+                "text": "Back to cubic metres: median and mean",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Try three, five and eight degrees of freedom and pick one by cross-validated error"
           }
         },
         {
           "title": "Interactions and marginal effects",
+          "summary": "An interaction lets the effect of household size differ by tariff band, and an average marginal effect turns coefficients into cubic metres",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Add an interaction and say what each of its coefficients means",
+            "Compute an average marginal effect on the outcome scale",
+            "Report marginal effects by group with intervals from simulation"
           ],
           "lo": [
             "LO1"
           ],
           "lab": {
             "id": "1.4",
-            "title": "Add a tariff-by-household-size interaction and report marginal effects",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Interaction and marginal effects",
             "minutes": 25,
-            "href": "D1_4_add_tariff_household.ipynb"
+            "summary": "Add a tariff-by-household-size interaction to the spline model, compute the average effect of one more person in cubic metres a month in each band with an interval, and plot the effects.",
+            "href": "D1_4_interaction_effects.ipynb",
+            "steps": [
+              {
+                "text": "Fit the interaction model",
+                "minutes": 4
+              },
+              {
+                "text": "Read the slope of each band on the log scale",
+                "minutes": 5
+              },
+              {
+                "text": "One more person, in cubic metres, for each household",
+                "minutes": 6
+              },
+              {
+                "text": "Average marginal effects by band with intervals",
+                "minutes": 6
+              },
+              {
+                "text": "The effect plot and the interval table",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Check the course function against the marginaleffects package"
           }
         }
-      ]
+      ],
+      "subtitle": "Three uses, fake data, splines and an interaction, ending with marginal effects in cubic metres"
     },
     {
       "id": "day2",
@@ -159,69 +266,175 @@
       "sessions": [
         {
           "title": "Links and families",
+          "summary": "The outcome decides the family: a straight line for a yes-or-no outcome predicts impossible probabilities",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Name the family and link that fit an outcome",
+            "Fit a linear probability model and a logistic model to the same outcome",
+            "Show where the linear model breaks"
           ],
           "lo": [
             "LO2"
           ],
           "lab": {
             "id": "2.1",
-            "title": "Fit late payment with linear and logistic models and show where the first breaks",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Linear against logistic",
             "minutes": 25,
-            "href": "D2_1_fit_late_payment.ipynb"
+            "summary": "Fit late payment with a linear model and a logistic model, count the predictions below zero and above one, and compare predicted with observed rates by decile.",
+            "href": "D2_1_linear_vs_logistic.ipynb",
+            "steps": [
+              {
+                "text": "Late-payment rates by band and autopay",
+                "minutes": 4
+              },
+              {
+                "text": "The linear probability model",
+                "minutes": 5
+              },
+              {
+                "text": "Predictions outside zero and one",
+                "minutes": 4
+              },
+              {
+                "text": "The logistic model",
+                "minutes": 5
+              },
+              {
+                "text": "Predicted against observed, by decile",
+                "minutes": 7
+              }
+            ],
+            "stretch": "Compare the two models' average difference for autopay"
           }
         },
         {
           "title": "Reading a logistic model",
+          "summary": "A logistic coefficient is a change in log odds; its effect on the probability depends on who the household is",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Convert logistic coefficients to odds ratios",
+            "Turn a coefficient into probability differences for stated profiles",
+            "Report a probability difference with an interval"
           ],
           "lo": [
             "LO2"
           ],
           "lab": {
             "id": "2.2",
-            "title": "Turn coefficients into probability differences for three household profiles",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Three household profiles",
             "minutes": 25,
-            "href": "D2_2_turn_coefficients_into.ipynb"
+            "summary": "Fit the late-payment model, turn the autopay coefficient into probability differences for three household profiles with intervals, and compare them with the single odds ratio.",
+            "href": "D2_2_three_profiles.ipynb",
+            "steps": [
+              {
+                "text": "Fit the model and read the odds ratios",
+                "minutes": 5
+              },
+              {
+                "text": "Describe the three profiles",
+                "minutes": 3
+              },
+              {
+                "text": "Predicted probabilities with and without autopay",
+                "minutes": 6
+              },
+              {
+                "text": "Differences with intervals",
+                "minutes": 6
+              },
+              {
+                "text": "One sentence per profile, without causal words",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Compute the average marginal effect of autopay over all bills"
           }
         },
         {
           "title": "Counts and exposure",
+          "summary": "Counts need a count model, and segments of different lengths need an exposure term",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Fit a Poisson model to counts",
+            "Use the log of the exposure as an offset",
+            "Read coefficients as rate ratios"
           ],
           "lo": [
             "LO2"
           ],
           "lab": {
             "id": "2.3",
-            "title": "Model leak reports with a Poisson model and a pipe-length offset",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Leaks with an exposure",
             "minutes": 25,
-            "href": "D2_3_model_leak_reports.ipynb"
+            "summary": "Turn weekly leak reports into a year's count per pipe segment, fit a Poisson model with log kilometre-years as an offset, and read material, age and pressure as rate ratios.",
+            "href": "D2_3_poisson_offset.ipynb",
+            "steps": [
+              {
+                "text": "Weekly reports into one count per segment",
+                "minutes": 5
+              },
+              {
+                "text": "Exposure: kilometres times years in service",
+                "minutes": 4
+              },
+              {
+                "text": "The Poisson model with an offset",
+                "minutes": 6
+              },
+              {
+                "text": "Rate ratios with intervals",
+                "minutes": 6
+              },
+              {
+                "text": "Expected leaks for two segments",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Fit length as a predictor in place of the offset and read its coefficient"
           }
         },
         {
           "title": "Overdispersion",
+          "summary": "When the counts vary more than the Poisson allows, its intervals are too narrow; a negative binomial model widens them",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Measure dispersion from a fitted Poisson model",
+            "Fit a negative binomial model with the same exposure",
+            "Compare effects and intervals on the count scale"
           ],
           "lo": [
-            "LO2"
+            "LO2",
+            "LO3"
           ],
           "lab": {
             "id": "2.4",
-            "title": "Test dispersion and refit with a negative binomial model",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Dispersion and the negative binomial",
             "minutes": 25,
-            "href": "D2_4_test_dispersion_refit.ipynb"
+            "summary": "Test the leak model's dispersion, refit it as a negative binomial model, and set rate ratios and expected counts with their intervals side by side for the two models.",
+            "href": "D2_4_negative_binomial.ipynb",
+            "steps": [
+              {
+                "text": "Variance against mean in groups",
+                "minutes": 5
+              },
+              {
+                "text": "The Pearson dispersion statistic",
+                "minutes": 4
+              },
+              {
+                "text": "The negative binomial fit",
+                "minutes": 5
+              },
+              {
+                "text": "Standard errors and intervals side by side",
+                "minutes": 6
+              },
+              {
+                "text": "Effects on the count scale",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Run the auxiliary-regression test of dispersion"
           }
         }
-      ]
+      ],
+      "subtitle": "Families and links: late payment on the probability scale, leaks on the count scale"
     },
     {
       "id": "day3",
@@ -231,69 +444,174 @@
       "sessions": [
         {
           "title": "Residuals that tell you something",
+          "summary": "Raw residuals of a yes-or-no model say nothing; binned residuals against each predictor show what the model missed",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Explain why raw logistic residuals are uninformative",
+            "Draw binned residuals against a predictor with their band",
+            "Find a missing term and show the repaired fit"
           ],
           "lo": [
             "LO3"
           ],
           "lab": {
             "id": "3.1",
-            "title": "Find a missing non-linear term from binned-residual plots",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Binned residuals",
             "minutes": 25,
-            "href": "D3_1_find_missing_non.ipynb"
+            "summary": "Draw binned residual plots for Qusai's late-payment model, find the bill term that should be on the log scale, refit, and write the first line of the diagnosis log.",
+            "href": "D3_1_binned_residuals.ipynb",
+            "steps": [
+              {
+                "text": "Fit Qusai's model as he wrote it",
+                "minutes": 3
+              },
+              {
+                "text": "Raw residuals, and why they do not help",
+                "minutes": 3
+              },
+              {
+                "text": "Binned residuals against each predictor",
+                "minutes": 8
+              },
+              {
+                "text": "Add the log term and refit",
+                "minutes": 6
+              },
+              {
+                "text": "The first line of the diagnosis log",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Draw binned residuals against the fitted probability"
           }
         },
         {
           "title": "Influential observations",
+          "summary": "A few observations can carry a fit: leverage and Cook's distance find them, and the data tell you what to do with them",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Compute leverage and Cook's distance for a fitted model",
+            "Find the most influential units and refit without them",
+            "Trace an influential unit to its cause before deciding"
           ],
           "lo": [
             "LO3"
           ],
           "lab": {
             "id": "3.2",
-            "title": "Find the three most influential districts and refit without them",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Influential districts",
             "minutes": 25,
-            "href": "D3_2_find_three_most.ipynb"
+            "summary": "Fit Qusai's district model of leaks per 100 km, find the three most influential districts, refit without them, then trace two to a unit error in the pipe lengths and keep the third.",
+            "href": "D3_2_influential_districts.ipynb",
+            "steps": [
+              {
+                "text": "Fit the district model",
+                "minutes": 3
+              },
+              {
+                "text": "Leverage and Cook's distance",
+                "minutes": 6
+              },
+              {
+                "text": "The three districts and the refit without them",
+                "minutes": 6
+              },
+              {
+                "text": "Recompute the kilometres from the segment table",
+                "minutes": 6
+              },
+              {
+                "text": "The second line of the diagnosis log",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Compute DFBETA for the age coefficient"
           }
         },
         {
           "title": "Simulation-based checks",
+          "summary": "Simulate new data from the fitted model and ask whether it looks like the data you have",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Simulate replicate data sets from a fitted count model",
+            "Choose a test statistic that matters to the question",
+            "Judge a model by where the observed statistic falls"
           ],
           "lo": [
             "LO3"
           ],
           "lab": {
             "id": "3.3",
-            "title": "Test whether the count model reproduces the observed share of zeros",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "The share of zeros",
             "minutes": 25,
-            "href": "D3_3_test_whether_count.ipynb"
+            "summary": "Simulate replicate leak counts from the Poisson and negative binomial fits, compare the share of segments with no leak and the largest count with the observed values, and log the result.",
+            "href": "D3_3_share_of_zeros.ipynb",
+            "steps": [
+              {
+                "text": "Observed share of zeros and largest count",
+                "minutes": 3
+              },
+              {
+                "text": "Simulate from the Poisson fit",
+                "minutes": 7
+              },
+              {
+                "text": "Simulate from the negative binomial fit",
+                "minutes": 6
+              },
+              {
+                "text": "Where the observed values fall",
+                "minutes": 5
+              },
+              {
+                "text": "The third line of the diagnosis log",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Add the uncertainty of the coefficients to the simulation"
           }
         },
         {
           "title": "Separation and error structure",
+          "summary": "A variable that separates the outcome breaks a logistic fit, and a variance funnel breaks the classical standard errors",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Recognise separation from its symptoms",
+            "Repair a separated fit and say why the variable does not belong",
+            "Use heteroskedasticity-consistent standard errors on a funnel"
           ],
           "lo": [
             "LO3"
           ],
           "lab": {
             "id": "3.4",
-            "title": "Repair a separated logistic fit and add heteroskedasticity-consistent errors",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Separation and robust errors",
             "minutes": 25,
-            "href": "D3_4_repair_separated_logistic.ipynb"
+            "summary": "Repair Qusai's logistic fit, which a notice flag separates, then find the funnel in his consumption model, set classical and heteroskedasticity-consistent errors side by side, and close the diagnosis log with the corrected models.",
+            "href": "D3_4_separation_hc.ipynb",
+            "steps": [
+              {
+                "text": "The separated fit and its symptoms",
+                "minutes": 5
+              },
+              {
+                "text": "The cross-table that explains it, and the repair",
+                "minutes": 5
+              },
+              {
+                "text": "The funnel in the consumption model",
+                "minutes": 5
+              },
+              {
+                "text": "Classical against robust standard errors",
+                "minutes": 5
+              },
+              {
+                "text": "The full diagnosis log and the corrected models",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Fit the separated model with a small penalty and compare"
           }
         }
-      ]
+      ],
+      "subtitle": "Five seeded problems in a previous analyst's models, found and repaired"
     },
     {
       "id": "day4",
@@ -303,81 +621,186 @@
       "sessions": [
         {
           "title": "Clustered data",
+          "summary": "Households in one district share more than the model knows, so a district-level effect has far fewer independent pieces of evidence than rows",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Identify the unit at which a predictor varies",
+            "Compute standard errors clustered by district",
+            "Explain why clustering widens some intervals and not others"
           ],
           "lo": [
             "LO4"
           ],
           "lab": {
             "id": "4.1",
-            "title": "Set naive and district-clustered standard errors side by side and explain the change",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Clustered standard errors",
             "minutes": 25,
-            "href": "D4_1_set_naive_district.ipynb"
+            "summary": "Estimate the consumption difference of pressure-managed districts with naive and district-clustered standard errors side by side, and explain why the interval widens many times for the district-level term and little for household size.",
+            "href": "D4_1_clustered_errors.ipynb",
+            "steps": [
+              {
+                "text": "Which predictors vary by household and which by district",
+                "minutes": 4
+              },
+              {
+                "text": "The naive fit",
+                "minutes": 4
+              },
+              {
+                "text": "Errors clustered by district",
+                "minutes": 6
+              },
+              {
+                "text": "The ratio of standard errors, term by term",
+                "minutes": 6
+              },
+              {
+                "text": "Two sentences that explain the change",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Resample whole districts and compare the bootstrap interval"
           }
         },
         {
           "title": "Partial pooling",
+          "summary": "A random intercept for each district pools what districts share, so small districts borrow strength and shrink",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Fit a random-intercept model",
+            "Read the district variance and the share of variance between districts",
+            "Show how small districts shrink towards the average"
           ],
           "lo": [
             "LO4"
           ],
           "lab": {
             "id": "4.2",
-            "title": "Fit a random-intercept model and plot how small districts shrink",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Partial pooling",
             "minutes": 25,
-            "href": "D4_2_fit_random_intercept.ipynb"
+            "summary": "Fit a random-intercept model by district, plot each district's raw and shrunken effect against its size, and complete the table of naive, clustered and mixed-effects estimates.",
+            "href": "D4_2_partial_pooling.ipynb",
+            "steps": [
+              {
+                "text": "Fit the random-intercept model",
+                "minutes": 5
+              },
+              {
+                "text": "District and household variance",
+                "minutes": 4
+              },
+              {
+                "text": "Raw against shrunken district effects",
+                "minutes": 7
+              },
+              {
+                "text": "The three-way table",
+                "minutes": 5
+              },
+              {
+                "text": "A short explanation of the table",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Add a random slope for household size and compare"
           }
         },
         {
           "title": "Penalised regression",
+          "summary": "With many correlated predictors, a penalty trades a little bias for stability; which predictors it keeps is itself uncertain",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Screen candidate predictors for necessity before modelling",
+            "Tune ridge and lasso penalties by cross-validation",
+            "Measure how stable the lasso's selection is"
           ],
           "lo": [
             "LO5"
           ],
           "lab": {
             "id": "4.3",
-            "title": "Tune ridge and lasso on 120 predictors and plot coefficient paths",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "Ridge and lasso",
             "minutes": 25,
-            "href": "D4_3_tune_ridge_lasso.ipynb"
+            "summary": "Remove the candidate columns a utility could not justify for supply planning, tune ridge and lasso on the remaining 120 predictors, plot the coefficient paths and count how often each predictor is selected over bootstrap samples.",
+            "href": "D4_3_ridge_lasso.ipynb",
+            "steps": [
+              {
+                "text": "Remove the columns that fail data minimisation",
+                "minutes": 4
+              },
+              {
+                "text": "Ridge path and cross-validated penalty",
+                "minutes": 5
+              },
+              {
+                "text": "Lasso path and cross-validated penalty",
+                "minutes": 5
+              },
+              {
+                "text": "Selection frequency over bootstrap samples",
+                "minutes": 7
+              },
+              {
+                "text": "Which selections to trust",
+                "minutes": 4
+              }
+            ],
+            "stretch": "Fit ordinary least squares on half the data after selecting on the other half"
           }
         },
         {
           "title": "Reporting a model",
+          "summary": "A model report says what was asked, what was fitted, how it was checked and what the numbers do not mean",
           "outcomes": [
-            "REPLACE: what a participant can do after this session"
+            "Write predictions and effects in the units of the reader",
+            "Separate descriptive, predictive and causal statements",
+            "State the limits of a model in a report"
           ],
           "lo": [
             "LO6"
           ],
           "lab": {
             "id": "4.4",
-            "title": "Draft a one-page model report and choose the capstone brief",
-            "summary": "REPLACE: one line on what participants build and take away; then list the steps of the lab in course.json, their minutes adding up to 25",
+            "title": "A one-page model report",
             "minutes": 25,
-            "href": "D4_4_draft_one_page.ipynb"
+            "summary": "Draft a one-page report of the consumption model from the supplied results, check it for numbers, intervals and limits, then choose a capstone brief and write its estimand and use.",
+            "href": "D4_4_model_report.ipynb",
+            "steps": [
+              {
+                "text": "The question, the use and the estimand",
+                "minutes": 5
+              },
+              {
+                "text": "Model, family and diagnostics",
+                "minutes": 5
+              },
+              {
+                "text": "Effects with intervals in the reader's units",
+                "minutes": 6
+              },
+              {
+                "text": "Limits, and what the coefficients are not",
+                "minutes": 4
+              },
+              {
+                "text": "Choose a capstone brief and write its estimand",
+                "minutes": 5
+              }
+            ],
+            "stretch": "Ask a neighbour to find one causal word in your report"
           }
         }
-      ]
+      ],
+      "subtitle": "Districts of very different sizes, 120 candidate predictors, and a report people can read"
     },
     {
       "id": "capstone",
       "kind": "capstone",
       "title": "Capstone project presentations",
       "deck": "slides/capstone.html",
-      "subtitle": "REPLACE: the catalog gives 8 minutes for each presentation and nothing about questions; decide whether the questions are inside those minutes, set capstone.talk_minutes and capstone.qa_minutes in course.json and the timers of the now-presenting slide, and remove this line"
+      "subtitle": "An eight-minute defence of a regression analysis, then four minutes of questions"
     }
   ],
   "capstone": {
     "summary": "A regression analysis of a planner's brief on a supplied or public dataset, in a public repository whose README reports choices, diagnostics, effects with intervals and limits; eight-minute defence plus questions",
-    "submission": "REPLACE: what participants submit and how: a public repository link, or a shared folder for a course without code",
+    "submission": "A link to a public GitHub repository with a notebook that reruns from the raw data with a fixed seed, a report, and a README that states the brief, the use (descriptive, predictive or causal), the estimand, the model and its family, the diagnostics run, the effects with intervals and the limits, with the commit history and the run log. Then an eight-minute live defence and four minutes of questions, in which the assessor changes one term or the family and the participant predicts the effect before re-running.",
     "talk_minutes": 8,
     "rubric": [
       {
@@ -400,7 +823,8 @@
         "criterion": "Reproducibility",
         "weight": 10
       }
-    ]
+    ],
+    "qa_minutes": 4
   },
   "labs": {
     "kind": "notebooks",

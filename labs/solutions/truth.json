@@ -1,0 +1,107 @@
+{
+ "district_effect": {
+  "D01": 0.1151,
+  "D02": -0.0834,
+  "D03": -0.0713,
+  "D04": 0.0099,
+  "D05": -0.1228,
+  "D06": 0.0989,
+  "D07": -0.1015,
+  "D08": 0.0428,
+  "D09": -0.0259,
+  "D10": 0.1168,
+  "D11": 0.0992,
+  "D12": 0.0124,
+  "D13": -0.0567,
+  "D14": -0.0865,
+  "D15": 0.1305,
+  "D16": 0.0383,
+  "D17": 0.0734,
+  "D18": -0.0057,
+  "D19": -0.1208,
+  "D20": 0.0277,
+  "D21": 0.016,
+  "D22": -0.0011,
+  "D23": -0.119,
+  "D24": -0.0893,
+  "D25": -0.1296,
+  "D26": 0.0252,
+  "D27": -0.03,
+  "D28": -0.0761,
+  "D29": 0.0487,
+  "D30": -0.0615
+ },
+ "consumption": {
+  "intercept": 2.55,
+  "band_shift": {
+   "social": -0.12,
+   "standard": 0.0,
+   "villa": 0.4
+  },
+  "size_slope_by_band": {
+   "social": 0.075,
+   "standard": 0.095,
+   "villa": 0.115
+  },
+  "temp_effect": "0.012*(t-25) + 0.0035*max(t-28,0)^2",
+  "pressure_managed": -0.06,
+  "sd_district": 0.1,
+  "sd_household": 0.3
+ },
+ "late_payment": {
+  "intercept": -1.75,
+  "log_bill_over_100": 0.9,
+  "social": 0.5,
+  "autopay": -2.2,
+  "prior_late_12m": 0.45,
+  "household_size": 0.04,
+  "notice_sent": "sent for 30% of late bills only: a consequence of the outcome"
+ },
+ "late_rate": 0.2149,
+ "leaks": {
+  "intercept_per_km_week": -4.2,
+  "age_per_year": 0.03,
+  "material": {
+   "PVC": 0.0,
+   "ductile_iron": 0.15,
+   "asbestos_cement": 0.55
+  },
+  "pressure_per_bar_above_4_5": 0.2,
+  "segment_frailty": "gamma, shape 1.5, mean 1",
+  "implied_nb_alpha": 0.6667
+ },
+ "district_leaks_planted": {
+  "unit_error": [
+   "D08",
+   "D21"
+  ],
+  "genuine_new_district": "D30"
+ },
+ "candidates": {
+  "true_terms": {
+   "lag_m06": 0.25,
+   "lag_m07": 0.3,
+   "lag_m08": 0.25,
+   "prop_garden_m2": 0.06,
+   "prop_pool": 0.05,
+   "use_ac_units": 0.04,
+   "use_irrigation_timer": 0.03,
+   "area_summer_max_c": 0.03
+  },
+  "noise_sd": 0.12
+ },
+ "capstone": {
+  "C1": {
+   "planted": "D05 in month 7 has six times its complaints: a burst main logged as complaints",
+   "truth": "log rate = 0.2 + 0.05*(temp-28) + 0.35*managed, gamma frailty shape 2 per district-month"
+  },
+  "C2": {
+   "planted": "the sms effect is larger for villas (interaction 0.25 on the logit)",
+   "truth": "logit = -1.6 + 0.35*sms + 0.25*villa*sms + 0.02*consumption - 0.3*social"
+  },
+  "C3": {
+   "planted": "nine gardens recorded as 0; the timer reduces the garden slope; district effects",
+   "truth": "log y = 3.2 + 0.25 log(garden/150) + 0.30 pool - 0.12 timer*log(garden/50) + temp effect + district"
+  }
+ }
+}
