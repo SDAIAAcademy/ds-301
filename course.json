@@ -853,5 +853,119 @@
         "course-provided functions"
       ]
     }
+  ],
+  "sources": [
+    {
+      "group": "National references",
+      "items": [
+        {
+          "title": "Personal Data Protection Law (SDAIA)",
+          "url": "https://sdaia.gov.sa/en/SDAIA/about/Documents/PersonalDataProtectionLaw.pdf"
+        },
+        {
+          "title": "Implementing Regulation of the Personal Data Protection Law (SDAIA)",
+          "url": "https://sdaia.gov.sa/en/SDAIA/about/Documents/ImplementingRegulationPersonalDataProtectionLaw.pdf"
+        },
+        {
+          "title": "General Rules for Secondary Use of Data (SDAIA)",
+          "url": "https://sdaia.gov.sa/Documents/GeneralRulesForSecondaryUseOfData_EN.pdf"
+        },
+        {
+          "title": "AI Ethics Principles (SDAIA)",
+          "url": "https://sdaia.gov.sa/en/SDAIA/about/Documents/ai-principles.pdf"
+        }
+      ]
+    },
+    {
+      "group": "Methods",
+      "items": [
+        {
+          "title": "Gelman, Hill and Vehtari, Regression and Other Stories: examples and code",
+          "url": "https://avehtari.github.io/ROS-Examples/"
+        }
+      ]
+    },
+    {
+      "group": "Library documentation",
+      "items": [
+        {
+          "title": "statsmodels: generalized linear models",
+          "url": "https://www.statsmodels.org/stable/glm.html"
+        },
+        {
+          "title": "statsmodels: NegativeBinomial",
+          "url": "https://www.statsmodels.org/stable/generated/statsmodels.discrete.discrete_model.NegativeBinomial.html"
+        },
+        {
+          "title": "statsmodels: linear mixed effects models",
+          "url": "https://www.statsmodels.org/stable/mixed_linear.html"
+        },
+        {
+          "title": "statsmodels: robust and cluster-robust covariance (get_robustcov_results)",
+          "url": "https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.get_robustcov_results.html"
+        },
+        {
+          "title": "statsmodels: OLSInfluence (leverage, Cook's distance, DFBETA)",
+          "url": "https://www.statsmodels.org/stable/generated/statsmodels.stats.outliers_influence.OLSInfluence.html"
+        },
+        {
+          "title": "patsy: spline regression",
+          "url": "https://patsy.readthedocs.io/en/latest/spline-regression.html"
+        },
+        {
+          "title": "scikit-learn: linear models (ridge, lasso)",
+          "url": "https://scikit-learn.org/stable/modules/linear_model.html"
+        },
+        {
+          "title": "scikit-learn: LassoCV",
+          "url": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoCV.html"
+        },
+        {
+          "title": "scikit-learn: lasso_path",
+          "url": "https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.lasso_path.html"
+        },
+        {
+          "title": "marginaleffects (R and Python)",
+          "url": "https://marginaleffects.com/"
+        },
+        {
+          "title": "marginaleffects on PyPI",
+          "url": "https://pypi.org/project/marginaleffects/"
+        },
+        {
+          "title": "lme4 on CRAN",
+          "url": "https://cran.r-project.org/package=lme4"
+        },
+        {
+          "title": "glmnet on CRAN",
+          "url": "https://cran.r-project.org/package=glmnet"
+        }
+      ]
+    },
+    {
+      "group": "Tools",
+      "items": [
+        {
+          "title": "Project Jupyter",
+          "url": "https://jupyter.org/"
+        },
+        {
+          "title": "marimo",
+          "url": "https://marimo.io/"
+        },
+        {
+          "title": "Quarto",
+          "url": "https://quarto.org/"
+        },
+        {
+          "title": "Google Colab",
+          "url": "https://colab.research.google.com/"
+        },
+        {
+          "title": "Saudi Open Data Platform",
+          "url": "https://open.data.gov.sa/"
+        }
+      ]
+    }
   ]
 }

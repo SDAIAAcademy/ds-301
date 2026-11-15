@@ -1,0 +1,44 @@
+{
+ "estimands": {
+  "1": {
+   "comparison": "mean on the social tariff minus mean on the other tariffs",
+   "outcome": "consumption in cubic metres in one month",
+   "population": "the 40,000 households billed that month"
+  },
+  "3": {
+   "comparison": "rate in programme districts divided by rate in the others",
+   "outcome": "leaks reported per kilometre of main",
+   "population": "all districts of the network in 2026"
+  }
+ },
+ "score": 5,
+ "supported": {
+  "1": [
+   false,
+   "different households differ in income, size and housing, not only in tariff"
+  ],
+  "2": [
+   true,
+   "the forecasts were made before the summer and checked against it"
+  ],
+  "3": [
+   true,
+   "it only reports a difference between districts in one year"
+  ],
+  "4": [
+   true,
+   "the letter was assigned at random, so the groups are otherwise alike"
+  ],
+  "5": [
+   false,
+   "no reminders were sent, so nothing measured what reminders do"
+  ]
+ },
+ "uses": {
+  "1": "causal",
+  "2": "predictive",
+  "3": "descriptive",
+  "4": "causal",
+  "5": "causal"
+ }
+}

@@ -169,10 +169,12 @@ def js(name: str):
 # ---------------------------------------------------------------- effects with intervals, by simulation
 
 def design(fit, newdata: pd.DataFrame) -> np.ndarray:
-    """The model matrix of a formula fit for new rows (splines keep the knots of the fit)."""
-    from patsy import build_design_matrices
-    info = fit.model.data.design_info
-    return np.asarray(build_design_matrices([info], newdata, return_type="dataframe")[0])
+    """The model matrix of a formula fit for new rows (splines keep the knots of the fit).
+
+    It is the same transformation statsmodels applies inside fit.predict(newdata).
+    """
+    exog, _ = fit._transform_predict_exog(newdata, transform=True)
+    return np.asarray(exog, dtype=float)
 
 
 def coef_draws(fit, n: int, gen: np.random.Generator | None = None, cov=None) -> np.ndarray:

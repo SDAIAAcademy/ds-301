@@ -1,158 +1,607 @@
 <section class="slide title" id="title" data-auto="title">
-  <aside class="notes">REPLACE: welcome; introduce yourself; one question to the room that calibrates the pace; the rhythm of the day</aside>
+  <aside class="notes"><p>Welcome. Introduce yourself and ask one calibrating question: "Who has fitted a model with an interaction and had to explain it to someone outside the team?" A show of hands tells you how fast to take session 4. The rhythm of every day: four sessions, each about 25 minutes of ideas and a 25-minute lab.</p><p>Everyone works as Arjuwan Al-Sabhan, a junior data scientist at Sahil Water, answering Ghaliya Al-Muhairi, head of network and demand planning. All data are synthetic.</p></aside>
 </section>
 
-<section class="slide" id="agenda" data-auto="agenda"></section>
+<section class="slide" id="agenda" data-auto="agenda">
+  <aside class="notes"><p>Session 1 sorts regression claims by use. Session 2 fits data we made ourselves. Sessions 3 and 4 fit the real bills: a spline for temperature, then an interaction and marginal effects in cubic metres. Each lab starts from supplied files; nobody needs an earlier lab to start the next one.</p></aside>
+</section>
 
 <!-- Session 1 -->
 
 <section class="slide section" id="s1" data-auto="section" data-session="1"></section>
 
-<section class="slide" id="s1-idea" data-lo="LO6">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+<section class="slide" id="planner-folder" data-lo="LO6" data-label="Ghaliya's folder">
+  <div class="kicker">The case</div>
+  <h2>Every regression Ghaliya receives answers one of three questions</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>Describe</h4><p class="small mb0">How does consumption differ between tariff bands, among the households we bill?</p></div>
+    <div class="card c-cyan"><h4>Predict</h4><p class="small mb0">How much will each district draw next August?</p></div>
+    <div class="card c-coral"><h4>Explain a cause</h4><p class="small mb0">Would a usage letter make households use less?</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <div class="callout note mt"><b>Sahil Water.</b> A fictional utility: 40,000 households in 30 districts, one month's bill each, 1,200 pipe segments with weekly leak reports. All synthetic, seed 301.</div>
+  <aside class="notes"><p>Ask the room to name one regression they produced this year and say which of the three it was. Most will say "predict" or "describe"; many will admit a report read it as cause. That gap is the session.</p><p>The data: bills.csv, segments.csv, leaks.csv and two files from Qusai Al-Mufarrij, the analyst who left. His models carry the five problems of Day 3.</p></aside>
 </section>
 
-<section class="slide" id="s1-steps" data-lo="LO6">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
+<section class="slide" id="one-coefficient-three-readings" data-lo="LO6" data-label="One coefficient">
+  <div class="kicker">Same number, three readings</div>
+  <h2>A coefficient means what the question and the design let it mean</h2>
+  <table class="t">
+    <tr><th>Reading of the social-tariff coefficient</th><th>Use</th><th>Holds when</th></tr>
+    <tr><td>Social-tariff households use less than others billed this month</td><td>descriptive</td><td>the bills are the population you describe</td></tr>
+    <tr><td>Knowing the band improves next month's forecast</td><td>predictive</td><td>checked on bills the model did not see</td></tr>
+    <tr class="hl"><td>The social tariff makes families use less</td><td>causal</td><td>the compared households are alike apart from the tariff</td></tr>
+  </table>
+  <div class="callout warn mt"><b>What goes wrong.</b> The third row is written from data that support only the first. Social-tariff households differ in income, size and housing.</div>
+  <aside class="notes"><p>This is the course's responsible-use rule in one slide: no coefficient is presented as a tariff's effect on poorer households. The band is an eligibility category tied to income; a comparison across bands describes, it does not explain.</p><p>Point to DS-303 for designs that support the causal row.</p></aside>
+</section>
+
+<section class="slide" id="estimand-first" data-lo="LO6" data-label="Estimand first">
+  <div class="kicker">Before any model</div>
+  <h2>Write the estimand first: the quantity, in whom, compared with what</h2>
   <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+    <div class="step c-teal"><b>1 · Question</b>How much more water does one more person mean?</div>
+    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · Estimand</b>Average difference in m³ a month, billed households, by band</div>
+    <div class="arrow frag" data-frag="c">→</div><div class="step c-purple frag" data-frag="c"><b>3 · Model</b>Log consumption with size, band, a temperature spline</div>
+    <div class="arrow frag" data-frag="d">→</div><div class="step c-coral frag" data-frag="d"><b>4 · Estimate</b>A number with an interval, in the estimand's units</div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <div class="callout tip mt frag" data-frag="d"><b>Takeaway.</b> The estimand decides the model and what its output must be turned into. Lab 1.4 answers exactly this one.</div>
+  <aside class="notes"><p>Press once per step. At step 2, stress three parts: the population (billed households this month), the outcome with its unit (m³ a month), the comparison (one more person, within band). At step 4: a log-scale coefficient is not yet an estimate of this estimand; it has to be turned into m³.</p></aside>
+</section>
+
+<section class="slide" id="what-each-use-needs" data-lo="LO6" data-label="What each use needs">
+  <div class="kicker">The evidence each use needs</div>
+  <h2>Each use asks something different of the data</h2>
+  <div class="cols cols-3">
+    <div class="card c-teal"><h4>Descriptive</h4><p class="small mb0">A fair sample of the stated population. Adjusting for a variable changes the comparison, not its meaning.</p></div>
+    <div class="card c-cyan"><h4>Predictive</h4><p class="small mb0">Predictions checked on cases the model did not see. Coefficients need no reading at all.</p></div>
+    <div class="card c-coral"><h4>Causal</h4><p class="small mb0">A design that makes compared groups alike apart from the action: random assignment, or strong stated assumptions.</p></div>
+  </div>
+  <p class="lead mt">A good fit supports none of them on its own.</p>
+  <aside class="notes"><p>Common confusion: "we controlled for size and temperature, so it is causal now." Adjustment narrows the comparison; it does not create a design. Ask the room what would have to be true for the social-tariff coefficient to be causal: households would have to be on the tariff for reasons unrelated to how they use water. They are not.</p></aside>
+</section>
+
+<section class="slide" id="secondary-use" data-lo="LO6" data-label="Secondary use">
+  <div class="kicker">The national rules</div>
+  <h2>A planning model built on billing data is a secondary use of that data</h2>
+  <ul class="bullets">
+    <li>The General Rules for Secondary Use of Data define it as using data <b>for purposes other than those of collection</b>.</li>
+    <li>The Personal Data Protection Law asks that personal data be <b>limited to the minimum necessary</b> for the purpose.</li>
+    <li>So every model of this course states its purpose, and lab 4.3 removes the columns that purpose cannot justify.</li>
+    <li>Households appear as pseudonymised keys; results are reported by band or district only.</li>
+  </ul>
+  <aside class="notes"><p>Sources: General Rules for Secondary Use of Data, section "First: Definitions", item 1; Personal Data Protection Law, Article 11, paragraph 3. Both are on sdaia.gov.sa; addresses are in the README. Do not paraphrase beyond these two points: we quote what we read.</p></aside>
+</section>
+
+<section class="slide" id="recap-ds201" data-lo="LO1" data-label="From DS-201">
+  <div class="kicker">What you bring from DS-201</div>
+  <h2>You can already fit a line, put an interval on its slope and spot confounding</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Least squares and the slope in the reader's units</li>
+      <li>A slope interval, and a robust one when residuals fan out</li>
+      <li>Adding a variable moves a slope when the two travel together</li>
+    </ul>
+    <div class="card c-purple"><h4>New here</h4><p class="small mb0">Curves and interactions, families other than the normal, checks by simulation, grouped data and many predictors.</p></div>
+  </div>
+  <aside class="notes"><p>One slide of recap: DS-201 Day 4 did all three on the Zulal case. Nothing of it is refitted from scratch. If several participants did not take DS-201, give them the pre-work notebook P0 tonight.</p></aside>
+</section>
+
+<section class="slide" id="check-three-uses" data-lo="LO6">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which use does this evidence support?</h2>
+  <div class="quiz" data-type="single" data-lo="LO6">
+    <p class="lead">A vendor's late-payment model, trained on 2025 bills, ranks 2026 bills well: 80% of the late payers are in its top fifth. The vendor says sending reminders to that fifth will cut late payment. What does the evidence support?</p>
+    <div class="opts">
+      <div class="opt" data-why="Reads a good ranking as proof of an effect: no reminders were sent, so nothing measured what they change">That reminders to the top fifth will cut late payment</div>
+      <div class="opt" data-ok>That the model predicts which 2026 bills will be paid late</div>
+      <div class="opt" data-why="Treats a prediction as a description of why: a ranking can work through variables that cause nothing">That the model's variables explain why bills are paid late</div>
+      <div class="opt" data-why="Assumes evidence needs a randomised trial to support any use; checked predictions support prediction">Nothing, since the model was not tested in a trial</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The model was checked on bills it did not see, which supports prediction. What a reminder changes is a causal question that needs reminders to be sent, ideally at random.</div>
+  </div>
+  <aside class="notes"><p>Answer: B. If many choose A, return to the table of what each use needs. If D, point out that a trial is what the causal claim needs, not the predictive one.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-1-1" data-auto="lab" data-lab="1.1">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off. Walk the room at step 3: the reasons are where people learn. Typical slip: labelling claim 5 "predictive" because it starts with a prediction; it ends with a promised effect, so it states a causal use. Claim 1 is the one the course returns to. The marking cell needs a reason of six words or more.</p></aside>
 </section>
 
 <!-- Session 2 -->
 
 <section class="slide section" id="s2" data-auto="section" data-session="2"></section>
 
-<section class="slide" id="s2-idea" data-lo="LO1">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="why-fake-data" data-lo="LO1" data-label="Why fake data">
+  <div class="kicker">The problem with real data</div>
+  <h2>On real data you never learn whether the fit got the answer right</h2>
   <div class="cols cols-2">
     <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
+      <li>A fit always returns numbers, with intervals, whatever the code does.</li>
+      <li>Fake data reverse it: <b>you choose the coefficients</b>, generate outcomes, fit, and compare.</li>
+      <li>A miss means the code, the model or the design is wrong.</li>
     </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+    <div class="card c-teal"><h4>In lab 1.2</h4><p class="small mb0">The 40,000 real households keep their size, band and temperature; only their consumption is invented from a model you write.</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>The habit comes from Gelman, Hill and Vehtari's workflow (Regression and Other Stories): simulate from the model before fitting it to data. Ask: when did your last model's code get checked against a known answer? Usually never.</p></aside>
 </section>
 
-<section class="slide" id="s2-steps" data-lo="LO1">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="simulator-code" data-lo="LO1" data-label="The simulator">
+  <div class="kicker">Lab 1.2, step 1</div>
+  <h2>A simulator is the model written forwards</h2>
+  <pre class="code" data-file="D1_2_fake_data.ipynb"><code class="language-python">TRUE = {"Intercept": 2.00, "household_size": 0.095, "social": -0.45,
+        "villa": 0.40, "temperature_c": 0.030, "sigma": 0.30}
+
+def simulate(X, p, gen):
+    shift = np.select([X.tariff_band == "social", X.tariff_band == "villa"],
+                      [p["social"], p["villa"]], 0.0)
+    mean = (p["Intercept"] + p["household_size"] * X.household_size
+            + shift + p["temperature_c"] * X.temperature_c)
+    return mean + gen.normal(0, p["sigma"], len(X))</code></pre>
+  <aside class="notes"><p>Read it line by line: the mean on the log scale, then normal noise. Every assumption of the fitted model is visible here, which is the point. The social shift is deliberately strong in this fake world so that step 4 shows a clear bias.</p></aside>
+</section>
+
+<section class="slide" id="recovery" data-lo="LO1" data-label="Recovery">
+  <div class="kicker">Lab 1.2, step 2</div>
+  <h2>One fit gives back what you planted, to within its standard error</h2>
+  <table class="t">
+    <tr><th>Term</th><th class="num">Planted</th><th class="num">Estimate</th></tr>
+    <tr><td>household size</td><td class="num">0.095</td><td class="num">0.0943</td></tr>
+    <tr><td>social band</td><td class="num">-0.450</td><td class="num">-0.4474</td></tr>
+    <tr><td>villa band</td><td class="num">0.400</td><td class="num">0.3918</td></tr>
+    <tr><td>temperature, per degree</td><td class="num">0.030</td><td class="num">0.0299</td></tr>
+    <tr><td>sigma</td><td class="num">0.300</td><td class="num">0.3023</td></tr>
+  </table>
+  <p class="caption">Solution run of lab 1.2, full mode, 40,000 simulated households.</p>
+  <aside class="notes"><p>Not equal: one data set is one draw. The size estimate is 0.0943 with a standard error of 0.0008, so a miss of 0.0007 is ordinary. The question for the next slide: are the intervals honest over many draws?</p></aside>
+</section>
+
+<section class="slide" id="coverage" data-lo="LO1" data-label="Coverage">
+  <div class="kicker">Lab 1.2, step 3</div>
+  <h2>Over 200 fake data sets, 94% of the intervals hold the planted value</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:coverage-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Histogram of 200 estimates of the household-size coefficient from fake data, centred on the planted 0.095; 94% of the 95% intervals contain it">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="230.4" y2="230.4" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="235.4" text-anchor="end" font-size="14" fill="var(--muted)">10</text>
+<line x1="70" x2="700" y1="110.9" y2="110.9" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="115.9" text-anchor="end" font-size="14" fill="var(--muted)">20</text>
+<line x1="70" x2="700" y1="-8.7" y2="-8.7" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="-3.7" text-anchor="end" font-size="14" fill="var(--muted)">30</text>
+<line x1="108.3" x2="108.3" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="108.3" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0.093</text>
+<line x1="244.9" x2="244.9" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="244.9" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0.094</text>
+<line x1="381.6" x2="381.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="381.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0.095</text>
+<line x1="518.2" x2="518.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="518.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0.096</text>
+<line x1="654.8" x2="654.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="654.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0.097</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">estimated coefficient of household size</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">data sets</text>
+<rect x="71.6" y="338.0" width="28.4" height="12.0" fill="var(--teal)"/>
+<rect x="103.1" y="326.1" width="28.4" height="23.9" fill="var(--teal)"/>
+<rect x="134.6" y="302.2" width="28.4" height="47.8" fill="var(--teal)"/>
+<rect x="166.1" y="278.3" width="28.4" height="71.7" fill="var(--teal)"/>
+<rect x="197.6" y="290.2" width="28.4" height="59.8" fill="var(--teal)"/>
+<rect x="229.1" y="98.9" width="28.4" height="251.1" fill="var(--teal)"/>
+<rect x="260.6" y="254.3" width="28.4" height="95.7" fill="var(--teal)"/>
+<rect x="292.1" y="194.6" width="28.4" height="155.4" fill="var(--teal)"/>
+<rect x="323.6" y="98.9" width="28.4" height="251.1" fill="var(--teal)"/>
+<rect x="355.1" y="110.9" width="28.4" height="239.1" fill="var(--teal)"/>
+<rect x="386.6" y="63.0" width="28.4" height="287.0" fill="var(--teal)"/>
+<rect x="418.1" y="98.9" width="28.4" height="251.1" fill="var(--teal)"/>
+<rect x="449.6" y="146.7" width="28.4" height="203.3" fill="var(--teal)"/>
+<rect x="481.1" y="158.7" width="28.4" height="191.3" fill="var(--teal)"/>
+<rect x="512.6" y="242.4" width="28.4" height="107.6" fill="var(--teal)"/>
+<rect x="544.1" y="302.2" width="28.4" height="47.8" fill="var(--teal)"/>
+<rect x="575.6" y="290.2" width="28.4" height="59.8" fill="var(--teal)"/>
+<rect x="607.1" y="350.0" width="28.4" height="0.5" fill="var(--teal)"/>
+<rect x="638.6" y="350.0" width="28.4" height="0.5" fill="var(--teal)"/>
+<rect x="670.1" y="314.1" width="28.4" height="35.9" fill="var(--teal)"/>
+<line x1="381.6" x2="381.6" y1="20" y2="350" stroke="var(--coral)" stroke-width="3"/>
+<text x="408.9" y="48.7" text-anchor="start" font-size="15" fill="var(--coral)">planted 0.095</text>
+</svg>
+<!--/FIG:coverage-->
+      <div class="caption">200 estimates of the size coefficient; the planted value in coral.</div>
+    </div>
+    <ul class="bullets">
+      <li>The spread of the 200 estimates, 0.00083, matches one fit's standard error, 0.00079.</li>
+      <li>94% is within simulation noise of 95%.</li>
+      <li>Coverage is a claim you can test, not a property you trust.</li>
+    </ul>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>With 200 repeats, coverage has a simulation error of about 1.5 points, so 94% is fine; 85% would not be. The stretch item makes the error spread grow with size: the classical interval then covers less, and HC3 restores it. Day 3 returns to that funnel.</p></aside>
+</section>
+
+<section class="slide" id="omitted-band" data-lo="LO1" data-label="A term left out">
+  <div class="kicker">Lab 1.2, step 4</div>
+  <h2>Leave out the band and the size coefficient drifts, with no warning</h2>
+  <div class="cols cols-3">
+    <div class="stat"><div class="big">0.095</div><div class="lbl">planted</div></div>
+    <div class="stat"><div class="big">0.0943</div><div class="lbl">with the band</div></div>
+    <div class="stat"><div class="big">0.0761</div><div class="lbl">without the band</div></div>
+  </div>
+  <div class="callout warn mt"><b>Why.</b> Social-tariff households are larger (5.5 people against 4.2 on standard) and, in this fake world, use much less. Without the band, size absorbs part of the band's shift.</div>
+  <aside class="notes"><p>The short model's interval is narrow and excludes the truth. Nothing in its summary tells you. This is the DS-201 confounding lesson with one twist: here you know the answer, so you can see it. Ask what other term in a real consumption model could play the band's role: district, housing type.</p></aside>
+</section>
+
+<section class="slide" id="fake-data-limits" data-lo="LO1" data-label="What fake data prove">
+  <div class="kicker">The limit</div>
+  <h2>Fake data test the method, never the world</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>They show</h4><p class="small mb0">The code is right; the estimator recovers what it should; intervals cover; a term left out biases what you expect.</p></div>
+    <div class="card c-coral"><h4>They cannot show</h4><p class="small mb0">That the real bills follow your model. That comes from checking the fit against the data: Day 3.</p></div>
+  </div>
+  <div class="callout tip mt"><b>Habit.</b> Before any new model in the capstone, simulate from it once and fit it.</div>
+  <aside class="notes"><p>Tie forward: Day 3 session 3 simulates from the fitted model to check it against the data. Same tool, the other direction.</p></aside>
+</section>
+
+<section class="slide" id="check-fake-data" data-lo="LO1">
+  <div class="kicker">Checkpoint</div>
+  <h2>What does a perfect recovery prove?</h2>
+  <div class="quiz" data-type="single" data-lo="LO1">
+    <p class="lead">You simulate bills from a model with a temperature spline, fit the same model and recover every coefficient within its interval; coverage over 200 repeats is 95%. What have you shown?</p>
+    <div class="opts">
+      <div class="opt" data-why="Confuses recovering a planted model with the real data following it">That Sahil's real bills follow a temperature spline</div>
+      <div class="opt" data-why="Reads coverage as a property of the effect, not of the interval method">That the temperature effect is causal</div>
+      <div class="opt" data-why="Assumes the real data share the fake data's noise; real residuals may fan out or cluster">That the real model's intervals will cover 95%</div>
+      <div class="opt" data-ok>That the code and the estimator work when the model is right</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> You planted the model, so recovering it checks the fitting machinery only. Whether real data follow it is a separate check against the data.</div>
+  </div>
+  <aside class="notes"><p>Answer: D. C is the subtle one: real errors can be clustered by district (Day 4) or fan out (Day 3), and then coverage falls.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-1-2" data-auto="lab" data-lab="1.2">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the simulator. The coverage loop takes under a minute in full mode; in quick mode it uses 8,000 households and 40 repeats. If a laptop is slow, set DS301_QUICK=1 before starting Jupyter. Typical error: drawing all repeats from one generator outside the loop, so no two runs agree with the slide.</p></aside>
 </section>
 
 <!-- Session 3 -->
 
 <section class="slide section" id="s3" data-auto="section" data-session="3"></section>
 
-<section class="slide" id="s3-idea" data-lo="LO1">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="log-scale" data-lo="LO1" data-label="Why the log">
+  <div class="kicker">Transformations</div>
+  <h2>On the log scale, a coefficient is a percentage change</h2>
   <div class="cols cols-2">
     <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
+      <li>Consumption is skewed, and a hot month adds a share, not a fixed amount.</li>
+      <li>A coefficient b on log consumption means about <b>100 × (e<sup>b</sup> − 1)%</b> per unit.</li>
+      <li>The straight temperature term in lab 1.3: 3.0% more per degree, at every temperature.</li>
     </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+    <div class="card c-teal"><h4>Rule of thumb</h4><p class="small mb0">For b below 0.1, the percentage is close to 100 × b. For 0.40 it is 49%, not 40%.</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>Do the villa band shift from the generator aloud: 0.40 on the log scale is e to the 0.40, 1.49, so 49% more. "40%" is a common slip. Every percentage on today's slides is computed this way.</p></aside>
 </section>
 
-<section class="slide" id="s3-steps" data-lo="LO1">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="straight-line-misses" data-lo="LO1" data-label="What a line misses">
+  <div class="kicker">Lab 1.3, step 2</div>
+  <h2>A straight temperature term is too high in mild months and too low in hot ones</h2>
+  <div class="figure">
+<!--FIG:resid_pattern-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Mean residual by two-degree temperature bin: the straight-line model is too low at both ends and too high in the middle, by up to 0.26 on the log scale; the spline&#x27;s residuals stay near zero">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="334.3" y2="334.3" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="339.3" text-anchor="end" font-size="14" fill="var(--muted)">-0.1</text>
+<line x1="70" x2="700" y1="255.7" y2="255.7" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="260.7" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="177.1" y2="177.1" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="182.1" text-anchor="end" font-size="14" fill="var(--muted)">0.1</text>
+<line x1="70" x2="700" y1="98.6" y2="98.6" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="103.6" text-anchor="end" font-size="14" fill="var(--muted)">0.2</text>
+<line x1="70" x2="700" y1="20.0" y2="20.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="25.0" text-anchor="end" font-size="14" fill="var(--muted)">0.3</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">16</text>
+<line x1="166.9" x2="166.9" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="166.9" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">20</text>
+<line x1="263.8" x2="263.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="263.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">24</text>
+<line x1="360.8" x2="360.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="360.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">28</text>
+<line x1="457.7" x2="457.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="457.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">32</text>
+<line x1="554.6" x2="554.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="554.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">36</text>
+<line x1="651.5" x2="651.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="651.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">40</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">month&#x27;s temperature, °C</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">mean residual, log scale</text>
+<line x1="70" x2="700" y1="255.7" y2="255.7" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+<polyline points="94.2,152.0 142.7,193.3 191.2,225.5 239.6,250.8 288.1,279.6 336.5,301.5 385.0,331.0 433.5,330.4 481.9,309.1 530.4,271.1 578.8,226.8 627.3,127.6 675.8,49.5" fill="none" stroke="var(--coral)" stroke-width="3"/>
+<circle cx="94.2" cy="152.0" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="142.7" cy="193.3" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="191.2" cy="225.5" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="239.6" cy="250.8" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="288.1" cy="279.6" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="336.5" cy="301.5" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="385.0" cy="331.0" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="433.5" cy="330.4" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="481.9" cy="309.1" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="530.4" cy="271.1" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="578.8" cy="226.8" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="627.3" cy="127.6" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="675.8" cy="49.5" r="5" fill="var(--coral)" fill-opacity="1.0"/>
+<polyline points="94.2,246.2 142.7,258.5 191.2,259.4 239.6,254.1 288.1,253.8 336.5,250.9 385.0,263.7 433.5,259.8 481.9,252.7 530.4,251.2 578.8,263.4 627.3,249.4 675.8,259.5" fill="none" stroke="var(--teal)" stroke-width="3"/>
+<circle cx="94.2" cy="246.2" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="142.7" cy="258.5" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="191.2" cy="259.4" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="239.6" cy="254.1" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="288.1" cy="253.8" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="336.5" cy="250.9" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="385.0" cy="263.7" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="433.5" cy="259.8" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="481.9" cy="252.7" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="530.4" cy="251.2" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="578.8" cy="263.4" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="627.3" cy="249.4" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="675.8" cy="259.5" r="5" fill="var(--teal)" fill-opacity="1.0"/>
+<text x="433.5" y="82.9" text-anchor="end" font-size="15" fill="var(--coral)">straight temperature term</text>
+<text x="506.2" y="302.9" text-anchor="start" font-size="15" fill="var(--teal)">spline, 5 df</text>
+</svg>
+<!--/FIG:resid_pattern-->
+    <div class="caption">Mean residual in each two-degree bin, 40,000 bills. Lab 1.3 solution run.</div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>The line's residuals run from +0.13 in the coolest bin through -0.10 in the middle to +0.26 in the hottest: a U. On the log scale 0.26 is about 30% too little water predicted for the hottest months, which is when supply runs short. The spline's residuals sit within 0.03 of zero everywhere.</p></aside>
+</section>
+
+<section class="slide" id="what-a-spline-is" data-lo="LO1" data-label="Splines">
+  <div class="kicker">A flexible term</div>
+  <h2>A spline lets the data choose the curve; you choose only how flexible</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Polynomial pieces joined smoothly at knots.</li>
+      <li><code>bs(temperature_c, df=5)</code>: five columns; the model weights them.</li>
+      <li>More degrees of freedom bend more; cross-validation can pick (the stretch item).</li>
+      <li>Its coefficients mean nothing alone: read the curve.</li>
+    </ul>
+    <pre class="code"><code class="language-python">smf.ols("log_m3 ~ household_size + tariff_band"
+        " + bs(temperature_c, df=5)", data=b).fit()</code></pre>
+  </div>
+  <div class="callout note mt"><b>Outside the data.</b> A spline says nothing beyond 16 to 42 °C. Predictions there need a stated reason.</div>
+  <aside class="notes"><p>AIC fell from about 23,570 to about 21,070, but the residual plot is the better argument for planners. In the stretch, 3, 5 and 8 degrees of freedom give nearly the same held-out error; any of them beats the line. In R the same term is splines::bs or mgcv::s.</p></aside>
+</section>
+
+<section class="slide" id="temp-curve" data-lo="LO1" data-label="The curve and its band">
+  <div class="kicker">Lab 1.3, step 4</div>
+  <h2>Consumption is flat until about 28 °C, then doubles by 40 °C</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:temp_curve-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Mean monthly consumption of a four-person standard-tariff household against temperature: the spline is flat near 18 cubic metres up to about 28 °C and climbs to about 38 at 40 °C, with a narrow band; the straight-line model overstates mild months and understates the hottest">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">10</text>
+<line x1="70" x2="700" y1="246.9" y2="246.9" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="251.9" text-anchor="end" font-size="14" fill="var(--muted)">20</text>
+<line x1="70" x2="700" y1="143.8" y2="143.8" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="148.8" text-anchor="end" font-size="14" fill="var(--muted)">30</text>
+<line x1="70" x2="700" y1="40.6" y2="40.6" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="45.6" text-anchor="end" font-size="14" fill="var(--muted)">40</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">16</text>
+<line x1="166.9" x2="166.9" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="166.9" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">20</text>
+<line x1="263.8" x2="263.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="263.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">24</text>
+<line x1="360.8" x2="360.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="360.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">28</text>
+<line x1="457.7" x2="457.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="457.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">32</text>
+<line x1="554.6" x2="554.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="554.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">36</text>
+<line x1="651.5" x2="651.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="651.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">40</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">month&#x27;s temperature, °C</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">m³ a month</text>
+<polygon points="70.0,269.5 82.1,269.5 94.2,269.4 106.3,269.0 118.5,268.5 130.6,267.8 142.7,267.1 154.8,266.2 166.9,265.4 179.0,264.6 191.2,263.8 203.3,263.1 215.4,262.3 227.5,261.5 239.6,260.5 251.7,259.6 263.8,258.6 276.0,257.5 288.1,256.3 300.2,255.1 312.3,253.9 324.4,252.5 336.5,251.1 348.7,249.5 360.8,247.8 372.9,245.9 385.0,243.7 397.1,241.3 409.2,238.6 421.3,235.6 433.5,232.2 445.6,228.5 457.7,224.4 469.8,219.8 481.9,214.8 494.0,209.3 506.2,203.1 518.3,196.3 530.4,188.8 542.5,180.6 554.6,171.4 566.7,161.4 578.8,150.5 591.0,138.6 603.1,125.5 615.2,111.1 627.3,95.3 639.4,77.4 651.5,57.2 663.7,34.5 675.8,8.9 687.9,-19.9 700.0,-52.6 700.0,-14.9 687.9,8.0 675.8,29.2 663.7,49.3 651.5,68.0 639.4,85.2 627.3,101.6 615.2,116.7 603.1,130.7 591.0,143.4 578.8,155.0 566.7,165.7 554.6,175.4 542.5,184.1 530.4,192.1 518.3,199.4 506.2,206.1 494.0,212.2 481.9,217.8 469.8,222.8 457.7,227.3 445.6,231.3 433.5,234.9 421.3,238.3 409.2,241.1 397.1,243.8 385.0,246.2 372.9,248.4 360.8,250.4 348.7,252.2 336.5,253.9 324.4,255.4 312.3,256.7 300.2,257.9 288.1,259.0 276.0,260.1 263.8,261.1 251.7,262.0 239.6,263.0 227.5,263.9 215.4,264.7 203.3,265.6 191.2,266.5 179.0,267.4 166.9,268.2 154.8,269.1 142.7,269.9 130.6,270.8 118.5,271.8 106.3,273.1 94.2,274.6 82.1,276.3 70.0,278.2" fill="var(--teal)" fill-opacity="0.35" stroke="none"/>
+<polyline points="70.0,273.7 82.1,272.8 94.2,271.9 106.3,271.0 118.5,270.2 130.6,269.3 142.7,268.5 154.8,267.7 166.9,266.9 179.0,266.1 191.2,265.3 203.3,264.4 215.4,263.6 227.5,262.7 239.6,261.8 251.7,260.8 263.8,259.8 276.0,258.8 288.1,257.7 300.2,256.5 312.3,255.3 324.4,253.9 336.5,252.5 348.7,250.9 360.8,249.1 372.9,247.1 385.0,245.0 397.1,242.5 409.2,239.9 421.3,236.9 433.5,233.6 445.6,229.9 457.7,225.8 469.8,221.3 481.9,216.3 494.0,210.8 506.2,204.6 518.3,197.9 530.4,190.5 542.5,182.3 554.6,173.3 566.7,163.5 578.8,152.8 591.0,141.0 603.1,128.0 615.2,113.9 627.3,98.3 639.4,81.3 651.5,62.6 663.7,42.1 675.8,19.5 687.9,-5.4 700.0,-32.7" fill="none" stroke="var(--teal)" stroke-width="3"/>
+<polyline points="70.0,297.5 82.1,295.2 94.2,292.9 106.3,290.6 118.5,288.2 130.6,285.8 142.7,283.3 154.8,280.8 166.9,278.3 179.0,275.7 191.2,273.1 203.3,270.4 215.4,267.8 227.5,265.0 239.6,262.3 251.7,259.5 263.8,256.6 276.0,253.7 288.1,250.8 300.2,247.8 312.3,244.8 324.4,241.7 336.5,238.6 348.7,235.5 360.8,232.3 372.9,229.0 385.0,225.7 397.1,222.4 409.2,219.0 421.3,215.6 433.5,212.1 445.6,208.5 457.7,204.9 469.8,201.3 481.9,197.6 494.0,193.8 506.2,190.0 518.3,186.1 530.4,182.2 542.5,178.2 554.6,174.2 566.7,170.1 578.8,165.9 591.0,161.7 603.1,157.4 615.2,153.1 627.3,148.7 639.4,144.2 651.5,139.6 663.7,135.0 675.8,130.4 687.9,125.6 700.0,120.8" fill="none" stroke="var(--coral)" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="94.2" y="81.9" text-anchor="start" font-size="15" fill="var(--teal)">spline with its 95% band</text>
+<text x="94.2" y="123.1" text-anchor="start" font-size="15" fill="var(--coral)">straight temperature term</text>
+</svg>
+<!--/FIG:temp_curve-->
+      <div class="caption">Four people, standard tariff: mean m³ a month. Lab 1.3.</div>
+    </div>
+    <table class="t small">
+      <tr><th>°C</th><th class="num">m³</th><th class="num">95% band</th></tr>
+      <tr><td>20</td><td class="num">18.1</td><td class="num">17.9 to 18.2</td></tr>
+      <tr><td>30</td><td class="num">20.7</td><td class="num">20.6 to 20.8</td></tr>
+      <tr class="hl"><td>40</td><td class="num">37.9</td><td class="num">37.3 to 38.4</td></tr>
+    </table>
+  </div>
+  <aside class="notes"><p>The band comes from 1,000 draws of the coefficients (U.predict_band). It widens at 40 °C because fewer bills are that hot. The coral dashed line is the straight model on the same scale: it says too much in mild months and far too little in the hottest. That difference is a supply plan.</p></aside>
+</section>
+
+<section class="slide" id="band-is-for-mean" data-lo="LO1" data-label="Which interval">
+  <div class="kicker">Reading the band</div>
+  <h2>The band is for the mean, not for one household</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>Interval for the mean</h4><p class="small mb0">Where the average household of this kind sits: 37.3 to 38.4 m³ at 40 °C. Narrow, because 40,000 bills pin it down.</p></div>
+    <div class="card c-coral"><h4>Interval for one household</h4><p class="small mb0">Where one such household's bill may fall: many times wider, since σ is about 0.31 on the log scale.</p></div>
+  </div>
+  <div class="callout tip mt"><b>Use.</b> Supply planning adds households up: the mean band. A single customer's complaint about a high bill: the household interval.</div>
+  <aside class="notes"><p>Ask the room which interval a planner sizing a reservoir needs (the mean, summed) and which a call-centre agent needs (the household). People report the narrow band when they mean the wide one.</p></aside>
+</section>
+
+<section class="slide" id="median-vs-mean" data-lo="LO1" data-label="Back-transforming">
+  <div class="kicker">Lab 1.3, step 5</div>
+  <h2>exp(prediction) is the median; the mean is about 5% higher</h2>
+  <div class="cols cols-3">
+    <div class="stat"><div class="big">19.7 m³</div><div class="lbl">exp(prediction) at 30 °C</div></div>
+    <div class="stat"><div class="big">20.7 m³</div><div class="lbl">exp(prediction + σ²/2)</div></div>
+    <div class="stat"><div class="big">20.4 m³</div><div class="lbl">observed mean, 435 such bills</div></div>
+  </div>
+  <div class="callout warn mt"><b>What goes wrong.</b> A plan that sums exp(prediction) over households runs about 5% short, every month.</div>
+  <aside class="notes"><p>The observed median of the same 435 bills is 19.5: exp(prediction) is the median, as the theory says. The mean back-transform assumes normal errors on the log scale; with skewed residuals use the smearing estimate (the mean of exp(residuals)) instead.</p></aside>
+</section>
+
+<section class="slide" id="check-spline" data-lo="LO1">
+  <div class="kicker">Checkpoint</div>
+  <h2>What did the planner's total get wrong?</h2>
+  <div class="quiz" data-type="single" data-lo="LO1">
+    <p class="lead">A planner fits log consumption with a temperature spline, takes exp of each household's prediction for August and sums them to size the district's supply. The total comes out below the meters' August total. What is the most likely reason?</p>
+    <div class="opts">
+      <div class="opt" data-ok>exp of a log-scale prediction is a median, which sits below the mean</div>
+      <div class="opt" data-why="Blames flexibility for a bias that any log model has; the spline's residuals showed no pattern">The spline has too few degrees of freedom to fit August</div>
+      <div class="opt" data-why="Confuses the band, which is about uncertainty, with the level of the prediction">The interval for the mean was too narrow</div>
+      <div class="opt" data-why="Assumes a log model cannot predict totals at all; it can, after the right back-transform">Log models cannot be used for volumes</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The mean of the log is below the log of the mean, so exp(prediction) underestimates the mean. Add σ²/2 before exp, or use smearing.</div>
+  </div>
+  <aside class="notes"><p>Answer: A. The gap is about σ²/2, 5% here. If many pick B, show the residual plot of the spline again: no pattern left in temperature.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-1-3" data-auto="lab" data-lab="1.3">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the first fit and its reading. Common error: building the grid with tariff_band as a plain string, which breaks prediction; the grid needs the same categories as the bills. The stretch needs spline bounds set to the whole temperature range, or a fold whose test data go beyond its training data fails.</p></aside>
 </section>
 
 <!-- Session 4 -->
 
 <section class="slide section" id="s4" data-auto="section" data-session="4"></section>
 
-<section class="slide" id="s4-idea" data-lo="LO1">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="interaction-meaning" data-lo="LO1" data-label="Interactions">
+  <div class="kicker">Lab 1.4, steps 1 and 2</div>
+  <h2>An interaction gives each band its own slope for household size</h2>
   <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+    <pre class="code"><code class="language-python">"log_m3 ~ tariff_band * household_size
+          + bs(temperature_c, df=5)"</code></pre>
+    <table class="t small">
+      <tr><th>Band</th><th class="num">Slope, log scale</th><th class="num">Per person</th></tr>
+      <tr><td>standard</td><td class="num">0.0956</td><td class="num">10.0%</td></tr>
+      <tr><td>social</td><td class="num">0.0956 − 0.0219</td><td class="num">7.6%</td></tr>
+      <tr><td>villa</td><td class="num">0.0956 + 0.0187</td><td class="num">12.1%</td></tr>
+    </table>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <div class="callout warn mt"><b>What goes wrong.</b> Reading −0.0219 as "the effect of size on social households". It is the difference between the social and the standard slopes.</div>
+  <aside class="notes"><p>The star expands to both main terms and their product. The reference band is standard, so its slope is the main term; the others add their interaction term. Ask: what does the social main effect mean now? The social-standard difference for a household of size zero, which does not exist. Main effects in an interaction model rarely mean anything alone.</p></aside>
 </section>
 
-<section class="slide" id="s4-steps" data-lo="LO1">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
+<section class="slide" id="percent-not-answer" data-lo="LO1" data-label="Percent or cubic metres">
+  <div class="kicker">The question was in cubic metres</div>
+  <h2>A percentage per person is not what Ghaliya asked</h2>
+  <ul class="bullets">
+    <li>12.1% of a villa's bill is many more cubic metres than 7.6% of a small flat's.</li>
+    <li>The effect in m³ depends on each household's level: its band, size and month.</li>
+    <li>So compute it for every household, then average: an <b>average marginal effect</b>.</li>
+  </ul>
+  <aside class="notes"><p>This is the general lesson of the course: coefficients are on the model's scale; questions are on the reader's scale. Day 2 does the same for probabilities and counts.</p></aside>
+</section>
+
+<section class="slide" id="ame-recipe" data-lo="LO1" data-label="Average marginal effect">
+  <div class="kicker">Lab 1.4, step 3</div>
+  <h2>An average marginal effect: predict, add one, predict again, average</h2>
   <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+    <div class="step c-teal"><b>1 · Predict</b>each bill as it is, in m³</div>
+    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · Change</b>the same bill with one more person</div>
+    <div class="arrow frag" data-frag="c">→</div><div class="step c-purple frag" data-frag="c"><b>3 · Differ</b>subtract, bill by bill</div>
+    <div class="arrow frag" data-frag="d">→</div><div class="step c-coral frag" data-frag="d"><b>4 · Average</b>over the bills of each band</div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <div class="callout tip mt frag" data-frag="d"><b>On the m³ scale.</b> Each prediction is exp(prediction + σ²/2), the mean back-transform of session 3.</div>
+  <aside class="notes"><p>The average is over the households actually billed, so the result describes them, with their own mix of sizes and months. A marginal effect "at the mean" plugs in one average household instead and can differ; say which you report.</p></aside>
+</section>
+
+<section class="slide" id="interval-by-simulation" data-lo="LO1" data-label="Intervals by simulation">
+  <div class="kicker">Lab 1.4, step 4</div>
+  <h2>The interval comes from redoing the average under 1,000 plausible coefficient vectors</h2>
+  <div class="cols cols-2">
+    <ul class="bullets">
+      <li>Draw coefficient vectors from their estimated sampling distribution.</li>
+      <li>Recompute the average marginal effect for each draw.</li>
+      <li>The 2.5th and 97.5th percentiles are the 95% interval.</li>
+    </ul>
+    <pre class="code"><code class="language-python">U.contrast(f, b, "household_size",
+           low=lambda x: x, high=lambda x: x + 1,
+           scale="m3", by="tariff_band")</code></pre>
+  </div>
+  <aside class="notes"><p>This is the course-provided function. The same idea is behind the delta method that marginaleffects uses by default; the stretch item compares them on the log scale, where both give the band slopes. In R: marginaleffects::avg_comparisons.</p></aside>
+</section>
+
+<section class="slide" id="ame-bands" data-lo="LO1" data-label="Effects by band">
+  <div class="kicker">Lab 1.4, step 5</div>
+  <h2>One more person goes with 1.6 m³ more on social and 5.0 m³ more on villa</h2>
+  <div class="figure">
+<!--FIG:ame_bands-->
+<svg viewBox="0 0 720 238" role="img" aria-label="Average marginal effect of one more person in cubic metres a month, with 95% intervals: social 1.6, standard 2.3, villa 5.0">
+<line x1="200.0" x2="200.0" y1="20" y2="188" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="200.0" y="210" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="322.5" x2="322.5" y1="20" y2="188" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="322.5" y="210" text-anchor="middle" font-size="14" fill="var(--muted)">2</text>
+<line x1="445.0" x2="445.0" y1="20" y2="188" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="445.0" y="210" text-anchor="middle" font-size="14" fill="var(--muted)">4</text>
+<line x1="567.5" x2="567.5" y1="20" y2="188" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="567.5" y="210" text-anchor="middle" font-size="14" fill="var(--muted)">6</text>
+<line x1="690.0" x2="690.0" y1="20" y2="188" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="690.0" y="210" text-anchor="middle" font-size="14" fill="var(--muted)">8</text>
+<text x="188" y="53.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">social</text>
+<text x="188" y="109.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">standard</text>
+<text x="188" y="165.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">villa</text>
+<text x="445" y="232" text-anchor="middle" font-size="14" fill="var(--muted)">m³ a month for one more person</text>
+<line x1="293.2" x2="302.0" y1="48.0" y2="48.0" stroke="var(--cyan)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="297.6" cy="48.0" r="8" fill="var(--cyan)"/>
+<text x="312.0" y="53.0" font-size="14" fill="var(--muted)">1.6 (1.5 to 1.7)</text>
+<line x1="339.0" x2="346.3" y1="104.0" y2="104.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="342.7" cy="104.0" r="8" fill="var(--teal)"/>
+<text x="356.3" y="109.0" font-size="14" fill="var(--muted)">2.3 (2.3 to 2.4)</text>
+<line x1="496.7" x2="518.5" y1="160.0" y2="160.0" stroke="var(--purple)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="507.8" cy="160.0" r="8" fill="var(--purple)"/>
+<text x="528.5" y="165.0" font-size="14" fill="var(--muted)">5.0 (4.8 to 5.2)</text>
+</svg>
+<!--/FIG:ame_bands-->
+    <div class="caption">Average marginal effect of household size by band, m³ a month, with 95% intervals. Lab 1.4, 40,000 bills.</div>
+  </div>
+  <aside class="notes"><p>Social 1.59 (1.52 to 1.67), standard 2.33 (2.27 to 2.39), villa 5.03 (4.84 to 5.20). This table, matched to the reference within 0.05, is the evidence of LO1. The ratio villa to social is above three, while the percentages differ by less than two to one.</p></aside>
+</section>
+
+<section class="slide" id="describe-not-cause" data-lo="LO1 LO6" data-label="Writing it">
+  <div class="kicker">The sentence</div>
+  <h2>Write the effect as a comparison of households, not as what a tariff does</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>Supported</h4><p class="small mb0">"Among billed villa households, one more person goes with about 5.0 m³ more a month (95% interval 4.8 to 5.2)."</p></div>
+    <div class="card c-coral"><h4>Not supported</h4><p class="small mb0">"The social tariff halves the water each extra person uses."</p></div>
+  </div>
+  <div class="callout warn mt"><b>The course rule.</b> Bands are tied to income and housing. No coefficient is presented as a tariff's effect on poorer households.</div>
+  <aside class="notes"><p>Return to claim 1 of lab 1.1. The second card turns a difference between groups of households into a claim about what the tariff does to families. Ask the room to rewrite it: "Social-tariff households with one more person use about 1.6 m³ more a month; villa households about 5.0."</p></aside>
+</section>
+
+<section class="slide" id="check-interaction" data-lo="LO1">
+  <div class="kicker">Checkpoint</div>
+  <h2>What is the villa effect of one more person?</h2>
+  <div class="quiz" data-type="single" data-lo="LO1">
+    <p class="lead">In a model of log consumption with a band-by-size interaction, the size coefficient is 0.096 and the villa-by-size term is 0.019. Ghaliya asks how many more cubic metres a month go with one more person in villa households. What do you report?</p>
+    <div class="opts">
+      <div class="opt" data-why="Reads the interaction term alone as the villa slope; it is a difference between slopes">0.019 m³, the villa-by-size term</div>
+      <div class="opt" data-why="Stops at the log scale: a percentage is not the cubic metres she asked for">12.1%, from the summed slope</div>
+      <div class="opt" data-ok>The average over villa bills of the m³ difference from one more person, with an interval</div>
+      <div class="opt" data-why="Ignores the interaction: the reference band's slope does not apply to villas">The standard band's 2.3 m³, since size works the same way</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The question is in m³ for villa households, so the answer is computed on that scale and averaged over those bills: about 5.0 m³ (4.8 to 5.2).</div>
+  </div>
+  <aside class="notes"><p>Answer: C. B is half right: 12.1% is the villa percentage, but the question was in cubic metres.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-1-4" data-auto="lab" data-lab="1.4">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the fit and the reading of the interaction. Typical error in step 3: forgetting the σ²/2 adjustment, which gives effects about 5% too small and a failed match with U.contrast. The stretch uses marginaleffects, which refuses string columns: tariff_band is already a category in U.bills().</p></aside>
 </section>
 
 <section class="slide" id="wrap-up">
   <div class="kicker">Day 1 · wrap-up</div>
   <h2>Three things to keep</h2>
   <div class="cols cols-3">
-    <div class="card c-teal"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-coral"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-purple"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
+    <div class="card c-teal"><h4>Question first</h4><p class="small mb0">Name the use and write the estimand before choosing terms.</p></div>
+    <div class="card c-coral"><h4>Fake data first</h4><p class="small mb0">Recover a planted model before trusting a fit on real data.</p></div>
+    <div class="card c-purple"><h4>Answer on the reader's scale</h4><p class="small mb0">Turn coefficients into m³ with an interval, averaged over the households asked about.</p></div>
   </div>
+  <aside class="notes"><p>Ask each participant for one sentence of today's AME table written for Ghaliya. Collect two aloud and check them for causal words.</p></aside>
 </section>
 
 <section class="slide dark" id="next" data-label="Next">
   <div class="kicker">Next</div>
   <h2>Day 2: Generalised linear models</h2>
-  <p class="lead">REPLACE: what participants prepare before then; unfinished labs can be finished at home</p>
-  <aside class="notes">REPLACE: accounts, installs or reading participants need before the next unit</aside>
+  <p class="lead">Late payment as a probability, leak reports as counts with pipe length as exposure. Finish any lab of today at home; each starts from the supplied files.</p>
+  <aside class="notes"><p>Nothing to install. Those who skipped the pre-work should run P0 tonight: it is about two hours on simple regression.</p></aside>
 </section>

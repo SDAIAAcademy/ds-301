@@ -5,7 +5,7 @@
 
 Data Science Track · SDAIA Academy · DS-301 · Level 300
 
-REPLACE: one line under the title: what participants can do after the course
+Fit linear, logistic and count models that answer a stated question, check them by simulating from the fit, and report effects with intervals people can read
 
 Participants build regression models that answer a stated question and defend what each term means. On synthetic data from Sahil Water, a fictional utility with 30 districts, they fit linear models with splines and interactions, logistic models for late payment and count models for leak reports, diagnose misfit by simulating from the fit, handle grouped data with clustered errors and random intercepts, and penalise many predictors. Results are reported as marginal effects with intervals.
 
@@ -39,7 +39,9 @@ Participants build regression models that answer a stated question and defend wh
 
 ## Case study
 
-**REPLACE: the name of the fictional organisation every lab works on.** REPLACE: two sentences on the case study and its synthetic data
+**Sahil Water (شركة ساحل للمياه)** is a fictional utility serving 40,000 households in 30 districts of very different sizes. Every file is synthetic and generated with a fixed seed by `labs/prepare_data.py`: one month's bill for each household (tariff band, household size, temperature, consumption, bill, autopay, past late payments, a late-payment flag), weekly leak reports on 1,200 pipe segments with their length, material, age and pressure, a district leak summary from a previous analyst, and 126 candidate columns for a forecast of next summer's demand. Participants work as Arjuwan Al-Sabhan, a junior data scientist answering Ghaliya Al-Muhairi, head of network and demand planning. Five problems are planted in the previous analyst's models and found on Day 3; what is planted and where is in `labs/solutions/answer_key.md`, for trainers.
+
+Billing data describe households. Household keys are pseudonyms, results are reported by band or district only, one lab removes the columns that supply planning cannot justify under the data minimisation principle of the Personal Data Protection Law, and every report separates descriptive from causal claims: no coefficient is presented as a tariff's effect on poorer households.
 
 <!-- academy:labs -->
 ## Labs
@@ -48,34 +50,49 @@ Every lab is a notebook in `labs/`. Open it in Google Colab from the course page
 
 | | Session | Lab | File |
 |---|---|---|---|
-| 1.1 | Day 1 · Session 1 | Label five published regression claims descriptive, predictive or causal | [`D1_1_label_five_published.ipynb`](labs/D1_1_label_five_published.ipynb) |
-| 1.2 | Day 1 · Session 2 | Simulate consumption from a known model and recover its coefficients | [`D1_2_simulate_consumption_from.ipynb`](labs/D1_2_simulate_consumption_from.ipynb) |
-| 1.3 | Day 1 · Session 3 | Fit log consumption with a temperature spline and plot its band | [`D1_3_fit_log_consumption.ipynb`](labs/D1_3_fit_log_consumption.ipynb) |
-| 1.4 | Day 1 · Session 4 | Add a tariff-by-household-size interaction and report marginal effects | [`D1_4_add_tariff_household.ipynb`](labs/D1_4_add_tariff_household.ipynb) |
-| 2.1 | Day 2 · Session 1 | Fit late payment with linear and logistic models and show where the first breaks | [`D2_1_fit_late_payment.ipynb`](labs/D2_1_fit_late_payment.ipynb) |
-| 2.2 | Day 2 · Session 2 | Turn coefficients into probability differences for three household profiles | [`D2_2_turn_coefficients_into.ipynb`](labs/D2_2_turn_coefficients_into.ipynb) |
-| 2.3 | Day 2 · Session 3 | Model leak reports with a Poisson model and a pipe-length offset | [`D2_3_model_leak_reports.ipynb`](labs/D2_3_model_leak_reports.ipynb) |
-| 2.4 | Day 2 · Session 4 | Test dispersion and refit with a negative binomial model | [`D2_4_test_dispersion_refit.ipynb`](labs/D2_4_test_dispersion_refit.ipynb) |
-| 3.1 | Day 3 · Session 1 | Find a missing non-linear term from binned-residual plots | [`D3_1_find_missing_non.ipynb`](labs/D3_1_find_missing_non.ipynb) |
-| 3.2 | Day 3 · Session 2 | Find the three most influential districts and refit without them | [`D3_2_find_three_most.ipynb`](labs/D3_2_find_three_most.ipynb) |
-| 3.3 | Day 3 · Session 3 | Test whether the count model reproduces the observed share of zeros | [`D3_3_test_whether_count.ipynb`](labs/D3_3_test_whether_count.ipynb) |
-| 3.4 | Day 3 · Session 4 | Repair a separated logistic fit and add heteroskedasticity-consistent errors | [`D3_4_repair_separated_logistic.ipynb`](labs/D3_4_repair_separated_logistic.ipynb) |
-| 4.1 | Day 4 · Session 1 | Set naive and district-clustered standard errors side by side and explain the change | [`D4_1_set_naive_district.ipynb`](labs/D4_1_set_naive_district.ipynb) |
-| 4.2 | Day 4 · Session 2 | Fit a random-intercept model and plot how small districts shrink | [`D4_2_fit_random_intercept.ipynb`](labs/D4_2_fit_random_intercept.ipynb) |
-| 4.3 | Day 4 · Session 3 | Tune ridge and lasso on 120 predictors and plot coefficient paths | [`D4_3_tune_ridge_lasso.ipynb`](labs/D4_3_tune_ridge_lasso.ipynb) |
-| 4.4 | Day 4 · Session 4 | Draft a one-page model report and choose the capstone brief | [`D4_4_draft_one_page.ipynb`](labs/D4_4_draft_one_page.ipynb) |
+| 1.1 | Day 1 · Session 1 | Three uses of a regression | [`D1_1_three_uses.ipynb`](labs/D1_1_three_uses.ipynb) |
+| 1.2 | Day 1 · Session 2 | Fake data first | [`D1_2_fake_data.ipynb`](labs/D1_2_fake_data.ipynb) |
+| 1.3 | Day 1 · Session 3 | A temperature spline | [`D1_3_temperature_spline.ipynb`](labs/D1_3_temperature_spline.ipynb) |
+| 1.4 | Day 1 · Session 4 | Interaction and marginal effects | [`D1_4_interaction_effects.ipynb`](labs/D1_4_interaction_effects.ipynb) |
+| 2.1 | Day 2 · Session 1 | Linear against logistic | [`D2_1_linear_vs_logistic.ipynb`](labs/D2_1_linear_vs_logistic.ipynb) |
+| 2.2 | Day 2 · Session 2 | Three household profiles | [`D2_2_three_profiles.ipynb`](labs/D2_2_three_profiles.ipynb) |
+| 2.3 | Day 2 · Session 3 | Leaks with an exposure | [`D2_3_poisson_offset.ipynb`](labs/D2_3_poisson_offset.ipynb) |
+| 2.4 | Day 2 · Session 4 | Dispersion and the negative binomial | [`D2_4_negative_binomial.ipynb`](labs/D2_4_negative_binomial.ipynb) |
+| 3.1 | Day 3 · Session 1 | Binned residuals | [`D3_1_binned_residuals.ipynb`](labs/D3_1_binned_residuals.ipynb) |
+| 3.2 | Day 3 · Session 2 | Influential districts | [`D3_2_influential_districts.ipynb`](labs/D3_2_influential_districts.ipynb) |
+| 3.3 | Day 3 · Session 3 | The share of zeros | [`D3_3_share_of_zeros.ipynb`](labs/D3_3_share_of_zeros.ipynb) |
+| 3.4 | Day 3 · Session 4 | Separation and robust errors | [`D3_4_separation_hc.ipynb`](labs/D3_4_separation_hc.ipynb) |
+| 4.1 | Day 4 · Session 1 | Clustered standard errors | [`D4_1_clustered_errors.ipynb`](labs/D4_1_clustered_errors.ipynb) |
+| 4.2 | Day 4 · Session 2 | Partial pooling | [`D4_2_partial_pooling.ipynb`](labs/D4_2_partial_pooling.ipynb) |
+| 4.3 | Day 4 · Session 3 | Ridge and lasso | [`D4_3_ridge_lasso.ipynb`](labs/D4_3_ridge_lasso.ipynb) |
+| 4.4 | Day 4 · Session 4 | A one-page model report | [`D4_4_model_report.ipynb`](labs/D4_4_model_report.ipynb) |
 <!-- /academy:labs -->
 
 ## Capstone
 
 A regression analysis of a planner's brief on a supplied or public dataset, in a public repository whose README reports choices, diagnostics, effects with intervals and limits; eight-minute defence plus questions
 
-**Submission:** REPLACE: what participants submit and how: a public repository link, or a shared folder for a course without code
+**Submission:** a link to a public GitHub repository with a notebook that reruns from the raw data with a fixed seed, a report, and a README that states the brief, the use (descriptive, predictive or causal), the estimand, the model and its family, the diagnostics, the effects with intervals and the limits, with the commit history and the run log. Then an eight-minute live defence and four minutes of questions, in which the assessor changes one term or the family and the participant predicts the effect before re-running. The three briefs and their datasets are in `labs/capstone/`; a table from the national Open Data Platform approved by the trainer is also accepted.
+
+**Rubric:** specification 20, diagnostics 30, uncertainty 20, interpretation 20, reproducibility 10.
+
+## How the course is assessed
+
+- AI-off entry and exit checks on reading and specifying models (20%). They are supervised and are not in this repository; the practice questions on the course page are of the same kind.
+- The capstone, scored with the rubric above (60%), and its live defence (20%).
+- Passing: 70% overall and at least 60% on both the capstone rubric and the supervised check. Authenticity rests on the commit history, the run logs and the change the assessor makes in the defence.
+- AI policy: no assistant in the supervised checks and in each lab's first fit and interpretation; a hint-only tutor in the lab extensions (`labs/tutor_instruction.md`); any assistant in the capstone, which is defended live.
+
+## How the course is organised
+
+Four teaching days of four sessions, each about 25 minutes of ideas and a 25-minute lab, then a capstone day. Each day has a deck in `slides/` with speaker notes and a checkpoint per session; each lab is a notebook with exercises, safety nets that let later cells run, and a solution in `labs/solutions/`. Pre-work: about two hours on simple regression in `labs/P0_prework_simple_regression.ipynb`. Follow-up: a critique of a published regression from the participant's own field, `labs/followup/README.md`.
 
 ## Prerequisites
 
 - DS-201 Statistical Inference by Simulation
 - Fits a simple linear regression and reads its coefficient table
+- Pre-work: about two hours on simple regression, `labs/P0_prework_simple_regression.ipynb`, before the supervised entry quiz
+- Setup: a laptop with uv, or Google Colab. Nothing calls or downloads a model. Run `labs/00_setup_check.ipynb` before Day 1; see `labs/README.md`
 
 <!-- academy:tools -->
 ## Tools
@@ -90,11 +107,8 @@ Each line is a capability; the examples are interchangeable.
 <!-- academy:sources -->
 ## Sources
 
-- REPLACE: every source the course cites, with its address, in course.json under "sources"; this list is written from there
-<!-- /academy:sources -->
-
 ### National references
 
-- Personal Data Protection Law and its implementing regulations: REPLACE: the address of the official text
-- General Rules for Secondary Use of Data: REPLACE: the address of the official text
-- SDAIA AI Ethics Principles: REPLACE: the address of the official text
+- Personal Data Protection Law: https://sdaia.gov.sa/en/SDAIA/about/Documents/PersonalDataProtectionLaw.pdf, and its Implementing Regulation: https://sdaia.gov.sa/en/SDAIA/about/Documents/ImplementingRegulationPersonalDataProtectionLaw.pdf
+- General Rules for Secondary Use of Data: https://sdaia.gov.sa/Documents/GeneralRulesForSecondaryUseOfData_EN.pdf
+- SDAIA AI Ethics Principles: https://sdaia.gov.sa/en/SDAIA/about/Documents/ai-principles.pdf

@@ -3,166 +3,248 @@
   "version": 1,
   "questions": [
     {
-      "id": "q-example-1",
+      "id": "q-uses-01",
       "type": "single",
-      "prompt": "REPLACE: a practice question on LO1, as a short scenario",
+      "prompt": "A city report fits monthly consumption on tariff band, household size and temperature for all billed households and writes: \"The social tariff makes families use 9% less water.\" Which sentence does the analysis support?",
       "options": [
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: the right answer",
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: a wrong option that a common misconception makes tempting"
-      ],
-      "correct": [
-        1
-      ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
-      "misconceptions": [
-        "REPLACE: the misconception behind this option",
-        "",
-        "REPLACE: the misconception behind this option",
-        "REPLACE: the misconception behind this option"
-      ],
-      "lo": [
-        "LO1"
-      ],
-      "day": "day1",
-      "session": 1,
-      "level": "apply",
-      "pool": "practice",
-      "weight": 1
-    },
-    {
-      "id": "q-example-2",
-      "type": "tf",
-      "prompt": "REPLACE: a statement on LO2 that is true",
-      "options": [
-        "True",
-        "False"
+        "Households on the social tariff used about 9% less water than comparable households on other tariffs in the data",
+        "Moving a family to the social tariff would cut its use by about 9%",
+        "The social tariff caused a 9% saving once size and temperature were controlled",
+        "Nothing, because regression on observational data supports no statement"
       ],
       "correct": [
         0
       ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
+      "explanation": "The data compare different households, so they support a description of the difference between groups, not a claim about what the tariff does.",
       "misconceptions": [
         "",
-        "REPLACE: the misconception behind this option"
-      ],
-      "lo": [
-        "LO2"
-      ],
-      "day": "day1",
-      "session": 1,
-      "level": "understand",
-      "pool": "practice",
-      "weight": 1
-    },
-    {
-      "id": "q-example-3",
-      "type": "single",
-      "prompt": "REPLACE: a practice question on LO3, as a short scenario",
-      "options": [
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: the right answer",
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: a wrong option that a common misconception makes tempting"
-      ],
-      "correct": [
-        1
-      ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
-      "misconceptions": [
-        "REPLACE: the misconception behind this option",
-        "",
-        "REPLACE: the misconception behind this option",
-        "REPLACE: the misconception behind this option"
-      ],
-      "lo": [
-        "LO3"
-      ],
-      "day": "day1",
-      "session": 1,
-      "level": "apply",
-      "pool": "practice",
-      "weight": 1
-    },
-    {
-      "id": "q-example-4",
-      "type": "tf",
-      "prompt": "REPLACE: a statement on LO4 that is true",
-      "options": [
-        "True",
-        "False"
-      ],
-      "correct": [
-        0
-      ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
-      "misconceptions": [
-        "",
-        "REPLACE: the misconception behind this option"
-      ],
-      "lo": [
-        "LO4"
-      ],
-      "day": "day1",
-      "session": 1,
-      "level": "understand",
-      "pool": "practice",
-      "weight": 1
-    },
-    {
-      "id": "q-example-5",
-      "type": "single",
-      "prompt": "REPLACE: a practice question on LO5, as a short scenario",
-      "options": [
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: the right answer",
-        "REPLACE: a wrong option that a common misconception makes tempting",
-        "REPLACE: a wrong option that a common misconception makes tempting"
-      ],
-      "correct": [
-        1
-      ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
-      "misconceptions": [
-        "REPLACE: the misconception behind this option",
-        "",
-        "REPLACE: the misconception behind this option",
-        "REPLACE: the misconception behind this option"
-      ],
-      "lo": [
-        "LO5"
-      ],
-      "day": "day1",
-      "session": 1,
-      "level": "apply",
-      "pool": "practice",
-      "weight": 1
-    },
-    {
-      "id": "q-example-6",
-      "type": "tf",
-      "prompt": "REPLACE: a statement on LO6 that is true",
-      "options": [
-        "True",
-        "False"
-      ],
-      "correct": [
-        0
-      ],
-      "explanation": "REPLACE: why the right answer is right, in one sentence",
-      "misconceptions": [
-        "",
-        "REPLACE: the misconception behind this option"
+        "Reads a comparison between groups of households as the effect of changing one household's tariff",
+        "Believes that adjusting for some variables turns a comparison into a causal estimate",
+        "Treats descriptive use as worthless: a stated comparison in a stated population is a valid result"
       ],
       "lo": [
         "LO6"
       ],
       "day": "day1",
       "session": 1,
+      "slide": "one-coefficient-three-readings",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-uses-02",
+      "type": "single",
+      "prompt": "Ghaliya asks: \"How much more water does a household with one more person use, in our villa districts?\" Which is the estimand?",
+      "options": [
+        "The coefficient of household size in a model of log consumption",
+        "The R squared of a model that includes household size",
+        "The average difference in monthly cubic metres between villa households and the same households with one more person",
+        "The p-value of household size in a model fitted to all bands"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "An estimand names the population, the outcome with its unit and the comparison; a coefficient, a fit statistic or a p-value is a property of a model, not the quantity asked about.",
+      "misconceptions": [
+        "Confuses a model's coefficient, on its own scale, with the quantity the question asks for",
+        "Takes a measure of fit for an answer to a question about size",
+        "",
+        "Takes a test statistic for the quantity of interest and ignores the population named"
+      ],
+      "lo": [
+        "LO6"
+      ],
+      "day": "day1",
+      "session": 1,
+      "slide": "estimand-first",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-fake-01",
+      "type": "single",
+      "prompt": "You simulate 200 data sets from a known model, fit each, and find that 81% of the 95% intervals for one coefficient contain its planted value. What does that tell you?",
+      "options": [
+        "The planted value is probably wrong",
+        "The intervals are too narrow for this design, so the standard errors or the model are wrong for it",
+        "The estimates are biased, so the model should be refitted on real data",
+        "Nothing: 81% is within the normal noise of 200 repeats"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "With 200 repeats, coverage of a correct 95% interval falls between about 92% and 98%; 81% means the intervals understate the uncertainty.",
+      "misconceptions": [
+        "Forgets that in fake data the planted value is known exactly",
+        "",
+        "Confuses under-coverage with bias: intervals can miss because they are too narrow around unbiased estimates",
+        "Overestimates the simulation noise of a coverage count over 200 repeats"
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 2,
+      "slide": "coverage",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-fake-02",
+      "type": "tf",
+      "prompt": "A model that recovers every planted coefficient from fake data has been shown to describe the real bills well.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "Recovering a planted model checks the code and the estimator; whether the real data follow the model is checked against the data.",
+      "misconceptions": [
+        "Confuses a test of the method with a test of the model against the world",
+        ""
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 2,
+      "slide": "fake-data-limits",
       "level": "understand",
       "pool": "practice",
-      "weight": 1
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-spline-01",
+      "type": "single",
+      "prompt": "A model of log monthly consumption has a residual standard deviation of 0.30. For one household type it predicts 3.00 on the log scale. What is the best estimate of that type's mean consumption?",
+      "options": [
+        "exp(3.00), about 20.1 cubic metres",
+        "exp(3.30), about 27.1 cubic metres",
+        "3.00 cubic metres",
+        "exp(3.045), about 21.0 cubic metres"
+      ],
+      "correct": [
+        3
+      ],
+      "explanation": "With normal errors on the log scale the mean is exp(prediction + sigma squared / 2) = exp(3.00 + 0.045).",
+      "misconceptions": [
+        "Takes the median, exp(prediction), for the mean",
+        "Adds sigma instead of sigma squared over two",
+        "Forgets to back-transform from the log scale",
+        ""
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 3,
+      "slide": "median-vs-mean",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-spline-02",
+      "type": "single",
+      "prompt": "A spline fit on 40,000 bills gives a 95% band of 37.3 to 38.4 cubic metres at 40 °C for four-person standard households. A customer of that type disputes a bill of 46 cubic metres. What does the band say about the bill?",
+      "options": [
+        "Nothing direct: the band is for the mean of such households, and single bills spread far wider",
+        "The bill is almost certainly a meter error, since it lies outside the band",
+        "The bill should be cut to 38.4 cubic metres",
+        "The model is wrong, since a real bill falls outside its band"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "An interval for the mean narrows as data grow; an interval for one household includes the household-to-household spread and is many times wider.",
+      "misconceptions": [
+        "",
+        "Reads an interval for the mean as the range of single bills",
+        "Uses the mean band as a ceiling for an individual bill",
+        "Expects individual observations to fall inside an interval for the mean"
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 3,
+      "slide": "band-is-for-mean",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-ame-01",
+      "type": "single",
+      "prompt": "In log_m3 ~ tariff_band * household_size, the household_size coefficient is 0.096 and tariff_band[T.social]:household_size is -0.022. What is the social band's slope for household size on the log scale?",
+      "options": [
+        "-0.022",
+        "0.096",
+        "0.074",
+        "0.118"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "The reference band's slope plus the social interaction term: 0.096 - 0.022 = 0.074, about 7.7% per person.",
+      "misconceptions": [
+        "Reads the interaction term as the band's slope; it is a difference between slopes",
+        "Ignores the interaction and applies the reference band's slope",
+        "",
+        "Adds the size of the interaction instead of its signed value"
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 4,
+      "slide": "interaction-meaning",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-ame-02",
+      "type": "single",
+      "prompt": "On the log scale, one more person goes with 7.6% more consumption on the social band and 12.1% more on the villa band. In cubic metres a month, the villa effect turns out more than three times the social one. Why?",
+      "options": [
+        "The percentages were computed wrongly",
+        "The interval for villas is wider",
+        "Villas have fewer households in the data",
+        "The same percentage applies to a higher base: villas use far more water to begin with"
+      ],
+      "correct": [
+        3
+      ],
+      "explanation": "An effect in cubic metres is the percentage times each household's level, so a larger base turns similar percentages into much larger volumes.",
+      "misconceptions": [
+        "Assumes the two scales must agree in ratio",
+        "Confuses the width of an interval with the size of an effect",
+        "Confuses the number of rows with the size of an effect",
+        ""
+      ],
+      "lo": [
+        "LO1"
+      ],
+      "day": "day1",
+      "session": 4,
+      "slide": "percent-not-answer",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
     }
   ]
 }
