@@ -177,10 +177,10 @@ def design(fit, newdata: pd.DataFrame) -> np.ndarray:
     return np.asarray(exog, dtype=float)
 
 
-def coef_draws(fit, n: int, gen: np.random.Generator | None = None, cov=None) -> np.ndarray:
-    """n draws of the coefficient vector from its estimated sampling distribution (normal approximation)."""
+def coef_draws(fit, n: int, gen: np.random.Generator | None = None, cov=None, k: int | None = None) -> np.ndarray:
+    """n draws of the first k coefficients (the model matrix's columns) from their estimated sampling distribution."""
     gen = gen or rng(7)
-    k = len(fit.model.exog_names)
+    k = k or len(fit.model.exog_names)
     beta = np.asarray(fit.params)[:k]
     V = np.asarray(cov if cov is not None else fit.cov_params())[:k, :k]
     return gen.multivariate_normal(beta, V, size=n)
@@ -214,7 +214,7 @@ def contrast(fit, data: pd.DataFrame, var: str, low, high, scale: str, by: str |
     X0, X1 = design(fit, lo_d), design(fit, hi_d)
     off = np.zeros(len(data)) if offset is None else np.asarray(offset, dtype=float)
     beta = np.asarray(fit.params)[: X0.shape[1]]
-    B = coef_draws(fit, n, cov=cov)
+    B = coef_draws(fit, n, cov=cov, k=X0.shape[1])
     groups = [("all", np.ones(len(data), bool))] if by is None else [(g, (data[by] == g).to_numpy()) for g in pd.unique(data[by])]
     rows = []
     for g, m in groups:
@@ -233,7 +233,7 @@ def predict_band(fit, newdata: pd.DataFrame, scale: str, n: int | None = None, o
     X = design(fit, newdata)
     off = np.zeros(len(newdata)) if offset is None else np.asarray(offset, dtype=float)
     beta = np.asarray(fit.params)[: X.shape[1]]
-    sims = inv(X @ coef_draws(fit, n).T + off[:, None])
+    sims = inv(X @ coef_draws(fit, n, k=X.shape[1]).T + off[:, None])
     lo, hi = np.percentile(sims, [2.5, 97.5], axis=1)
     est = inv(X @ beta + off)
     return pd.DataFrame({"estimate": est, "low": lo, "high": hi}, index=newdata.index)

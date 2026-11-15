@@ -1,0 +1,114 @@
+{
+ "diffs": {
+  "__frame__": {
+   "columns": [
+    "points",
+    "low",
+    "high"
+   ],
+   "data": [
+    [
+     -47.5480674767,
+     -49.0729046891,
+     -46.1210554829
+    ],
+    [
+     -17.1842333122,
+     -17.7954850966,
+     -16.5861950036
+    ],
+    [
+     -40.5833749943,
+     -42.2485462316,
+     -38.8914260087
+    ]
+   ],
+   "index": [
+    "A",
+    "B",
+    "C"
+   ]
+  }
+ },
+ "odds_ratios": {
+  "__frame__": {
+   "columns": [
+    "odds_ratio",
+    "low",
+    "high"
+   ],
+   "data": [
+    [
+     1.1216588628,
+     1.0482472007,
+     1.2002117474
+    ],
+    [
+     1.1158503082,
+     1.0076846806,
+     1.2356265152
+    ],
+    [
+     1.0031599148,
+     1.0028049297,
+     1.0035150255
+    ],
+    [
+     0.1003629191,
+     0.0916515109,
+     0.1099023403
+    ],
+    [
+     1.5880725461,
+     1.5424174574,
+     1.6350790116
+    ],
+    [
+     1.0614297402,
+     1.0467323458,
+     1.076333504
+    ]
+   ],
+   "index": [
+    "tariff_band[T.social]",
+    "tariff_band[T.villa]",
+    "bill_sar",
+    "autopay",
+    "prior_late_12m",
+    "household_size"
+   ]
+  }
+ },
+ "sentences": {
+  "A": "Among large social-tariff households with past late payments (profile A), bills on autopay were late about 48 percentage points less often than bills without it (95% interval 46 to 49 points), a comparison of households that chose differently.",
+  "B": "Among four-person standard households with no late payments (profile B), bills on autopay were late about 17 percentage points less often than bills without it (95% interval 17 to 18 points), a comparison of households that chose differently.",
+  "C": "Among small villa households with large bills (profile C), bills on autopay were late about 41 percentage points less often than bills without it (95% interval 39 to 42 points), a comparison of households that chose differently."
+ },
+ "with_without": {
+  "__frame__": {
+   "columns": [
+    "without",
+    "with"
+   ],
+   "data": [
+    [
+     0.6122978394,
+     0.1368171647
+    ],
+    [
+     0.1956768034,
+     0.0238344702
+    ],
+    [
+     0.4955914356,
+     0.0897576857
+    ]
+   ],
+   "index": [
+    "A",
+    "B",
+    "C"
+   ]
+  }
+ }
+}

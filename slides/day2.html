@@ -1,158 +1,601 @@
 <section class="slide title" id="title" data-auto="title">
-  <aside class="notes">REPLACE: welcome; introduce yourself; one question to the room that calibrates the pace; the rhythm of the day</aside>
+  <aside class="notes"><p>Day 2 leaves the normal family. Two outcomes from Sahil Water: a late-payment flag and leak counts on pipes of different lengths. The thread of the day is the same as yesterday's: coefficients live on the model's scale, answers live on the reader's scale.</p></aside>
 </section>
 
-<section class="slide" id="agenda" data-auto="agenda"></section>
+<section class="slide" id="agenda" data-auto="agenda">
+  <aside class="notes"><p>Sessions 1 and 2 are late payment: why a line fails, then how to read a logistic model. Sessions 3 and 4 are leaks: exposure, then overdispersion. Each lab loads its own files.</p></aside>
+</section>
+
+<section class="slide" id="review-day1" data-lo="LO1" data-label="Review">
+  <div class="kicker">Review of Day 1</div>
+  <h2>Which number answers Ghaliya?</h2>
+  <div class="quiz" data-type="single" data-lo="LO1">
+    <p class="lead">A model of log monthly consumption has a size slope of 0.096 for standard households. Ghaliya asks how many more cubic metres a month go with one more person in standard households. What do you give her?</p>
+    <div class="opts">
+      <div class="opt" data-why="Gives the log-scale coefficient, which is not in cubic metres">0.096</div>
+      <div class="opt" data-why="Gives a percentage when the question asked for a volume">About 10% more per person</div>
+      <div class="opt" data-ok>The average over standard bills of the m³ difference from one more person: about 2.3 (2.3 to 2.4)</div>
+      <div class="opt" data-why="Uses exp of the prediction, the median, so the volume comes out about 5% too small">exp(0.096) times the median bill</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The question names a scale (m³) and a population (standard households): compute on that scale, average over those bills, and add an interval.</div>
+  </div>
+  <aside class="notes"><p>Answer: C. Two minutes. If B is popular, ask what 10% means for a household of 2 and of 8: different volumes.</p></aside>
+</section>
 
 <!-- Session 1 -->
 
 <section class="slide section" id="s1" data-auto="section" data-session="1"></section>
 
-<section class="slide" id="s1-idea" data-lo="LO2">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="late-payment-question" data-lo="LO2" data-label="The question">
+  <div class="kicker">Nidal's question</div>
+  <h2>Which bills are likely to be paid late? The outcome is a flag</h2>
   <div class="cols cols-2">
+    <table class="t">
+      <tr><th>Band</th><th class="num">No autopay</th><th class="num">Autopay</th></tr>
+      <tr><td>standard</td><td class="num">25.7%</td><td class="num">3.8%</td></tr>
+      <tr><td>social</td><td class="num">31.1%</td><td class="num">5.4%</td></tr>
+      <tr><td>villa</td><td class="num">41.2%</td><td class="num">6.5%</td></tr>
+    </table>
     <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
+      <li>21.5% of the 40,000 bills were paid late.</li>
+      <li>A probability lives between 0 and 1.</li>
+      <li>Near the bounds, differences are squeezed: 3.8% cannot fall by 20 points.</li>
     </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>Nidal Al-Fadhli, billing and collections manager, owns the late-payment flags. Lab 2.1, step 1. Ask: if autopay "takes 22 points off" standard bills, what is left for autopay households? Nothing below zero. That is the problem the session solves.</p></aside>
 </section>
 
-<section class="slide" id="s1-steps" data-lo="LO2">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="family-from-outcome" data-lo="LO2" data-label="Family and link">
+  <div class="kicker">Generalised linear models</div>
+  <h2>The outcome chooses the family; the link connects its mean to a straight line</h2>
+  <table class="t">
+    <tr><th>Outcome</th><th>Family</th><th>Link</th><th>A coefficient is</th></tr>
+    <tr><td>m³ a month (log)</td><td>normal</td><td>identity</td><td>a difference in log m³</td></tr>
+    <tr class="hl"><td>late or not</td><td>binomial</td><td>logit</td><td>a difference in log odds</td></tr>
+    <tr><td>leaks on a segment</td><td>Poisson or negative binomial</td><td>log</td><td>a difference in log rate</td></tr>
+  </table>
+  <p class="lead mt">Straight on the link scale; curved, and bounded, on the outcome's scale.</p>
+  <aside class="notes"><p>Write the logistic model on the board: log(p / (1 − p)) = β₀ + β·x, so p = 1 / (1 + e^(−η)). The point to stress: the family is chosen from what the outcome is (a flag, a count), before looking at any fit. In R: glm(family = binomial).</p></aside>
+</section>
+
+<section class="slide" id="lpm-breaks" data-lo="LO2" data-label="Where the line breaks">
+  <div class="kicker">Lab 2.1, steps 2 and 3</div>
+  <h2>The straight line gives 4,369 bills a negative chance of being late</h2>
+  <div class="cols cols-3">
+    <div class="stat"><div class="big">−25 points</div><div class="lbl">autopay, the same for every bill</div></div>
+    <div class="stat"><div class="big">4,369</div><div class="lbl">predictions below 0, all on autopay</div></div>
+    <div class="stat"><div class="big">−0.098</div><div class="lbl">the lowest predicted probability</div></div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <div class="callout warn mt"><b>What goes wrong.</b> A line subtracts the same 25 points from a bill at 30% and from a bill at 4%. The second has nothing left to lose.</div>
+  <aside class="notes"><p>Lab 2.1 solution run: linear probability model of late on bill, autopay, band, past late payments and size. One prediction is also above 1 (1.096). The logistic predictions run from 0.016 to 0.975.</p></aside>
+</section>
+
+<section class="slide" id="decile-plot" data-lo="LO2" data-label="By decile">
+  <div class="kicker">Lab 2.1, step 5</div>
+  <h2>By decile, the logistic model sits on the diagonal; the line misses at both ends</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:deciles-->
+<svg viewBox="0 0 560 440" role="img" aria-label="Predicted against observed late rate by decile: the logistic model&#x27;s ten points lie on the diagonal; the linear model predicts minus 4% in its lowest decile where 2.8% are late, and under-predicts its highest decile">
+<rect x="70" y="20" width="470" height="370" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="540" y1="390.0" y2="390.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="395.0" text-anchor="end" font-size="14" fill="var(--muted)">-0.1</text>
+<line x1="70" x2="540" y1="333.1" y2="333.1" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="338.1" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="540" y1="276.2" y2="276.2" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="281.2" text-anchor="end" font-size="14" fill="var(--muted)">0.1</text>
+<line x1="70" x2="540" y1="219.2" y2="219.2" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="224.2" text-anchor="end" font-size="14" fill="var(--muted)">0.2</text>
+<line x1="70" x2="540" y1="162.3" y2="162.3" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="167.3" text-anchor="end" font-size="14" fill="var(--muted)">0.3</text>
+<line x1="70" x2="540" y1="105.4" y2="105.4" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="110.4" text-anchor="end" font-size="14" fill="var(--muted)">0.4</text>
+<line x1="70" x2="540" y1="48.5" y2="48.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="53.5" text-anchor="end" font-size="14" fill="var(--muted)">0.5</text>
+<line x1="70.0" x2="70.0" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="70.0" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">-0.1</text>
+<line x1="142.3" x2="142.3" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="142.3" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="214.6" x2="214.6" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="214.6" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0.1</text>
+<line x1="286.9" x2="286.9" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="286.9" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0.2</text>
+<line x1="359.2" x2="359.2" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="359.2" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0.3</text>
+<line x1="431.5" x2="431.5" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="431.5" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0.4</text>
+<line x1="503.8" x2="503.8" y1="390" y2="395" stroke="var(--muted)"/>
+<text x="503.8" y="412" text-anchor="middle" font-size="14" fill="var(--muted)">0.5</text>
+<text x="305" y="434" text-anchor="middle" font-size="14" fill="var(--muted)">mean predicted probability</text>
+<text x="16" y="205" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 205)">observed late rate</text>
+<polyline points="70.0,390.0 540.0,20.0" fill="none" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4 4"/>
+<polyline points="112.4,317.4 161.9,312.4 222.9,293.2 281.9,252.5 300.6,223.6 322.1,204.6 344.8,184.5 365.6,153.1 398.1,116.2 466.3,50.2" fill="none" stroke="var(--coral)" stroke-width="2"/>
+<circle cx="112.4" cy="317.4" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="161.9" cy="312.4" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="222.9" cy="293.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="281.9" cy="252.5" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="300.6" cy="223.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="322.1" cy="204.6" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="344.8" cy="184.5" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="365.6" cy="153.1" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="398.1" cy="116.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="466.3" cy="50.2" r="6" fill="var(--coral)" fill-opacity="1.0"/>
+<polyline points="159.2,317.9 168.1,312.2 187.0,295.5 260.5,253.5 284.8,228.2 307.9,200.3 333.5,184.5 361.4,154.6 405.4,115.6 508.8,45.5" fill="none" stroke="var(--teal)" stroke-width="2"/>
+<circle cx="159.2" cy="317.9" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="168.1" cy="312.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="187.0" cy="295.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="260.5" cy="253.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="284.8" cy="228.2" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="307.9" cy="200.3" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="333.5" cy="184.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="361.4" cy="154.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="405.4" cy="115.6" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="508.8" cy="45.5" r="6" fill="var(--teal)" fill-opacity="1.0"/>
+<text x="84.5" y="59.8" text-anchor="start" font-size="15" fill="var(--teal)">logistic</text>
+<text x="84.5" y="88.3" text-anchor="start" font-size="15" fill="var(--coral)">linear</text>
+</svg>
+<!--/FIG:deciles-->
+      <div class="caption">Mean prediction and observed rate in ten groups of 4,000 bills.</div>
+    </div>
+    <ul class="bullets">
+      <li>Lowest decile: the line predicts −4.1%; 2.8% are late.</li>
+      <li>Largest gap: 6.9 points for the line, 2.4 for the logistic model.</li>
+      <li>In the middle the two agree.</li>
+    </ul>
+  </div>
+  <aside class="notes"><p>This is a calibration plot, also seen in DS-204; here it is a model check, not a model-selection device. The stretch item shows that the logistic model's average autopay difference is also −25 points: the line gets the average right and the individual bills wrong.</p></aside>
+</section>
+
+<section class="slide" id="when-lpm-ok" data-lo="LO2" data-label="When a line will do">
+  <div class="kicker">A fair hearing</div>
+  <h2>A linear probability model can describe one average difference, not probabilities</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>Acceptable</h4><p class="small mb0">Predictions stay inside 0.1 to 0.9, and the question is one average difference, read as points.</p></div>
+    <div class="card c-coral"><h4>Not acceptable</h4><p class="small mb0">Predicting a bill's probability, ranking households near the bounds, or any rare outcome.</p></div>
+  </div>
+  <div class="callout note mt"><b>Here.</b> Its −25 points matches the logistic average, −25.2. It is the bills, not the average, that the line gets wrong.</div>
+  <aside class="notes"><p>Some economists prefer the line for its simple reading. That is a fair position for an average effect in a randomised design, with robust errors. For collections planning, Nidal needs bill-level probabilities, and the line produces impossible ones.</p></aside>
+</section>
+
+<section class="slide" id="check-family" data-lo="LO2">
+  <div class="kicker">Checkpoint</div>
+  <h2>Which model fits the outcome?</h2>
+  <div class="quiz" data-type="single" data-lo="LO2">
+    <p class="lead">A planner wants the probability that a new connection request is approved within 10 days, from the request's district, type and completeness. About 4% of incomplete requests are approved in time. Which model do you start from?</p>
+    <div class="opts">
+      <div class="opt" data-ok>A logistic model of the approved-in-time flag</div>
+      <div class="opt" data-why="Ignores that the outcome is a flag: a line can predict below 0 for incomplete requests near 4%">A linear model of the approved-in-time flag</div>
+      <div class="opt" data-why="Changes the question: days to approval is another outcome, and the planner asked for a probability">A linear model of the number of days to approval</div>
+      <div class="opt" data-why="Uses a count model for a yes-or-no outcome">A Poisson model of the approved-in-time flag</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> The outcome is a flag, so the family is binomial; a rate near 4% is exactly where a straight line breaks.</div>
+  </div>
+  <aside class="notes"><p>Answer: A. C is a reasonable second analysis, but it answers a different question; say so.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-2-1" data-auto="lab" data-lab="2.1">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for both fits. The decile function needs ranks before qcut, or ties in predicted probabilities produce uneven groups. Fast: the whole lab runs in under half a minute.</p></aside>
 </section>
 
 <!-- Session 2 -->
 
 <section class="slide section" id="s2" data-auto="section" data-session="2"></section>
 
-<section class="slide" id="s2-idea" data-lo="LO2">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
-  </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+<section class="slide" id="odds-ratios" data-lo="LO2" data-label="Odds ratios">
+  <div class="kicker">Lab 2.2, step 1</div>
+  <h2>exp(coefficient) is an odds ratio: exact, and hard to use</h2>
+  <table class="t">
+    <tr><th>Term</th><th class="num">Odds ratio</th><th class="num">95% interval</th></tr>
+    <tr class="hl"><td>autopay</td><td class="num">0.100</td><td class="num">0.092 to 0.110</td></tr>
+    <tr><td>each past late payment</td><td class="num">1.59</td><td class="num">1.54 to 1.64</td></tr>
+    <tr><td>each extra person</td><td class="num">1.06</td><td class="num">1.05 to 1.08</td></tr>
+    <tr><td>each extra SAR on the bill</td><td class="num">1.003</td><td class="num">1.003 to 1.004</td></tr>
+  </table>
+  <div class="callout warn mt"><b>What goes wrong.</b> "Autopay cuts late payment by 90%." It multiplies the odds by 0.1; the probability falls by much less, and by a different amount for each household.</div>
+  <aside class="notes"><p>Odds = p / (1 − p). At p = 0.5 the odds are 1; a tenth of that is 0.1, so p ≈ 0.09. At p = 0.05 the odds are 0.053; a tenth is 0.005, so p ≈ 0.005. Same odds ratio, a 41-point drop and a 4.5-point drop.</p></aside>
 </section>
 
-<section class="slide" id="s2-steps" data-lo="LO2">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="three-profiles" data-lo="LO2" data-label="Three profiles">
+  <div class="kicker">Lab 2.2, step 2</div>
+  <h2>Three households Nidal recognises</h2>
+  <div class="cols cols-3">
+    <div class="card c-coral"><h4>A</h4><p class="small mb0">Social tariff, 7 people, a 180 SAR bill, 3 late payments in the past year.</p></div>
+    <div class="card c-teal"><h4>B</h4><p class="small mb0">Standard tariff, 4 people, a 120 SAR bill, no late payments.</p></div>
+    <div class="card c-purple"><h4>C</h4><p class="small mb0">Villa, 3 people, a 400 SAR bill, 1 late payment.</p></div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <p class="lead mt">For each: the probability of a late bill without and with autopay, and the difference with an interval.</p>
+  <aside class="notes"><p>Profiles make a logistic model concrete. They are chosen with the stakeholder, before computing, so nobody picks the profile that makes the biggest number. Ask the room which profile they expect to show the largest difference.</p></aside>
+</section>
+
+<section class="slide" id="profiles-curve" data-lo="LO2" data-label="One shift, three differences">
+  <div class="kicker">Lab 2.2, steps 3 and 4</div>
+  <h2>One coefficient, three differences: 48, 17 and 41 points</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:profiles_curve-->
+<svg viewBox="0 0 720 400" role="img" aria-label="The logistic curve with the three profiles: autopay moves each one the same 2.3 units left on the log odds scale, which is 48 points for profile A, 41 for C and 17 for B">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="267.5" y2="267.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="272.5" text-anchor="end" font-size="14" fill="var(--muted)">0.25</text>
+<line x1="70" x2="700" y1="185.0" y2="185.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="190.0" text-anchor="end" font-size="14" fill="var(--muted)">0.5</text>
+<line x1="70" x2="700" y1="102.5" y2="102.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="107.5" text-anchor="end" font-size="14" fill="var(--muted)">0.75</text>
+<line x1="70" x2="700" y1="20.0" y2="20.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="25.0" text-anchor="end" font-size="14" fill="var(--muted)">1</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">-5</text>
+<line x1="148.8" x2="148.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="148.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">-4</text>
+<line x1="227.5" x2="227.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="227.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">-3</text>
+<line x1="306.2" x2="306.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="306.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">-2</text>
+<line x1="385.0" x2="385.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="385.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">-1</text>
+<line x1="463.8" x2="463.8" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="463.8" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="542.5" x2="542.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="542.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">1</text>
+<line x1="621.2" x2="621.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="621.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">2</text>
+<line x1="700.0" x2="700.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="700.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">3</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">log odds of a late bill</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">probability</text>
+<polyline points="70.0,347.8 73.2,347.7 76.3,347.6 79.5,347.5 82.7,347.4 85.8,347.3 89.0,347.2 92.2,347.1 95.3,347.0 98.5,346.8 101.7,346.7 104.8,346.6 108.0,346.4 111.2,346.3 114.3,346.1 117.5,346.0 120.7,345.8 123.8,345.7 127.0,345.5 130.2,345.3 133.3,345.1 136.5,344.9 139.6,344.7 142.8,344.5 146.0,344.3 149.1,344.0 152.3,343.8 155.5,343.5 158.6,343.3 161.8,343.0 165.0,342.7 168.1,342.4 171.3,342.1 174.5,341.8 177.6,341.5 180.8,341.2 184.0,340.8 187.1,340.4 190.3,340.1 193.5,339.7 196.6,339.3 199.8,338.8 203.0,338.4 206.1,337.9 209.3,337.5 212.5,337.0 215.6,336.4 218.8,335.9 222.0,335.4 225.1,334.8 228.3,334.2 231.5,333.6 234.6,332.9 237.8,332.3 241.0,331.6 244.1,330.9 247.3,330.1 250.5,329.4 253.6,328.6 256.8,327.8 259.9,326.9 263.1,326.0 266.3,325.1 269.4,324.2 272.6,323.2 275.8,322.2 278.9,321.2 282.1,320.1 285.3,319.0 288.4,317.8 291.6,316.7 294.8,315.4 297.9,314.2 301.1,312.9 304.3,311.5 307.4,310.1 310.6,308.7 313.8,307.2 316.9,305.7 320.1,304.1 323.3,302.5 326.4,300.9 329.6,299.2 332.8,297.4 335.9,295.6 339.1,293.8 342.3,291.9 345.4,289.9 348.6,287.9 351.8,285.9 354.9,283.8 358.1,281.6 361.3,279.4 364.4,277.2 367.6,274.8 370.8,272.5 373.9,270.1 377.1,267.6 380.3,265.1 383.4,262.5 386.6,259.9 389.7,257.3 392.9,254.6 396.1,251.8 399.2,249.0 402.4,246.2 405.6,243.3 408.7,240.4 411.9,237.4 415.1,234.4 418.2,231.4 421.4,228.3 424.6,225.2 427.7,222.1 430.9,218.9 434.1,215.7 437.2,212.5 440.4,209.3 443.6,206.0 446.7,202.8 449.9,199.5 453.1,196.2 456.2,192.9 459.4,189.6 462.6,186.2 465.7,182.9 468.9,179.6 472.1,176.3 475.2,173.0 478.4,169.7 481.6,166.4 484.7,163.2 487.9,159.9 491.1,156.7 494.2,153.5 497.4,150.3 500.6,147.1 503.7,144.0 506.9,140.9 510.1,137.8 513.2,134.8 516.4,131.8 519.5,128.9 522.7,126.0 525.9,123.1 529.0,120.3 532.2,117.5 535.4,114.7 538.5,112.0 541.7,109.4 544.9,106.8 548.0,104.3 551.2,101.8 554.4,99.3 557.5,96.9 560.7,94.6 563.9,92.3 567.0,90.0 570.2,87.8 573.4,85.7 576.5,83.6 579.7,81.6 582.9,79.6 586.0,77.6 589.2,75.8 592.4,73.9 595.5,72.1 598.7,70.4 601.9,68.7 605.0,67.1 608.2,65.5 611.4,63.9 614.5,62.4 617.7,60.9 620.9,59.5 624.0,58.1 627.2,56.8 630.4,55.5 633.5,54.3 636.7,53.0 639.8,51.9 643.0,50.7 646.2,49.6 649.3,48.6 652.5,47.5 655.7,46.5 658.8,45.6 662.0,44.6 665.2,43.7 668.3,42.9 671.5,42.0 674.7,41.2 677.8,40.4 681.0,39.7 684.2,38.9 687.3,38.2 690.5,37.5 693.7,36.9 696.8,36.3 700.0,35.7" fill="none" stroke="var(--muted)" stroke-width="2"/>
+<circle cx="499.7" cy="147.9" r="8" fill="var(--coral)" fill-opacity="1.0"/>
+<circle cx="318.7" cy="304.9" r="8" fill="var(--coral)" fill-opacity="1.0"/>
+<polyline points="499.7,147.9 318.7,304.9" fill="none" stroke="var(--coral)" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="511.5" y="141.3" text-anchor="start" font-size="15" fill="var(--coral)">A: 61% to 14%</text>
+<circle cx="352.4" cy="285.4" r="8" fill="var(--teal)" fill-opacity="1.0"/>
+<circle cx="171.4" cy="342.1" r="8" fill="var(--teal)" fill-opacity="1.0"/>
+<polyline points="352.4,285.4 171.4,342.1" fill="none" stroke="var(--teal)" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="364.2" y="278.8" text-anchor="start" font-size="15" fill="var(--teal)">B: 20% to 2%</text>
+<circle cx="462.4" cy="186.5" r="8" fill="var(--purple)" fill-opacity="1.0"/>
+<circle cx="281.3" cy="320.4" r="8" fill="var(--purple)" fill-opacity="1.0"/>
+<polyline points="462.4,186.5 281.3,320.4" fill="none" stroke="var(--purple)" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="474.2" y="179.9" text-anchor="start" font-size="15" fill="var(--purple)">C: 50% to 9%</text>
+</svg>
+<!--/FIG:profiles_curve-->
+      <div class="caption">Each profile moves 2.3 units left on the log odds scale.</div>
+    </div>
+    <table class="t small">
+      <tr><th></th><th class="num">Points</th><th class="num">95% interval</th></tr>
+      <tr><td>A</td><td class="num">−47.5</td><td class="num">−49.1 to −46.1</td></tr>
+      <tr><td>B</td><td class="num">−17.2</td><td class="num">−17.8 to −16.6</td></tr>
+      <tr><td>C</td><td class="num">−40.6</td><td class="num">−42.2 to −38.9</td></tr>
+    </table>
+  </div>
+  <aside class="notes"><p>A starts at 61%, in the steep middle of the curve: a large drop. B starts at 20%, nearer the flat bottom: a small drop. The intervals come from 1,000 coefficient draws with U.contrast, the same function as Day 1, now on the probability scale.</p></aside>
+</section>
+
+<section class="slide" id="average-over-bills" data-lo="LO2" data-label="Averaging">
+  <div class="kicker">Lab 2.2, stretch</div>
+  <h2>Averaged over the bills described, autopay goes with 25 points less late payment</h2>
+  <div class="bars">
+    <div class="row"><span>all bills</span><div class="bar c-navy" style="--w:77%"></div><span class="val">−25.2</span></div>
+    <div class="row"><span>standard</span><div class="bar c-teal" style="--w:68%"></div><span class="val">−22.3</span></div>
+    <div class="row"><span>social</span><div class="bar c-coral" style="--w:81%"></div><span class="val">−26.5</span></div>
+    <div class="row"><span>villa</span><div class="bar c-purple" style="--w:100%"></div><span class="val">−32.8</span></div>
+  </div>
+  <p class="caption">Average marginal effect of autopay in percentage points, lab 2.2 stretch item.</p>
+  <aside class="notes"><p>Two ways to report a logistic model on the probability scale: at stated profiles, or averaged over a stated population. Both are legitimate; say which. The difference by band comes only from the starting probabilities: the model has no band-by-autopay interaction.</p></aside>
+</section>
+
+<section class="slide" id="chose-autopay" data-lo="LO2 LO6" data-label="Who chose autopay">
+  <div class="kicker">Lab 2.2, step 5</div>
+  <h2>Households chose autopay, so the difference describes them, not what promoting it would do</h2>
+  <div class="cols cols-2">
+    <div class="card c-teal"><h4>Write</h4><p class="small mb0">"Among households like A, bills on autopay were late about 48 points less often than bills without it (46 to 49)."</p></div>
+    <div class="card c-coral"><h4>Do not write</h4><p class="small mb0">"Autopay would cut A's late payments by 48 points."</p></div>
+  </div>
+  <div class="callout tip mt"><b>To learn the effect.</b> Offer autopay enrolment to a random half of A-like households and compare.</div>
+  <aside class="notes"><p>The lab checks each sentence for the words reduces, cuts, causes, effect and would. People who enrol in autopay may be more organised, or better off: the model cannot see that. A trial answers Nidal's real question; DS-205 covers designing one.</p></aside>
+</section>
+
+<section class="slide" id="check-logistic" data-lo="LO2">
+  <div class="kicker">Checkpoint</div>
+  <h2>How big is the difference for this household?</h2>
+  <div class="quiz" data-type="single" data-lo="LO2">
+    <p class="lead">The autopay odds ratio is 0.10. Without autopay, a household's predicted probability of a late bill is 5%. About how much lower is it for the same profile with autopay?</p>
+    <div class="opts">
+      <div class="opt" data-why="Reads the odds ratio as a multiplier on the probability, then subtracts 90% of 100 points">90 percentage points</div>
+      <div class="opt" data-why="Applies the average over all bills to a household near the bound">25 percentage points</div>
+      <div class="opt" data-why="Subtracts the odds ratio from the probability as if both were on one scale">10 percentage points</div>
+      <div class="opt" data-ok>About 4.5 percentage points</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> Odds 0.05/0.95 = 0.053; a tenth is 0.0053, a probability of about 0.5%. From 5% to 0.5% is 4.5 points.</div>
+  </div>
+  <aside class="notes"><p>Answer: D. Do the arithmetic on the board. Then ask what the difference is for a household at 50%: 41 points.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-2-2" data-auto="lab" data-lab="2.2">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the reading of the coefficients. The profile table must use the same category levels as the bills, or prediction fails. The sentence check is strict on purpose: a sentence with "reduces" fails.</p></aside>
 </section>
 
 <!-- Session 3 -->
 
 <section class="slide section" id="s3" data-auto="section" data-session="3"></section>
 
-<section class="slide" id="s3-idea" data-lo="LO2">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
+<section class="slide" id="leak-question" data-lo="LO2" data-label="Basil's question">
+  <div class="kicker">Basil's question</div>
+  <h2>Which mains leak more often, per kilometre, and by how much?</h2>
   <div class="cols cols-2">
     <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
+      <li>1,200 segments, weekly leak reports for 2026: 3,055 leaks.</li>
+      <li>Segments run from 0.1 to 8 km; some entered service mid-year.</li>
+      <li>The renewal budget goes to the mains with the highest rate.</li>
     </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
+    <div class="card c-teal"><h4>The unit</h4><p class="small mb0">One row per segment: its year's count and its exposure, because its predictors do not change week to week.</p></div>
   </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+  <aside class="notes"><p>Basil Al-Jowair, pipe network engineer, owns the leak reports. Ask: if one main has 6 leaks and another 2, which is worse? The room should ask for length and time in service before answering.</p></aside>
 </section>
 
-<section class="slide" id="s3-steps" data-lo="LO2">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
+<section class="slide" id="exposure" data-lo="LO2" data-label="Exposure">
+  <div class="kicker">Lab 2.3, step 2</div>
+  <h2>A count means nothing without its exposure</h2>
   <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+    <div class="step c-teal"><b>Length</b>kilometres of main</div>
+    <div class="arrow">→</div>
+    <div class="step c-cyan"><b>Time</b>weeks in service ÷ 52</div>
+    <div class="arrow">→</div>
+    <div class="step c-purple"><b>Exposure</b>kilometre-years: 0.1 to 8 here</div>
+    <div class="arrow">→</div>
+    <div class="step c-coral"><b>Rate</b>leaks per kilometre-year</div>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <div class="callout note mt"><b>Other exposures.</b> Customers for complaints, meter-days for faults, kilometres driven for accidents.</div>
+  <aside class="notes"><p>The exposure is what the count would grow with if nothing else changed. In the capstone brief C1, complaints are counted per district-month and the exposure is the number of customers.</p></aside>
+</section>
+
+<section class="slide" id="offset" data-lo="LO2" data-label="The offset">
+  <div class="kicker">Lab 2.3, step 3</div>
+  <h2>The offset puts log exposure in the model with its coefficient fixed at 1</h2>
+  <pre class="code"><code class="language-python">po = smf.glm("leaks ~ material + age_years + pressure_bar", data=s,
+             family=sm.families.Poisson(),
+             offset=np.log(s["km_years"])).fit()</code></pre>
+  <p class="lead">log E[leaks] = log(km-years) + β₀ + β·x, so the β describe the rate per kilometre-year.</p>
+  <aside class="notes"><p>In R: glm(leaks ~ material + age + pressure + offset(log(km_years)), family = poisson). In the stretch item, log length as a free predictor gets 1.10 (1.05 to 1.15) on full-year segments: close to 1, and its Poisson interval is too narrow, which session 4 explains.</p></aside>
+</section>
+
+<section class="slide" id="raw-vs-adjusted" data-lo="LO2" data-label="Raw and adjusted">
+  <div class="kicker">Lab 2.3, steps 2 and 4</div>
+  <h2>Asbestos cement leaks 4.2 times as often as PVC per km, but only 1.6 times at equal age</h2>
+  <div class="cols cols-2">
+    <table class="t small">
+      <tr><th>Material</th><th class="num">Leaks per km-year, raw</th></tr>
+      <tr><td>PVC</td><td class="num">1.12</td></tr>
+      <tr><td>ductile iron</td><td class="num">1.71</td></tr>
+      <tr class="hl"><td>asbestos cement</td><td class="num">4.70</td></tr>
+    </table>
+    <table class="t small">
+      <tr><th>Rate ratio</th><th class="num">Poisson</th><th class="num">95% interval</th></tr>
+      <tr><td>ductile iron</td><td class="num">1.09</td><td class="num">0.98 to 1.22</td></tr>
+      <tr class="hl"><td>asbestos cement</td><td class="num">1.62</td><td class="num">1.38 to 1.91</td></tr>
+      <tr><td>age, per 10 years</td><td class="num">1.38</td><td class="num">1.32 to 1.44</td></tr>
+      <tr><td>pressure, per bar</td><td class="num">1.32</td><td class="num">1.25 to 1.39</td></tr>
+    </table>
+  </div>
+  <aside class="notes"><p>Asbestos-cement mains are the oldest (30 to 55 years), so their raw rate mixes material and age. Ask which number Basil should use: it depends on his question. To rank mains for renewal, the expected count of each main (the raw rates feed it); to compare materials at equal age, the rate ratio.</p></aside>
+</section>
+
+<section class="slide" id="expected-counts" data-lo="LO2" data-label="Expected counts">
+  <div class="kicker">Lab 2.3, step 5</div>
+  <h2>On the count scale: 10.4 leaks a year against 1.9 for two 2 km mains</h2>
+  <div class="cols cols-2">
+    <div class="stat"><div class="big">10.4</div><div class="lbl">asbestos cement, 40 years, 5 bar, 2 km</div></div>
+    <div class="stat"><div class="big">1.85</div><div class="lbl">PVC, 10 years, 4 bar, 2 km</div></div>
+  </div>
+  <div class="callout tip mt"><b>Pass the offset.</b> A prediction for a new main needs its exposure: <code>po.predict(new, offset=np.log(new["km_years"]))</code>.</div>
+  <aside class="notes"><p>5.6 times as many expected leaks: material, age and pressure multiply. A prediction without the offset is a rate for one kilometre-year, not a count for this main; a common slip.</p></aside>
+</section>
+
+<section class="slide" id="check-offset" data-lo="LO2">
+  <div class="kicker">Checkpoint</div>
+  <h2>What does the offset do?</h2>
+  <div class="quiz" data-type="single" data-lo="LO2">
+    <p class="lead">A colleague fits leak counts on material and age with a Poisson model and no offset. Segments of asbestos cement happen to be shorter on average. What happens to the asbestos-cement coefficient?</p>
+    <div class="opts">
+      <div class="opt" data-why="Assumes the model adjusts for length by itself; without an offset or a length term it cannot">Nothing: a Poisson model accounts for length</div>
+      <div class="opt" data-ok>It compares counts, not rates, so short asbestos-cement mains look less leaky than they are</div>
+      <div class="opt" data-why="Confuses exposure with dispersion: length changes the mean, not the variance-to-mean ratio">Its standard error grows, but the estimate is fine</div>
+      <div class="opt" data-why="Thinks an offset only matters for prediction, not for the coefficients">Only predictions change; coefficients are unaffected</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> Without the exposure, a coefficient describes counts per segment; shorter segments have fewer chances to leak, which hides a higher rate.</div>
+  </div>
+  <aside class="notes"><p>Answer: B. Then ask what an alternative to the offset is: log length as a predictor, whose coefficient should come out near 1 (the stretch item).</p></aside>
 </section>
 
 <section class="slide lab" id="lab-2-3" data-auto="lab" data-lab="2.3">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the model and its reading. Typical slip: an inner join of counts to segments drops the segments with no leak. The check counts 1,200 rows. Age is reported per 10 years: exp(10β), not 10·exp(β).</p></aside>
 </section>
 
 <!-- Session 4 -->
 
 <section class="slide section" id="s4" data-auto="section" data-session="4"></section>
 
-<section class="slide" id="s4-idea" data-lo="LO2">
-  <div class="kicker">REPLACE: the question this slide answers</div>
-  <h2>REPLACE: one idea, stated as a sentence</h2>
-  <div class="cols cols-2">
-    <ul class="bullets">
-      <li>REPLACE: at most six bullets, each a complete thought</li>
-      <li>REPLACE: bold the key phrase; numbers come from the lab run, not from memory</li>
-    </ul>
-    <div class="card c-teal"><h4>In the case study</h4><p class="small mb0">REPLACE: tie the idea to the case study and its data</p></div>
-  </div>
-  <div class="callout warn mt"><b>What goes wrong.</b> REPLACE: the failure participants will hit, and how to recognise it</div>
-  <aside class="notes">REPLACE: what to say, the demo to run, the question to ask the room, the common failure and its fix</aside>
+<section class="slide" id="poisson-promise" data-lo="LO2 LO3" data-label="The Poisson promise">
+  <div class="kicker">An assumption you can check</div>
+  <h2>A Poisson model promises that a count's variance equals its mean</h2>
+  <ul class="bullets">
+    <li>Mains of the same material and age still differ: soil, workmanship, traffic.</li>
+    <li>That hidden leakiness adds variance the model does not know about.</li>
+    <li>The coefficients survive; the <b>standard errors are too small</b>.</li>
+  </ul>
+  <aside class="notes"><p>This is the first of the five problems in Qusai's models that Day 3 logs: overdispersion. Ask: if every main had its own hidden rate, what would the counts look like? Many zeros and a few mains with many leaks.</p></aside>
 </section>
 
-<section class="slide" id="s4-steps" data-lo="LO2">
-  <div class="kicker">Step by step</div>
-  <h2>REPLACE: a process, shown one step per key press</h2>
-  <div class="flow">
-    <div class="step c-teal"><b>1 · REPLACE: name</b>REPLACE: what happens first</div>
-    <div class="arrow frag" data-frag="b">→</div><div class="step c-cyan frag" data-frag="b"><b>2 · REPLACE: name</b>REPLACE: the next piece</div>
-    <div class="arrow frag" data-frag="c">→</div><div class="step c-coral frag" data-frag="c"><b>3 · REPLACE: name</b>REPLACE: the result</div>
+<section class="slide" id="mean-variance" data-lo="LO2 LO3" data-label="Variance against mean">
+  <div class="kicker">Lab 2.4, steps 1 and 2</div>
+  <h2>In every group the variance is above the mean; overall about 2.3 times</h2>
+  <div class="cols cols-32">
+    <div class="figure">
+<!--FIG:mean_variance-->
+<svg viewBox="0 0 720 400" role="img" aria-label="Variance against mean of leak counts in ten groups of segments: the points rise far above the Poisson line where variance equals mean, and follow the negative binomial curve mean plus 0.60 times mean squared">
+<rect x="70" y="20" width="630" height="330" fill="none" stroke="var(--line)"/>
+<line x1="70" x2="700" y1="350.0" y2="350.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="355.0" text-anchor="end" font-size="14" fill="var(--muted)">0</text>
+<line x1="70" x2="700" y1="267.5" y2="267.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="272.5" text-anchor="end" font-size="14" fill="var(--muted)">40</text>
+<line x1="70" x2="700" y1="185.0" y2="185.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="190.0" text-anchor="end" font-size="14" fill="var(--muted)">80</text>
+<line x1="70" x2="700" y1="102.5" y2="102.5" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="107.5" text-anchor="end" font-size="14" fill="var(--muted)">120</text>
+<line x1="70" x2="700" y1="20.0" y2="20.0" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="62" y="25.0" text-anchor="end" font-size="14" fill="var(--muted)">160</text>
+<line x1="70.0" x2="70.0" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="70.0" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">0</text>
+<line x1="184.5" x2="184.5" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="184.5" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">2</text>
+<line x1="299.1" x2="299.1" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="299.1" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">4</text>
+<line x1="413.6" x2="413.6" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="413.6" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">6</text>
+<line x1="528.2" x2="528.2" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="528.2" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">8</text>
+<line x1="642.7" x2="642.7" y1="350" y2="355" stroke="var(--muted)"/>
+<text x="642.7" y="372" text-anchor="middle" font-size="14" fill="var(--muted)">10</text>
+<text x="385" y="394" text-anchor="middle" font-size="14" fill="var(--muted)">mean count in the group</text>
+<text x="16" y="185" text-anchor="middle" font-size="14" fill="var(--muted)" transform="rotate(-90 16 185)">variance in the group</text>
+<polyline points="70.0,350.0 76.4,349.8 82.7,349.5 89.1,349.3 95.5,349.1 101.8,348.9 108.2,348.6 114.5,348.4 120.9,348.2 127.3,347.9 133.6,347.7 140.0,347.5 146.4,347.2 152.7,347.0 159.1,346.8 165.5,346.6 171.8,346.3 178.2,346.1 184.5,345.9 190.9,345.6 197.3,345.4 203.6,345.2 210.0,345.0 216.4,344.7 222.7,344.5 229.1,344.3 235.5,344.0 241.8,343.8 248.2,343.6 254.5,343.4 260.9,343.1 267.3,342.9 273.6,342.7 280.0,342.4 286.4,342.2 292.7,342.0 299.1,341.8 305.5,341.5 311.8,341.3 318.2,341.1 324.5,340.8 330.9,340.6 337.3,340.4 343.6,340.1 350.0,339.9 356.4,339.7 362.7,339.5 369.1,339.2 375.5,339.0 381.8,338.8 388.2,338.5 394.5,338.3 400.9,338.1 407.3,337.9 413.6,337.6 420.0,337.4 426.4,337.2 432.7,336.9 439.1,336.7 445.5,336.5 451.8,336.2 458.2,336.0 464.5,335.8 470.9,335.6 477.3,335.3 483.6,335.1 490.0,334.9 496.4,334.6 502.7,334.4 509.1,334.2 515.5,334.0 521.8,333.7 528.2,333.5 534.5,333.3 540.9,333.0 547.3,332.8 553.6,332.6 560.0,332.4 566.4,332.1 572.7,331.9 579.1,331.7 585.5,331.4 591.8,331.2 598.2,331.0 604.5,330.8 610.9,330.5 617.3,330.3 623.6,330.1 630.0,329.8 636.4,329.6 642.7,329.4 649.1,329.1 655.5,328.9 661.8,328.7 668.2,328.5 674.5,328.2 680.9,328.0 687.3,327.8 693.6,327.5 700.0,327.3" fill="none" stroke="var(--coral)" stroke-width="2" stroke-dasharray="6 4"/>
+<polyline points="70.0,350.0 76.4,349.8 82.7,349.5 89.1,349.2 95.5,348.8 101.8,348.5 108.2,348.1 114.5,347.6 120.9,347.2 127.3,346.7 133.6,346.2 140.0,345.6 146.4,345.0 152.7,344.4 159.1,343.8 165.5,343.1 171.8,342.4 178.2,341.7 184.5,340.9 190.9,340.1 197.3,339.3 203.6,338.4 210.0,337.5 216.4,336.6 222.7,335.6 229.1,334.7 235.5,333.6 241.8,332.6 248.2,331.5 254.5,330.4 260.9,329.3 267.3,328.1 273.6,326.9 280.0,325.7 286.4,324.4 292.7,323.1 299.1,321.8 305.5,320.5 311.8,319.1 318.2,317.7 324.5,316.2 330.9,314.7 337.3,313.2 343.6,311.7 350.0,310.1 356.4,308.5 362.7,306.9 369.1,305.2 375.5,303.5 381.8,301.8 388.2,300.1 394.5,298.3 400.9,296.5 407.3,294.6 413.6,292.8 420.0,290.8 426.4,288.9 432.7,286.9 439.1,284.9 445.5,282.9 451.8,280.9 458.2,278.8 464.5,276.6 470.9,274.5 477.3,272.3 483.6,270.1 490.0,267.8 496.4,265.6 502.7,263.3 509.1,260.9 515.5,258.6 521.8,256.2 528.2,253.7 534.5,251.3 540.9,248.8 547.3,246.3 553.6,243.7 560.0,241.1 566.4,238.5 572.7,235.9 579.1,233.2 585.5,230.5 591.8,227.7 598.2,225.0 604.5,222.2 610.9,219.3 617.3,216.5 623.6,213.6 630.0,210.7 636.4,207.7 642.7,204.7 649.1,201.7 655.5,198.7 661.8,195.6 668.2,192.5 674.5,189.3 680.9,186.2 687.3,183.0 693.6,179.8 700.0,176.5" fill="none" stroke="var(--teal)" stroke-width="2"/>
+<circle cx="83.8" cy="349.4" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="108.2" cy="348.4" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="118.2" cy="347.0" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="141.6" cy="345.0" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="145.4" cy="345.4" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="155.9" cy="345.5" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="195.0" cy="339.1" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="229.4" cy="334.7" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="298.6" cy="323.7" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<circle cx="681.9" cy="34.8" r="7" fill="var(--navy, var(--teal))" fill-opacity="1.0"/>
+<text x="413.6" y="312.9" text-anchor="start" font-size="15" fill="var(--coral)">Poisson: variance = mean</text>
+<text x="333.5" y="226.2" text-anchor="start" font-size="15" fill="var(--teal)">negative binomial: mean + 0.60 × mean²</text>
+</svg>
+<!--/FIG:mean_variance-->
+      <div class="caption">Ten groups of 120 segments by fitted mean. Lab 2.4.</div>
+    </div>
+    <ul class="bullets">
+      <li>Pearson dispersion: <b>2.32</b>; about 1 if the Poisson model fitted.</li>
+      <li>The top group: mean 10.7, variance 153.</li>
+      <li>The curve mean + α·mean² follows the points.</li>
+    </ul>
   </div>
-  <div class="callout tip mt frag"><b>Takeaway.</b> REPLACE: the one sentence to remember</div>
-  <aside class="notes">Press once per step and say what each step adds before the next one appears. REPLACE: the example to walk through</aside>
+  <aside class="notes"><p>Dispersion = sum of squared Pearson residuals / residual degrees of freedom. Values well above 1 mean overdispersion. Below 1, underdispersion, is rare in counts. In R: sum(residuals(fit, "pearson")^2) / df.residual(fit).</p></aside>
+</section>
+
+<section class="slide" id="negative-binomial" data-lo="LO2" data-label="Negative binomial">
+  <div class="kicker">Lab 2.4, step 3</div>
+  <h2>The negative binomial adds one parameter for the extra variance</h2>
+  <div class="cols cols-2">
+    <pre class="code"><code class="language-python">nb = smf.negativebinomial(
+    "leaks ~ material + age_years + pressure_bar",
+    data=s, exposure=s["km_years"]).fit(disp=0)</code></pre>
+    <table class="t small">
+      <tr><th></th><th class="num">Poisson</th><th class="num">Neg. binomial</th></tr>
+      <tr><td>α</td><td class="num">0</td><td class="num">0.60 (0.50 to 0.71)</td></tr>
+      <tr><td>AIC</td><td class="num">4,968</td><td class="num">4,240</td></tr>
+    </table>
+  </div>
+  <p class="lead">variance = μ + α·μ². With α = 0 it is the Poisson model.</p>
+  <aside class="notes"><p>The generator gave each segment a gamma-distributed leakiness with shape 1.5, which is exactly a negative binomial with α = 0.67; the fit recovers 0.60. In R: MASS::glm.nb with offset(log(km_years)).</p></aside>
+</section>
+
+<section class="slide" id="intervals-widen" data-lo="LO2" data-label="Intervals widen">
+  <div class="kicker">Lab 2.4, step 4</div>
+  <h2>The rate ratios barely move; their intervals widen by 1.6 to 1.8 times</h2>
+  <div class="figure">
+<!--FIG:rr_side-->
+<svg viewBox="0 0 720 280" role="img" aria-label="Rate ratios against PVC and per bar of pressure with 95% intervals: the negative binomial intervals, below, are about 1.6 to 1.8 times as wide as the Poisson ones, above; asbestos cement runs from 1.28 to 2.26">
+<line x1="190.0" x2="190.0" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="190.0" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">0.8</text>
+<line x1="252.5" x2="252.5" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="252.5" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">1</text>
+<line x1="315.0" x2="315.0" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="315.0" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">1.2</text>
+<line x1="377.5" x2="377.5" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="377.5" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">1.4</text>
+<line x1="440.0" x2="440.0" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="440.0" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">1.6</text>
+<line x1="502.5" x2="502.5" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="502.5" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">1.8</text>
+<line x1="565.0" x2="565.0" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="565.0" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">2</text>
+<line x1="627.5" x2="627.5" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="627.5" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">2.2</text>
+<line x1="690.0" x2="690.0" y1="20" y2="230" stroke="var(--line)" stroke-dasharray="3 4"/>
+<text x="690.0" y="252" text-anchor="middle" font-size="14" fill="var(--muted)">2.4</text>
+<text x="178" y="60.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">ductile iron</text>
+<text x="178" y="130.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">asbestos cement</text>
+<text x="178" y="200.0" text-anchor="end" font-size="15" fill="var(--ink, currentColor)">pressure, per bar</text>
+<text x="440" y="274" text-anchor="middle" font-size="14" fill="var(--muted)">rate ratio</text>
+<line x1="252.5" x2="252.5" y1="20" y2="230" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="246.8" x2="320.9" y1="43.0" y2="43.0" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="281.9" cy="43.0" r="8" fill="var(--coral)"/>
+<line x1="244.2" x2="368.1" y1="67.0" y2="67.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="300.9" cy="67.0" r="8" fill="var(--teal)"/>
+<line x1="372.2" x2="535.5" y1="113.0" y2="113.0" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="447.3" cy="113.0" r="8" fill="var(--coral)"/>
+<line x1="338.6" x2="646.6" y1="137.0" y2="137.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="470.7" cy="137.0" r="8" fill="var(--teal)"/>
+<line x1="331.0" x2="375.5" y1="183.0" y2="183.0" stroke="var(--coral)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="352.7" cy="183.0" r="8" fill="var(--coral)"/>
+<line x1="320.7" x2="402.0" y1="207.0" y2="207.0" stroke="var(--teal)" stroke-width="5" stroke-linecap="round"/>
+<circle cx="359.4" cy="207.0" r="8" fill="var(--teal)"/>
+</svg>
+<!--/FIG:rr_side-->
+    <div class="caption">Rate ratios with 95% intervals: Poisson in coral, negative binomial in teal. Lab 2.4.</div>
+  </div>
+  <aside class="notes"><p>Ductile iron: the Poisson interval 0.98 to 1.22 almost excludes 1; the negative binomial's 0.97 to 1.37 is far from settling it. A renewal list ranked by Poisson intervals would treat that difference as known.</p></aside>
+</section>
+
+<section class="slide" id="count-scale" data-lo="LO2" data-label="Count scale">
+  <div class="kicker">Lab 2.4, step 5</div>
+  <h2>Per 10 km a year, asbestos cement has about 11 more leaks than PVC</h2>
+  <div class="cols cols-2">
+    <div class="stat"><div class="big">10.1</div><div class="lbl">Poisson: 6.6 to 13.3</div></div>
+    <div class="stat"><div class="big">10.8</div><div class="lbl">negative binomial: 4.7 to 16.9</div></div>
+  </div>
+  <div class="callout tip mt"><b>The evidence of LO2.</b> Effects on the count scale with honest intervals, next to lab 2.2's differences on the probability scale.</div>
+  <aside class="notes"><p>Average over all segments' ages and pressures of the difference in expected leaks on 10 km for a year, asbestos cement minus PVC, from U.contrast with scale="count". The negative binomial interval is nearly twice as wide.</p></aside>
+</section>
+
+<section class="slide" id="check-dispersion" data-lo="LO2 LO3">
+  <div class="kicker">Checkpoint</div>
+  <h2>What does a dispersion of 2.3 change?</h2>
+  <div class="quiz" data-type="single" data-lo="LO2 LO3">
+    <p class="lead">A Poisson model of leak counts has a Pearson dispersion of 2.3. Its rate ratio for asbestos cement is 1.62 with a 95% interval of 1.38 to 1.91. What should Basil expect from a negative binomial refit?</p>
+    <div class="opts">
+      <div class="opt" data-why="Thinks overdispersion biases the estimate itself; it mainly understates its uncertainty">A much smaller rate ratio, since the Poisson estimate is inflated</div>
+      <div class="opt" data-why="Thinks the extra parameter only changes the fit statistics">The same interval, with a better AIC</div>
+      <div class="opt" data-ok>A similar rate ratio with an interval about one and a half times as wide</div>
+      <div class="opt" data-why="Confuses overdispersion with excess zeros needing a different model family entirely">No answer: counts with overdispersion need a zero-inflated model</div>
+    </div>
+    <div class="callout tip why"><b>Why.</b> Both models describe the same mean; the negative binomial admits the extra variance, which widens the intervals by about the square root of the dispersion.</div>
+  </div>
+  <aside class="notes"><p>Answer: C. The square root of 2.3 is 1.52; the refit widened them 1.6 to 1.8 times. D is a reasonable next question, which lab 3.3 tests by simulation.</p></aside>
 </section>
 
 <section class="slide lab" id="lab-2-4" data-auto="lab" data-lab="2.4">
-  <aside class="notes">REPLACE: what to watch for while participants work, the typical problems, and the fallback for anyone who did not finish an earlier lab</aside>
+  <aside class="notes"><p>AI-off for the dispersion check and the refit. The negative binomial takes exposure= (not offset=) in this call; both are accepted, but do not pass both. The model prints convergence warnings on some laptops: they are silenced in the setup cell and harmless here.</p></aside>
 </section>
 
 <section class="slide" id="wrap-up">
   <div class="kicker">Day 2 · wrap-up</div>
   <h2>Three things to keep</h2>
   <div class="cols cols-3">
-    <div class="card c-teal"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-coral"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
-    <div class="card c-purple"><h4>Remember</h4><p class="small mb0">REPLACE: one idea participants keep</p></div>
+    <div class="card c-teal"><h4>Family from the outcome</h4><p class="small mb0">A flag is binomial, a count is Poisson or negative binomial, before any fit.</p></div>
+    <div class="card c-coral"><h4>Read on the reader's scale</h4><p class="small mb0">Probability differences at stated profiles; expected counts with their exposure.</p></div>
+    <div class="card c-purple"><h4>Check the variance</h4><p class="small mb0">A dispersion well above 1 means the Poisson intervals are too narrow.</p></div>
   </div>
+  <aside class="notes"><p>Ask for one sentence each: the autopay difference for profile B, without causal words.</p></aside>
 </section>
 
 <section class="slide dark" id="next" data-label="Next">
   <div class="kicker">Next</div>
   <h2>Day 3: Check and repair</h2>
-  <p class="lead">REPLACE: what participants prepare before then; unfinished labs can be finished at home</p>
-  <aside class="notes">REPLACE: accounts, installs or reading participants need before the next unit</aside>
+  <p class="lead">Qusai, the analyst who left, sent four models. Five problems are planted in them. Tomorrow you find them and write the diagnosis log.</p>
+  <aside class="notes"><p>Nothing to prepare. Day 3 labs load Qusai's files from data/qusai/ and the bills; nobody needs Day 2's results.</p></aside>
 </section>

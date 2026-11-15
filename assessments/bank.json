@@ -245,6 +245,190 @@
       "pool": "practice",
       "weight": 1,
       "timer": 75
+    },
+    {
+      "id": "q-family-01",
+      "type": "single",
+      "prompt": "For each district and month, a utility records the number of meter faults and the number of meters installed. Which model fits the question \"how does the fault rate differ by meter age?\"",
+      "options": [
+        "A linear model of the number of faults",
+        "A logistic model of whether the district had any fault",
+        "A Poisson or negative binomial model of faults with log meters as an offset",
+        "A linear model of faults divided by meters, without weights"
+      ],
+      "correct": [
+        2
+      ],
+      "explanation": "The outcome is a count with an exposure (meters), so a count model with log exposure as an offset describes the rate per meter.",
+      "misconceptions": [
+        "Treats a count as a continuous outcome, which allows negative predictions and ignores exposure",
+        "Throws away the counts by reducing them to a flag",
+        "",
+        "Divides by exposure but treats a rate from 10 meters as exactly as reliable as one from 10,000"
+      ],
+      "lo": [
+        "LO2"
+      ],
+      "day": "day2",
+      "session": 1,
+      "slide": "family-from-outcome",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-family-02",
+      "type": "tf",
+      "prompt": "A linear probability model can predict a negative probability for some households even when it fits the average difference well.",
+      "options": [
+        "True",
+        "False"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "A line subtracts the same amount from every row, so rows that start near zero are pushed below it; the average difference can still be right.",
+      "misconceptions": [
+        "",
+        "Believes that a model which gets the average right must get every prediction into range"
+      ],
+      "lo": [
+        "LO2"
+      ],
+      "day": "day2",
+      "session": 1,
+      "slide": "lpm-breaks",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-logit-01",
+      "type": "single",
+      "prompt": "In a logistic model of late payment, the odds ratio for each past late payment is 1.6. A household has a 20% probability of a late bill. About what is the probability for the same household with one more past late payment?",
+      "options": [
+        "32%",
+        "21.6%",
+        "36%",
+        "29%"
+      ],
+      "correct": [
+        3
+      ],
+      "explanation": "Odds 0.2/0.8 = 0.25; times 1.6 is 0.40; a probability of 0.40/1.40, about 29%.",
+      "misconceptions": [
+        "Multiplies the probability by the odds ratio",
+        "Adds the odds ratio's excess as percentage points",
+        "Adds 16 points as if the odds ratio were a difference on the probability scale",
+        ""
+      ],
+      "lo": [
+        "LO2"
+      ],
+      "day": "day2",
+      "session": 2,
+      "slide": "odds-ratios",
+      "level": "apply",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-logit-02",
+      "type": "single",
+      "prompt": "Bills on autopay were late 40 points less often than comparable bills without it, in a logistic model of observational data. Which sentence may go in the collections report?",
+      "options": [
+        "Comparable households on autopay paid late about 40 points less often than those without it",
+        "Enrolling households in autopay will cut their late payment by 40 points",
+        "Autopay reduces late payment by 90%, as its odds ratio is 0.1",
+        "Autopay causes on-time payment for most households"
+      ],
+      "correct": [
+        0
+      ],
+      "explanation": "Households chose autopay, so the data support a comparison of households, not a statement of what enrolling them would do.",
+      "misconceptions": [
+        "",
+        "Reads a comparison of self-selected groups as the effect of an action",
+        "Reads an odds ratio as a cut in probability and adds a causal claim",
+        "Turns an association into a causal claim about most households"
+      ],
+      "lo": [
+        "LO2",
+        "LO6"
+      ],
+      "day": "day2",
+      "session": 2,
+      "slide": "chose-autopay",
+      "level": "evaluate",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-count-01",
+      "type": "single",
+      "prompt": "In a Poisson model of leaks with offset log(kilometre-years), the coefficient of pressure is 0.28. What does exp(0.28) = 1.32 mean?",
+      "options": [
+        "Each extra bar goes with 1.32 more leaks a year on every main",
+        "Each extra bar goes with 32% more leaks per kilometre-year, other terms equal",
+        "Each extra bar adds 0.28 leaks per kilometre",
+        "A main at high pressure is 1.32 kilometres longer on average"
+      ],
+      "correct": [
+        1
+      ],
+      "explanation": "With a log link and an exposure offset, exp(coefficient) is a rate ratio per kilometre-year.",
+      "misconceptions": [
+        "Reads a rate ratio as a difference in counts",
+        "",
+        "Reads the log-scale coefficient as a difference in rate",
+        "Confuses the offset with an outcome"
+      ],
+      "lo": [
+        "LO2"
+      ],
+      "day": "day2",
+      "session": 3,
+      "slide": "offset",
+      "level": "understand",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
+    },
+    {
+      "id": "q-count-02",
+      "type": "single",
+      "prompt": "A Poisson model of complaints per district-month has a Pearson dispersion of 4.0. A colleague reports a rate ratio for pressure management of 1.40 with a 95% interval of 1.20 to 1.63. What do you tell them?",
+      "options": [
+        "The interval is about right, since dispersion affects only the fit",
+        "The estimate is biased upward by a factor of 4",
+        "Use a linear model instead, because counts with dispersion are not Poisson",
+        "The interval is too narrow; refit with a negative binomial or scale the errors, which roughly doubles its width on the log scale"
+      ],
+      "correct": [
+        3
+      ],
+      "explanation": "With dispersion 4, standard errors are too small by about the square root of 4, so the log-scale interval should be about twice as wide.",
+      "misconceptions": [
+        "Believes overdispersion leaves the uncertainty unchanged",
+        "Thinks overdispersion biases the rate ratio by the dispersion factor",
+        "Abandons the count family instead of widening the variance",
+        ""
+      ],
+      "lo": [
+        "LO2",
+        "LO3"
+      ],
+      "day": "day2",
+      "session": 4,
+      "slide": "mean-variance",
+      "level": "analyze",
+      "pool": "practice",
+      "weight": 1,
+      "timer": 75
     }
   ]
 }
